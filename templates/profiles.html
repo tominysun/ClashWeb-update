@@ -1,0 +1,53 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>❤️ STC Rule Generator ️️❤️</title>
+    <link href="/static/css/style.min.css" media="all" rel="stylesheet" type="text/css" />
+</head>
+
+<body>  
+    <div class="container">
+            <header>
+                <h1>🚀 Clash 控制台 🚁</h1>
+            </header>
+
+            <!-- Proxy tools -->
+        <form method="POST" name = "form1">
+
+
+            <div class="card" >
+                <h2>🤡 配置文件管理系统</h2>
+                <h4>托管下载地址</h4>
+                <textarea  name = "url" cols="70" rows="5" id="custom" placeholder="托管地址：为空将读取（api/default.py）中的默认地址。下载到【所选配置文件地址】定义的本地地址"" >{{ url  }}</textarea> 
+                <p>
+                    <input type="checkbox" id="cbox1" value="true" name= 'writeurl'>
+                    <label for="cbox1">覆盖默认托管地址</label>
+                </p> 
+                <h4>所选配置文件地址</h4>   
+                <textarea  name = "file" cols="70" rows="5" id="custom" placeholder="配置文件地址 " >{{ file }}</textarea>  
+                <h4>所有配置文件地址</h4>
+                <textarea  name = "currenfile" cols="70" rows="5" id="custom" placeholder="配置文件内容"" >{{ currentfile  }}</textarea>     
+                <h4>配置文件内容</h4>
+                <textarea  name = "content" cols="70" rows="5" id="custom" placeholder="在本编辑框输入内容再点击修改配置可以修改对应文件的内容"" >{{ content  }}</textarea>                   
+                <div style="text-align:center; vertical-align:middel;">
+                    <input  type="submit" class="card" name= 'submit' value = "下载  配置""/>
+                    <input  type="submit" class="card" name= 'submit' value = "查看  配置""/>
+                    <input  type="submit" class="card" name= 'submit' value = "修改  配置""/>
+                    <input  type="submit" class="card" name= 'submit' value = "重启 Clash""/>
+                    <input  type="submit" class="card" name= 'submit' value = "返回  主页""/>
+                </div>
+            </div>
+                           
+        </form>          
+        <footer>        
+        <p> &copy;<a href="https://weibo.com/hackl0us">@Hackl0us</a>.<a href="https://weibo.com/haxck"> 美工</a>.<a href="https://github.com/tindy2013/subconverter"> API源码</a>.<a>@NicoNewBeee</a></p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -13,3 +13,5 @@
     关闭Clashweb.bat 后只有Clash内核占用内存！！！
 5. Profile/key.txt
     中填入自己的geoip key 就可以更新了
+6. 如果启动失败
+    请手动检查Profile/Country.mmdb  是否正常

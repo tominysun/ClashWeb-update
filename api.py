@@ -42,25 +42,66 @@ app.secret_key = 'some_secret'
 @app.route('/',methods=['GET', 'POST'])
 def login():
     if request.method == "POST":
-        if request.form['submit'] == '启动Clash':
-            try:
-                p=subprocess.Popen('start.bat',shell=False)
-                p.wait()
-                flash('开启成功')
-                return redirect(request.url) 
-            except :
-                flash('启动失败')
-                return redirect(request.url)         
-        if request.form['submit'] == '关闭Clash':
-            try:
-                p=subprocess.Popen('stop.bat',shell=False)
-                p.wait()
-                flash('关闭成功')
-                return redirect(request.url)
-            except :
-                flash('关闭失败')
-                return redirect(request.url)
+        if request.form['submit'] == 'clash': 
+            clash = request.form.get('clash')
+            sysproxy = request.form.get('sysproxy')
+            issys = '系统代理：开启'
+            if '开启' in sysproxy:
+                issys = '系统代理：关闭'
+            if clash == '启动Clash':
+                try:
+                    #p=subprocess.Popen('start.bat',shell=False)            
+                    #p.wait()
+                    os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')
+                    print('kill')
+                    os.system('wscript ".\\App\\tmp.vbs"')                    
+                    flash('Clash 正在运行 '+issys)
+                    print('start')
+                    return render_template('login.html',clash='关闭Clash',sysproxy=sysproxy)
+                except :
+                    flash('启动失败')    
+                    return render_template('login.html',clash='启动Clash',sysproxy=sysproxy)
+            if clash == '关闭Clash':
+                try:
+                    #subprocess.Popen('stop.bat',shell=False)
+                    os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')  
+                    print('stop')
+                    flash('Clash 未运行 '+issys)
+                    return render_template('login.html',clash='启动Clash',sysproxy=sysproxy)
+                except :
+                    flash('关闭失败')
+                    return render_template('login.html',clash='关闭Clash',sysproxy=sysproxy)
+        if request.form['submit'] == '系统代理': 
+            clash = request.form.get('clash')
+            sysproxy = request.form.get('sysproxy')
+            isclash = 'Clash 正在运行'
+            if '启动' in clash:
+                isclash = 'Clash 未运行'
+            if sysproxy == '开启系统代理':
+                try:
+                    p=subprocess.Popen('setsys.bat',shell=False)
+                    p.wait()
+                    flash(isclash+' 系统代理：开启')
+                    print('start')
+                    return render_template('login.html',sysproxy='关闭系统代理',clash=clash)
+                except :
+                    flash('启动失败')    
+                    return render_template('login.html',sysproxy='开启系统代理',clash=clash)
+            if sysproxy == '关闭系统代理':
+                try:
+                    p=subprocess.Popen('dissys.bat',shell=False)
+                    p.wait()
+                    flash(isclash+' 系统代理：关闭')
+                    return render_template('login.html',sysproxy='开启系统代理',clash=clash)
+                except :
+                    flash('关闭失败')
+                    return render_template('login.html',sysproxy='关闭系统代理',clash=clash)
         if request.form['submit'] == '查看 代理':
+            clash = request.form.get('clash')
+            sysproxy = request.form.get('sysproxy')
+            if clash == '启动Clash':
+                flash('请先启动Clash')
+                return render_template('login.html',clash=clash,sysproxy=sysproxy)
             try:
                 currentconfig = api.admin.getfile('./App/tmp.vbs')
                 currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','')
@@ -81,7 +122,22 @@ def login():
                 os._exit()
             except:
                 print('Program is dead.')
-    return render_template('login.html')
+    a = os.popen('check.bat')
+    a = a.read()
+    clash = '启动Clash'
+    isclash = 'Clash 未运行'
+    if 'Console' in str(a):
+        clash = '关闭Clash'
+        isclash = 'Clash 正在运行'
+    a = os.popen('checksys.bat')
+    a = a.read().replace(' ','').replace('\n','')
+    sysproxy = '关闭系统代理'
+    issys = '系统代理：开启'
+    if str(a).endswith('0x0'):
+         sysproxy = '开启系统代理'
+         issys = '系统代理：关闭'   
+    flash(isclash+'\n'+issys) 
+    return render_template('login.html',clash=clash,sysproxy=sysproxy)
 
 @app.route('/profiles', methods=['GET', 'POST'])
 def profiles():
@@ -96,7 +152,7 @@ def profiles():
                             api.admin.writefile(content,'./api/default.py')
                     else:
                         url = api.default.url       
-                    fileadd = './Profile/'+request.form.get('file') 
+                    fileadd = './Profile/'+request.form.get('configselect') 
                     backfile = fileadd+'bac'
                     api.admin.writefile(api.admin.getfile(fileadd),backfile)   #备份
                     content = api.subconverter.Retry_request(url)  #下载           
@@ -105,34 +161,43 @@ def profiles():
                     return render_template('content.html',content=content)   
                 if request.form['submit'] == '修改  配置':               
                     content = request.form.get('content')
-                    fileadd = './Profile/'+request.form.get('file')             
+                    fileadd = './Profile/'+request.form.get('configselect')             
                     api.admin.writefile(content,fileadd)
                     content= api.admin.getfile(fileadd)
                     flash('修改配置成功！')
                     return render_template('content.html',content=content)  
                 if request.form['submit'] == '查看  配置': 
-                    fileadd = './Profile/'+request.form.get('file')              
+                    fileadd = './Profile/'+request.form.get('configselect')              
                     content= api.admin.getfile(fileadd)
                     flash('查看配置成功！')
                     return render_template('content.html',content=content)         
                 if  request.form['submit'] == '重启 Clash' :
-                    fileadd = './Profile/'+request.form.get('file') 
+                    fileadd = './Profile/'+request.form.get('configselect') 
                     fileadd = str(fileadd).replace('/','\\')
                     script = 'CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f {file}",0'.format(file=fileadd)
                     api.admin.writefile(script,'./App/tmp.vbs')
-                    p=subprocess.Popen('start.bat',shell=False)
-                    p.wait()
+                    os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')
+                    print('kill')
+                    os.system('wscript ".\\App\\tmp.vbs"')
+                    print('start')
                     flash('重启成功')
                     return redirect(ip)
                 if  request.form['submit'] == '返回  主页' :
                     return redirect(ip)
+        currentconfig = api.admin.getfile('./App/tmp.vbs')
+        currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
         filelist = os.listdir('./Profile')
-        filename = ''
-        for i in filelist:
-            if i.endswith('.yaml'):
-                filename += i+'\n' 
-        filename += '\n以上是你的所有配置文件'
-        return render_template('profiles.html',currentfile=filename,file='config.yaml')
+        config = [currentconfig,'','','','','']
+        flag = 1
+        for i in range(len(filelist)):
+            if flag == 6:
+                break
+            if filelist[i].endswith('.yaml'):
+                #filename += filelist[i]+'\n'
+                if filelist[i] != currentconfig: 
+                    config[flag]=filelist[i]
+                    flag +=1        
+        return render_template('profiles.html',f1=config[0],f2=config[1],f3=config[2],f4=config[3],f5=config[4],f6=config[5])
     except Exception as e:
         flash('发生错误，重新操作')
         return redirect(ip)

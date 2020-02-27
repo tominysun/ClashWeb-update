@@ -7,47 +7,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>❤️ STC Rule Generator ️️❤️</title>
+    <title>❤️ Clash 控制台 ️️❤️</title>
     <link href="/static/css/style.min.css" media="all" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 
 <body>  
-    <div class="container">
+    <div class="container" style="width: 50rem;">
             <header>
                 <h1>🚀 Clash 控制台 🚁</h1>
             </header>
 
             <!-- Proxy tools -->
         <form method="POST" name = "form1">
-
-
-            <div class="card" >
+            <div class="card"  > 
                 <h2>🤡 配置文件管理系统</h2>
+                
                 <h4>托管下载地址</h4>
-                <textarea  name = "url" cols="70" rows="5" id="custom" placeholder="托管地址：为空将读取（api/default.py）中的默认地址。下载到【所选配置文件地址】定义的本地地址"" >{{ url  }}</textarea> 
-                <p>
-                    <input type="checkbox" id="cbox1" value="true" name= 'writeurl'>
-                    <label for="cbox1">覆盖默认托管地址</label>
-                </p> 
-                <h4>所选配置文件地址</h4>   
-                <textarea  name = "file" cols="70" rows="5" id="custom" placeholder="配置文件地址 " >{{ file }}</textarea>  
-                <h4>所有配置文件地址</h4>
-                <textarea  name = "currenfile" cols="70" rows="5" id="custom" placeholder="配置文件内容"" >{{ currentfile  }}</textarea>     
-                <h4>配置文件内容</h4>
-                <textarea  name = "content" cols="70" rows="5" id="custom" placeholder="在本编辑框输入内容再点击修改配置可以修改对应文件的内容"" >{{ content  }}</textarea>                   
-                <div style="text-align:center; vertical-align:middel;">
-                    <input  type="submit" class="card" name= 'submit' value = "下载  配置""/>
-                    <input  type="submit" class="card" name= 'submit' value = "查看  配置""/>
-                    <input  type="submit" class="card" name= 'submit' value = "修改  配置""/>
-                    <input  type="submit" class="card" name= 'submit' value = "重启 Clash""/>
-                    <input  type="submit" class="card" name= 'submit' value = "返回  主页""/>
+                <input name = "url" type="password" class="form-control" id="exampleInputPassword1">
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="customSwitch1" name = 'writeurl'>
+                    <label class="custom-control-label" for="customSwitch1">覆盖默认地址</label>
                 </div>
+                <h4>选择配置文件</h4>
+                <div class="form-group">
+                    <select name="configselect" class="form-control" id="exampleFormControlSelect1">
+                      <option>{{f1}}</option>
+                      <option>{{f2}}</option>
+                      <option>{{f3}}</option>
+                      <option>{{f4}}</option>
+                      <option>{{f5}}</option>
+                      <option>{{f6}}</option>
+                    </select>
+                </div>
+                <div style="text-align:center; vertical-align:middel;">                 
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "下载  配置""/>
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "查看  配置""/>
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "修改  配置""/>
+                </div>           
+                <h4>配置文件修改内容</h4>
+                <textarea  name = "content" cols="70" rows="5" id="custom" placeholder="在本编辑框输入内容再点击修改配置可以修改对应文件的内容"" >{{ content  }}</textarea>                   
+                <div style="text-align:center; vertical-align:middel;"> 
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "重启 Clash""/>    
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回  主页""/>  
+                </div>      
             </div>
-                           
-        </form>          
-        <footer>        
-        <p> &copy;<a href="https://weibo.com/hackl0us">@Hackl0us</a>.<a href="https://weibo.com/haxck"> 美工</a>.<a href="https://github.com/tindy2013/subconverter"> API源码</a>.<a>@NicoNewBeee</a></p>
-        </footer>
-    </div>
+            <footer>        
+                <p> &copy;<a href="https://weibo.com/hackl0us">@Hackl0us</a>.<a href="https://weibo.com/haxck"> 美工</a>.<a href="https://github.com/tindy2013/subconverter"> API源码</a>.<a>@NicoNewBeee</a></p>
+            </footer> 
+            </div>
+        </form>      
+    </div>            
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </body>
 </html>

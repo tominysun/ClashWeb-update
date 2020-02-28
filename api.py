@@ -149,22 +149,30 @@ def login():
 def profiles():
     try:
         if request.method == "POST":
-                if request.form['submit'] == '下载  配置': 
+                if request.form['submit'] == '更新  配置': 
                     url = request.form.get('url')  
-                    writeurl = request.form.get('writeurl') 
+                    fileadd = './Profile/'+request.form.get('configselect')                 
                     if '://' in url: 
-                        if (writeurl):
-                            content = '#默认值\napi = \''+ip+'\'\nurl = \''+url+'\'' 
-                            api.admin.writefile(content,'./api/default.py')
+                        content = api.subconverter.Retry_request(url)
+                        if content == 'erro':
+                            return('下载失败，检查浏览器能否上网！')
+                        content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content     #下载           
+                        api.admin.writefile(content,fileadd)                               #写入
+                        flash('下载配置成功！并更新托管地址')
+                        return render_template('content.html',content=content,file=fileadd) 
                     else:
-                        url = api.default.url       
-                    fileadd = './Profile/'+request.form.get('configselect') 
-                    backfile = fileadd+'bac'
-                    api.admin.writefile(api.admin.getfile(fileadd),backfile)   #备份
-                    content = api.subconverter.Retry_request(url)  #下载           
-                    api.admin.writefile(content,fileadd)            #写入
-                    flash('下载配置成功！')
-                    return render_template('content.html',content=content,file=fileadd)   
+                        try:
+                            url=str(api.admin.getfile(fileadd)).split('NicoNewBeee的Clash控制台')[0].split('#托管地址:')[1]
+                        except:
+                            return('未查到托管地址，请在输入框输入托管地址')
+                        content = api.subconverter.Retry_request(url)
+                        if content == 'erro':
+                            return('下载失败，重新尝试')
+                        content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content  #下载  
+                        api.admin.writefile(content,fileadd)            #写入
+                        flash('下载配置成功！托管地址未变动')
+                        return render_template('content.html',content=content,file=fileadd)                         
+
                 if request.form['submit'] == '查看  配置': 
                     fileadd = './Profile/'+request.form.get('configselect')              
                     content= api.admin.getfile(fileadd)

@@ -19,9 +19,11 @@
   - 无法启动时，注意检查Profile/Country.mmdb是否正常。
   - 当不需要执行特定操作时，可以关闭ClashWeb.bat。通过Dashboard来操作Clash
   - 主页面示意图<br/>
-  ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/index.png) <br/>
+  ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/index.jpg) <br/>
   - 配置文件管理页面示意图<br/>
-  ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/profiles.png) <br/>
+  ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/profiles.jpg) <br/>
+  - 配置文件修改页面示意图<br/>
+  ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/file.jpg) <br/>
 
 # 联系我
    - 关注频道：https://t.me/niconewbeeeapi

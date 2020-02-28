@@ -20,16 +20,34 @@
 
             <!-- Proxy tools -->
         <form method="POST" name = "form1">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <span>{{ message }}</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
             <div class="card"  > 
                 <h2>🤡 配置文件管理系统</h2>
                 
-                <h4>托管下载地址</h4>
-                <input name = "url" type="password" class="form-control" id="exampleInputPassword1">
+                </br>
+                <h4>托管地址</h4>
+                <div class="form-group">
+                    <textarea name="url" class="form-control" id="exampleFormControlTextarea1" rows="1"></textarea>
+                    <small id="emailHelp" class="form-text text-muted">Thanks for using and enjoy yourself !!! @NicoNewBeee</small>
+                </div>              
                 <div class="custom-control custom-switch">
                     <input type="checkbox" class="custom-control-input" id="customSwitch1" name = 'writeurl'>
                     <label class="custom-control-label" for="customSwitch1">覆盖默认地址</label>
                 </div>
-                <h4>选择配置文件</h4>
+    
+                </br>
+                <h4>配置文件</h4>
                 <div class="form-group">
                     <select name="configselect" class="form-control" id="exampleFormControlSelect1">
                       <option>{{f1}}</option>
@@ -40,17 +58,19 @@
                       <option>{{f6}}</option>
                     </select>
                 </div>
+                </br>
+                <h4>修改名称</h4>
+                <div class="form-group">
+                    <textarea name="filename" class="form-control" id="exampleFormControlTextarea1" rows="1"></textarea>
+                </div>  
+                </br>
                 <div style="text-align:center; vertical-align:middel;">                 
                 <input  type="submit" class="btn btn-primary" name= 'submit' value = "下载  配置""/>
                 <input  type="submit" class="btn btn-primary" name= 'submit' value = "查看  配置""/>
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "修改  配置""/>
-                </div>           
-                <h4>配置文件修改内容</h4>
-                <textarea  name = "content" cols="70" rows="5" id="custom" placeholder="在本编辑框输入内容再点击修改配置可以修改对应文件的内容"" >{{ content  }}</textarea>                   
-                <div style="text-align:center; vertical-align:middel;"> 
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "修改  名称""/>
                 <input  type="submit" class="btn btn-primary" name= 'submit' value = "重启 Clash""/>    
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回  主页""/>  
-                </div>      
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回  主页""/>                  
+                </div>                                 
             </div>
             <footer>        
                 <p> &copy;<a href="https://weibo.com/hackl0us">@Hackl0us</a>.<a href="https://weibo.com/haxck"> 美工</a>.<a href="https://github.com/tindy2013/subconverter"> API源码</a>.<a>@NicoNewBeee</a></p>

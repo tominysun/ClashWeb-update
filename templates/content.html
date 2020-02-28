@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>❤️ STC Rule Generator ️️❤️</title>
+    <title>❤️ ClashWeb 控制台 ️️❤️</title>
     <link href="/static/css/style.min.css" media="all" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
@@ -32,6 +32,12 @@
                 {% endfor %}
             {% endif %}
             {% endwith %} 
+            <textarea  name = "file" cols="70" rows="5" id="custom" value="{{ url_for('static', filename=file)}}" style="display:none"" >{{ file  }}</textarea>
+            <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回上页""/>
+            <input  type="submit" class="btn btn-primary" name= 'submit' value = "修改配置""/>
+            <input  type="submit" class="btn btn-primary" name= 'submit' value = "重启Clash""/>
+            <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回主页""/>
+            <small id="emailHelp" class="form-text text-muted">您可能需要的参数： external-ui: dashboard_Razord</small>
             <div class="card" >
                 <textarea  name = "content" cols="70" rows="50" id="custom" placeholder="配置文件内容"" >{{ content  }}</textarea>  
             </div>

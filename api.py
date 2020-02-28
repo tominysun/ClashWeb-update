@@ -59,7 +59,7 @@ def login():
                     print('start')
                     return render_template('login.html',clash='关闭Clash',sysproxy=sysproxy)
                 except :
-                    flash('启动失败')    
+                    flash('启动Clash失败')    
                     return render_template('login.html',clash='启动Clash',sysproxy=sysproxy)
             if clash == '关闭Clash':
                 try:
@@ -69,7 +69,7 @@ def login():
                     flash('Clash 未运行 '+issys)
                     return render_template('login.html',clash='启动Clash',sysproxy=sysproxy)
                 except :
-                    flash('关闭失败')
+                    flash('关闭Clash失败')
                     return render_template('login.html',clash='关闭Clash',sysproxy=sysproxy)
         if request.form['submit'] == '系统代理': 
             clash = request.form.get('clash')
@@ -79,22 +79,28 @@ def login():
                 isclash = 'Clash 未运行'
             if sysproxy == '开启系统代理':
                 try:
-                    p=subprocess.Popen('setsys.bat',shell=False)
-                    p.wait()
+                    #p=subprocess.Popen('setsys.bat',shell=False)
+                    #p.wait()
+                    os.system('reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f >NUL')
                     flash(isclash+' 系统代理：开启')
                     print('start')
                     return render_template('login.html',sysproxy='关闭系统代理',clash=clash)
                 except :
-                    flash('启动失败')    
+                    flash('开启系统代理失败')    
                     return render_template('login.html',sysproxy='开启系统代理',clash=clash)
             if sysproxy == '关闭系统代理':
                 try:
-                    p=subprocess.Popen('dissys.bat',shell=False)
-                    p.wait()
+                    #p=subprocess.Popen('dissys.bat',shell=False)
+                    #p.wait()
+                    cmd1 = 'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f >NUL'
+                    cmd2 = 'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /d "127.0.0.1:7890" /f >NUL'
+                    cmd3 = 'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyOverride /t REG_SZ /d "" /f >NUL'
+                    cmd = cmd1 + '&&' + cmd2 + '&&' + cmd3
+                    os.system(cmd)
                     flash(isclash+' 系统代理：关闭')
                     return render_template('login.html',sysproxy='开启系统代理',clash=clash)
                 except :
-                    flash('关闭失败')
+                    flash('关闭系统代理失败')
                     return render_template('login.html',sysproxy='关闭系统代理',clash=clash)
         if request.form['submit'] == '查看 代理':
             clash = request.form.get('clash')
@@ -158,19 +164,26 @@ def profiles():
                     content = api.subconverter.Retry_request(url)  #下载           
                     api.admin.writefile(content,fileadd)            #写入
                     flash('下载配置成功！')
-                    return render_template('content.html',content=content)   
-                if request.form['submit'] == '修改  配置':               
-                    content = request.form.get('content')
-                    fileadd = './Profile/'+request.form.get('configselect')             
-                    api.admin.writefile(content,fileadd)
-                    content= api.admin.getfile(fileadd)
-                    flash('修改配置成功！')
-                    return render_template('content.html',content=content)  
+                    return render_template('content.html',content=content,file=fileadd)   
                 if request.form['submit'] == '查看  配置': 
                     fileadd = './Profile/'+request.form.get('configselect')              
                     content= api.admin.getfile(fileadd)
                     flash('查看配置成功！')
-                    return render_template('content.html',content=content)         
+                    return render_template('content.html',content=content,file=fileadd) 
+                if request.form['submit'] == '修改  名称':
+                    filename = './Profile/'+request.form.get('filename')
+                    if '.yaml' not in filename:
+                        filename += '.yaml'                    
+                    currentconfig = api.admin.getfile('./App/tmp.vbs')
+                    currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','') 
+                    fileadd =request.form.get('configselect')
+                    if fileadd == currentconfig:
+                        filetmp = str(filename).replace('/','\\')
+                        script = 'CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f {file}",0'.format(file=filetmp)
+                        api.admin.writefile(script,'./App/tmp.vbs')                                            
+                    fileadd = './Profile/'+fileadd  
+                    os.rename(fileadd, filename)
+                    return redirect('profiles')
                 if  request.form['submit'] == '重启 Clash' :
                     fileadd = './Profile/'+request.form.get('configselect') 
                     fileadd = str(fileadd).replace('/','\\')
@@ -182,8 +195,30 @@ def profiles():
                     print('start')
                     flash('重启成功')
                     return redirect(ip)
-                if  request.form['submit'] == '返回  主页' :
+                if  request.form['submit'] == '返回  主页' or request.form['submit'] == '返回主页' :
                     return redirect(ip)
+                if  request.form['submit'] == '修改配置' :
+                    content = request.form.get('content')
+                    fileadd = request.form.get('file')
+                    print('当前配置文件地址：'+fileadd)
+                    api.admin.writefile(content,fileadd)
+                    content= api.admin.getfile(fileadd)
+                    flash('修改配置成功！')
+                    return render_template('content.html',content=content,file=fileadd)  
+                if  request.form['submit'] == '返回上页' :
+                    return redirect(request.referrer) 
+                if  request.form['submit'] == '重启Clash' :
+                    fileadd = request.form.get('file')
+                    fileadd = str(fileadd).replace('/','\\')
+                    script = 'CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f {file}",0'.format(file=fileadd)
+                    api.admin.writefile(script,'./App/tmp.vbs')
+                    os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')
+                    print('kill')
+                    os.system('wscript ".\\App\\tmp.vbs"')
+                    print('start')
+                    flash('重启成功')
+                    return redirect(ip)                    
+
         currentconfig = api.admin.getfile('./App/tmp.vbs')
         currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
         filelist = os.listdir('./Profile')
@@ -193,7 +228,6 @@ def profiles():
             if flag == 6:
                 break
             if filelist[i].endswith('.yaml'):
-                #filename += filelist[i]+'\n'
                 if filelist[i] != currentconfig: 
                     config[flag]=filelist[i]
                     flag +=1        

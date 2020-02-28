@@ -33,41 +33,26 @@
             {% endif %}
             {% endwith %}
             <div class="card"  > 
-                <h2>🤡 配置文件管理系统</h2>
+                <h2>🤡 STC机场登录</h2>
                 
                 </br>
-                <h4>托管地址</h4>
-                <div class="form-group">
-                    <textarea name="url" class="form-control" id="exampleFormControlTextarea1" rows="1" placeholder="填写托管地址，为空则用上次输入的托管地址更新"></textarea>
-                    <small id="emailHelp" class="form-text text-muted">Thanks for using and enjoy yourself !!! @NicoNewBeee</small>
-                </div>              
-    
-                </br>
-                <h4>配置文件</h4>
-                <div class="form-group">
-                    <select name="configselect" class="form-control" id="exampleFormControlSelect1">
-                      <option>{{f1}}</option>
-                      <option>{{f2}}</option>
-                      <option>{{f3}}</option>
-                      <option>{{f4}}</option>
-                      <option>{{f5}}</option>
-                      <option>{{f6}}</option>
-                    </select>
-                </div>
-                </br> 
-                <div class="input-group mb-3">
-                    <input type="text" name="filename" class="form-control" placeholder="输入文件名称" aria-label="Recipient's username" aria-describedby="button-addon2">
-                    <div class="input-group-append">
-                      <button class="btn btn-outline-secondary" type="submit" name = 'submit' value ="修改名称" id="button-addon2">修改名称</button>
+                <form>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">邮箱</label>
+                      <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                      <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
                     </div>
-                  </div>                
-                </br>
-                <div style="text-align:center; vertical-align:middel;">                 
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "更新  配置""/>
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "查看  配置""/>
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "重启 Clash""/>    
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回  主页""/>                  
-                </div>                                 
+                    <div class="form-group">
+                      <label for="exampleInputPassword1">密码</label>
+                      <input type="password" name="passwd" class="form-control" id="exampleInputPassword1">
+                    </div>
+                    <div class="form-group form-check">
+                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                      <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                    </div>
+                    <input  type="submit" class="btn btn-primary" name= 'submit' value = "一键订阅""/>
+
+                               
             </div>
             <footer>        
                 <p> &copy;<a href="https://weibo.com/hackl0us">@Hackl0us</a>.<a href="https://weibo.com/haxck"> 美工</a>.<a href="https://github.com/tindy2013/subconverter"> API源码</a>.<a>@NicoNewBeee</a></p>

@@ -36,13 +36,23 @@
                 <h2>🤡 配置文件管理系统</h2>   
       
                 </br>
-                <h4>托管地址</h4>
+                <h4>订阅地址</h4>
                 <div class="input-group mb-3">
                     <input type="text" name="url" class="form-control" placeholder="填写托管地址，为空则用上次输入的托管地址更新" aria-label="Recipient's username" aria-describedby="button-addon2">
                     <div class="input-group-append">
                       <button class="btn btn-outline-secondary" type="submit" name = 'submit' value ="订阅转换" id="button-addon2">订阅转换</button>
                     </div>                    
-                </div>              
+                </div>   
+                <div style="text-align:left; vertical-align:left;"> 
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input type="radio" id="customRadioInline1" name="customRadioInline1" class="custom-control-input" value="clash" checked>
+                  <label class="custom-control-label" for="customRadioInline1">Clash订阅</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input type="radio" id="customRadioInline2" name="customRadioInline1" class="custom-control-input" value="notclash">
+                  <label class="custom-control-label" for="customRadioInline2">非Clash订阅（单节点|SS/SSR/VMESS</label>
+                </div>
+                </div>
                 <small id="emailHelp" class="form-text text-muted">Thanks for using and enjoy yourself !!! @NicoNewBeee</small>
                 </br>
                 <h4>配置文件</h4>
@@ -86,15 +96,19 @@
                       <div class="modal-body">
                       首次使用时，需要在托管地址处填写托管地址。
                     </br>
-                      如果您是SSR/SS/VMESS 等非Clash托管地址，您可以点击订阅转换按钮进行转换。
                     </br>
+                      如果您是SSR/SS/VMESS 等非Clash托管地址，您可以点击订阅转换按钮进行转换。或者勾选非Clash订阅直接下载默认配置。
                       如果您的机场提供了Clash托管地址，可以直接填写。
                     </br>
-                      默认情况下，配置文件将下载到您所选择的文件中（目前最多支持6个配置文件的web展示）
+                    </br>
+                      默认情况下，配置文件将下载到您所选择的文件中（目前最多支持6个配置文件的web展示），默认情况下，通过本地subconverterapi更新订阅。可以通过修改api/default.py里的值修改默认api后端地址。
+                    </br>
                     </br>
                       再次使用时，您不需要再次填写托管地址就能够更新了，如果您的托管地址发生变化，可以重新输入地址并点击更新配置。
                     </br>
+                    </br>
                       当您更新完配置后，点击重启Clash就可以重载配置文件了！！！
+                    </br>
                     </br>
                       PS. 这里建议您先修改配置文件名称，再输入托管地址进行更新操作。<a href="https://stc-beta4.com/auth/register?code=gzI5"> 推荐机场</a>
                       </div>

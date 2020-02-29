@@ -154,23 +154,37 @@ def login():
 def profiles():
     try:
         if request.method == "POST":
-                if request.form['submit'] == '更新  配置': 
+                if request.form['submit'] == '更新  配置':            
                     url = request.form.get('url')  
-                    fileadd = './Profile/'+request.form.get('configselect')                 
-                    if '://' in url: 
+                    fileadd = './Profile/'+request.form.get('configselect')    
+                    configtype =request.values.get('customRadioInline1')         
+                    if '://' in url:
+                        if configtype == 'notclash':
+                            url = '{ip}/sub?target=clashr&url={sub}'.format(ip=api.default.subconverter,sub=url)    #非Clash进行拼接 
+                        if '127.0.0.1' in url or 'localhost' in url:
+                            os.system('taskkill /IM subconverter.exe >NUL 2>NUL')
+                            p=subprocess.Popen('subconverter.bat',shell=False) 
+                            p.wait()
                         content = api.subconverter.Retry_request(url)
+                        os.system('taskkill /IM subconverter.exe >NUL 2>NUL')
                         if content == 'erro':
-                            return '下载失败，检查浏览器能否上网！'
+                            return '下载失败，检查浏览器能否上网！如果是本地托管，请先双击/App/subconverter/subconverter.exe赋予联网权限'
                         content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content     #下载           
                         api.admin.writefile(content,fileadd)                               #写入
                         flash('下载配置成功！并更新托管地址')
                         return render_template('content.html',content=content,file=fileadd) 
+
                     else:
                         try:
                             url=str(api.admin.getfile(fileadd)).split('NicoNewBeee的Clash控制台')[0].split('#托管地址:')[1]
                         except:
                             return '未查到托管地址，请在输入框输入托管地址'
+                        if '127.0.0.1' in url or 'localhost' in url:
+                            os.system('taskkill /IM subconverter.exe >NUL 2>NUL')
+                            p=subprocess.Popen('subconverter.bat',shell=False) 
+                            p.wait()
                         content = api.subconverter.Retry_request(url)
+                        os.system('taskkill /IM subconverter.exe >NUL 2>NUL')
                         if content == 'erro':
                             return '下载失败，重新尝试'
                         content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content  #下载  

@@ -33,15 +33,17 @@
             {% endif %}
             {% endwith %}
             <div class="card"  > 
-                <h2>🤡 配置文件管理系统</h2>
-                
+                <h2>🤡 配置文件管理系统</h2>   
+      
                 </br>
                 <h4>托管地址</h4>
-                <div class="form-group">
-                    <textarea name="url" class="form-control" id="exampleFormControlTextarea1" rows="1" placeholder="填写托管地址，为空则用上次输入的托管地址更新"></textarea>
-                    <small id="emailHelp" class="form-text text-muted">Thanks for using and enjoy yourself !!! @NicoNewBeee</small>
+                <div class="input-group mb-3">
+                    <input type="text" name="url" class="form-control" placeholder="填写托管地址，为空则用上次输入的托管地址更新" aria-label="Recipient's username" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary" type="submit" name = 'submit' value ="订阅转换" id="button-addon2">订阅转换</button>
+                    </div>                    
                 </div>              
-    
+                <small id="emailHelp" class="form-text text-muted">Thanks for using and enjoy yourself !!! @NicoNewBeee</small>
                 </br>
                 <h4>配置文件</h4>
                 <div class="form-group">
@@ -65,9 +67,46 @@
                 <div style="text-align:center; vertical-align:middel;">                 
                 <input  type="submit" class="btn btn-primary" name= 'submit' value = "更新  配置""/>
                 <input  type="submit" class="btn btn-primary" name= 'submit' value = "查看  配置""/>
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "重启 Clash""/>    
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回  主页""/>                  
-                </div>                                 
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "重启 Clash""/>      
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "STC  特供""/>     
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回  主页""/>     
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">使用说明</button>     
+                </div>                        
+          
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">配置文件系统说明1.2.2</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                      首次使用时，需要在托管地址处填写托管地址。
+                    </br>
+                      如果您是SSR/SS/VMESS 等非Clash托管地址，您可以点击订阅转换按钮进行转换。
+                    </br>
+                      如果您的机场提供了Clash托管地址，可以直接填写。
+                    </br>
+                      默认情况下，配置文件将下载到您所选择的文件中（目前最多支持6个配置文件的web展示）
+                    </br>
+                      再次使用时，您不需要再次填写托管地址就能够更新了，如果您的托管地址发生变化，可以重新输入地址并点击更新配置。
+                    </br>
+                      当您更新完配置后，点击重启Clash就可以重载配置文件了！！！
+                    </br>
+                      PS. 这里建议您先修改配置文件名称，再输入托管地址进行更新操作。<a href="https://stc-beta4.com/auth/register?code=gzI5"> 推荐机场</a>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+
             </div>
             <footer>        
                 <p> &copy;<a href="https://weibo.com/hackl0us">@Hackl0us</a>.<a href="https://weibo.com/haxck"> 美工</a>.<a href="https://github.com/tindy2013/subconverter"> API源码</a>.<a>@NicoNewBeee</a></p>

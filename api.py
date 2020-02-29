@@ -128,8 +128,6 @@ def login():
             return redirect('profiles')
         if request.form['submit'] == '高级 设置':
             return redirect('admin')
-        if request.form['submit'] == 'STC  特供':
-            return redirect('airport')
         if request.form['submit'] == '关闭 程序':
             try:
                 os._exit()
@@ -234,12 +232,18 @@ def profiles():
                     fileadd = str(fileadd).replace('/','\\')
                     script = 'CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f {file}",0'.format(file=fileadd)
                     api.admin.writefile(script,'./App/tmp.vbs')
-                    os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')
-                    print('kill')
-                    os.system('wscript ".\\App\\tmp.vbs"')
-                    print('start')
+                    p=subprocess.Popen('start.bat',shell=False)            
+                    p.wait()
                     flash('重启成功')
-                    return redirect(ip)                    
+                    return redirect(ip)    
+                if  request.form['submit'] == '订阅转换' :   
+                    fileadd = os.getcwd()
+                    fileadd = fileadd.replace('\\','/')
+                    os.system('explorer file:///{path}/Profile/sub-web/index.html'.format(path=fileadd)) 
+                    flash('订阅转换')
+                    return redirect('profiles') 
+                if request.form['submit'] == 'STC  特供':
+                    return redirect('airport')          
 
         currentconfig = api.admin.getfile('./App/tmp.vbs')
         currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')

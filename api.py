@@ -288,9 +288,9 @@ def admin():
                     flash('更新Geoip成功')
                     return redirect(ip)   
                 if request.form['submit'] == '开机    启动':               
-                    #p=subprocess.Popen(mypath+'/bat/geoip.bat',shell=False)
-                    #p.wait()
-                    flash('未支持，敬请期待')
+                    p=subprocess.Popen(mypath+'/App/startup.bat',shell=False)
+                    p.wait()
+                    flash('设置成功')
                     return redirect(request.url)   
                 if request.form['submit'] == 'UWP回 环代理':               
                     p=subprocess.Popen(mypath+'/bat/uwp.bat',shell=False)

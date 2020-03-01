@@ -6,6 +6,8 @@
     DEL /f /q "%TEMP%\Getadmin.vbs" 2>NUL
     Exit /b
 )
+CD /D %~DP0\..\
+SET PATH="%~dp0";"%~dp0App";%PATH%
 
 :menu
 cls
@@ -28,15 +30,11 @@ if errorlevel 2 goto :delete
 if errorlevel 1 goto :startup
 
 :startup
-Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "clash-web" /t REG_SZ /d "\"%~DP0App\start-clash.vbs\"" /f
-
-echo 添加成功按任意键返回主菜单 &pause >NUL
-
-call Clash-Web-Bat.CMD
+Reg.exe add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "clashweb" /t REG_SZ /d "\"%~dp0startupclash.bat\"" /f
+echo 添加成功，按任意键退出 &pause >NUL
+exit
 
 :delete
-Reg.exe delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "clash-web"  /f>NUL 2>NUL
-
-echo 添加成功按任意键返回主菜单 &pause >NUL
-
-call Clash-Web-Bat.CMD
+Reg.exe delete "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "clashweb"  /f>NUL 2>NUL
+echo 删除成功，按任意键退出&pause >NUL
+exit

@@ -16,6 +16,7 @@ import api.admin
 import api.subconverter
 import api.default
 import api.airport
+import api.togist
 import os
 from flask import Flask,render_template,request
 urllib3.disable_warnings()
@@ -61,18 +62,18 @@ def login():
                     return render_template('login.html',clash='关闭Clash',sysproxy=sysproxy)
                 except :
                     flash('启动Clash失败')    
-                    return render_template('login.html',clash='启动Clash',sysproxy=sysproxy)
+                    return redirect(ip)
             if clash == '关闭Clash':
                 try:
                     p=subprocess.Popen('stop.bat',shell=False)
                     p.wait()
                     #os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')  
                     print('stop Clash')
-                    flash('Clash 未运行 '+issys)
-                    return render_template('login.html',clash='启动Clash',sysproxy=sysproxy)
+                    flash('Clash 未运行 '+'系统代理：关闭')
+                    return render_template('login.html',clash='启动Clash',sysproxy='开启系统代理')
                 except :
                     flash('关闭Clash失败')
-                    return render_template('login.html',clash='关闭Clash',sysproxy=sysproxy)
+                    return redirect(ip)
         if request.form['submit'] == '系统代理': 
             clash = request.form.get('clash')
             sysproxy = request.form.get('sysproxy')
@@ -89,7 +90,7 @@ def login():
                     return render_template('login.html',sysproxy='关闭系统代理',clash=clash)
                 except :
                     flash('开启系统代理失败')    
-                    return render_template('login.html',sysproxy='开启系统代理',clash=clash)
+                    return redirect(ip)
             if sysproxy == '关闭系统代理':
                 try:
                     p=subprocess.Popen('dissys.bat',shell=False)
@@ -104,7 +105,7 @@ def login():
                     return render_template('login.html',sysproxy='开启系统代理',clash=clash)
                 except :
                     flash('关闭系统代理失败')
-                    return render_template('login.html',sysproxy='关闭系统代理',clash=clash)
+                    return redirect(ip)
         if request.form['submit'] == '打开 面板':
             clash = request.form.get('clash')
             sysproxy = request.form.get('sysproxy')
@@ -160,6 +161,7 @@ def profiles():
                     configtype =request.values.get('customRadioInline1')         
                     if '://' in url:
                         if configtype == 'notclash':
+                            url = urllib.parse.quote(url)
                             url = '{ip}/sub?target=clashr&url={sub}'.format(ip=api.default.subconverter,sub=url)    #非Clash进行拼接 
                         if '127.0.0.1' in url or 'localhost' in url:
                             os.system('taskkill /IM subconverter.exe >NUL 2>NUL')
@@ -257,7 +259,9 @@ def profiles():
                     flash('订阅转换')
                     return redirect('profiles') 
                 if request.form['submit'] == 'STC  特供':
-                    return redirect('airport')          
+                    return redirect('airport')   
+                if request.form['submit'] == '上传 gist':
+                    return redirect('togist')         
 
         currentconfig = api.admin.getfile('./App/tmp.vbs')
         currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
@@ -316,11 +320,16 @@ def airport():
         suburl = api.airport.stc(email,passwd)   #ssr订阅
         totalurl = suburl+'|'+suburl+'?mu=2'     #ssr+V2订阅
         sub = urllib.parse.quote(totalurl)
-        clash = '{ip}/sub?target=clashr&url={sub}&config={config}'.format(ip=api.default.subconverter,sub=sub,config=api.default.subconverterconfig)  #Clash订阅
+        clash = '{ip}/sub?target=clashr&url={sub}'.format(ip=api.default.subconverter,sub=sub)  #Clash订阅
         currentconfig = api.admin.getfile('./App/tmp.vbs')
         currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')   #获取当前配置文件
         currentconfig = './Profile/'+currentconfig
+        if '127.0.0.1' in clash or 'localhost' in clash:
+            os.system('taskkill /IM subconverter.exe >NUL 2>NUL')
+            p=subprocess.Popen('subconverter.bat',shell=False) 
+            p.wait()        
         content = '#托管地址:'+clash+'NicoNewBeee的Clash控制台\n'+api.admin.Retry_request(clash)
+        os.system('taskkill /IM subconverter.exe >NUL 2>NUL')
         api.admin.writefile(content,currentconfig) 
         p=subprocess.Popen('start.bat',shell=False)            
         p.wait()
@@ -328,6 +337,31 @@ def airport():
         return redirect(ip)                    
     return render_template('airport.html')
 
+@app.route('/togist',methods=['GET', 'POST'])
+def togist():
+    if request.method == "POST":
+        email = request.form.get('email')
+        passwd = request.form.get('passwd')
+        fileadd = request.form.get('file')
+        gist = request.form.get('gist')
+        if email =='' or passwd == '' or fileadd == '' or gist == '':
+            flash('检查是否漏填了或者忘记选择文件了？')
+            return redirect(request.referrer)
+        try:
+            gist = gist.split('/')
+            usrname = gist[3]
+            id = gist[4]
+        except:
+            flash('请输入正确gist地址')
+            return redirect(request.referrer)
+        auth=requests.auth.HTTPBasicAuth(email,passwd)
+        flag=api.togist.togist(fileadd,usrname,id,auth)
+        if flag == 'erro':
+            flash('发生错误')
+            return redirect(request.referrer)
+        else:
+            return '成功上传，Gist托管地址为：'+flag                
+    return render_template('togist.html')
 if __name__ == '__main__':
     port = api.default.clashweb.split(':')[-1]
     os.system('start /min '+ip)

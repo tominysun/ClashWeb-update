@@ -1,1 +1,1 @@
-CreateObject("WScript.Shell").Run "subconverter.exe -cfw",0
+CreateObject("WScript.Shell").Run "subconverter.exe -cfw",1

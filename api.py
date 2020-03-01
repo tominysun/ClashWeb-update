@@ -41,6 +41,8 @@ app = Flask(__name__)
 ip = api.default.clashweb
 dashboard = api.default.dashboard
 app.secret_key = 'some_secret'
+mypath = os.getcwd().replace('\\','/')
+print(mypath)
 
 @app.route('/',methods=['GET', 'POST'])
 def login():
@@ -53,7 +55,7 @@ def login():
                 issys = '系统代理：关闭'
             if clash == '启动Clash':
                 try:
-                    p=subprocess.Popen('start.bat',shell=False)            
+                    p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
                     p.wait()
                     #os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')
                     #os.system('wscript ".\\App\\tmp.vbs"')                    
@@ -65,7 +67,7 @@ def login():
                     return redirect(ip)
             if clash == '关闭Clash':
                 try:
-                    p=subprocess.Popen('stop.bat',shell=False)
+                    p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
                     p.wait()
                     #os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')  
                     print('stop Clash')
@@ -82,7 +84,7 @@ def login():
                 isclash = 'Clash 未运行'
             if sysproxy == '开启系统代理':
                 try:
-                    p=subprocess.Popen('setsys.bat',shell=False)
+                    p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                     p.wait()
                     #os.system('reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f >NUL')
                     flash(isclash+' 系统代理：开启')
@@ -93,7 +95,7 @@ def login():
                     return redirect(ip)
             if sysproxy == '关闭系统代理':
                 try:
-                    p=subprocess.Popen('dissys.bat',shell=False)
+                    p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
                     p.wait()
                     #cmd1 = 'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f >NUL'
                     #cmd2 = 'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /d "127.0.0.1:7890" /f >NUL'
@@ -134,14 +136,14 @@ def login():
                 os._exit()
             except:
                 print('Program is dead.')
-    a = os.popen('check.bat')
+    a = os.popen(mypath+'/bat/check.bat')
     a = a.read()
     clash = '启动Clash'
     isclash = 'Clash 未运行'
     if 'Console' in str(a):
         clash = '关闭Clash'
         isclash = 'Clash 正在运行'
-    a = os.popen('checksys.bat')
+    a = os.popen(mypath+'/bat/checksys.bat')
     a = a.read().replace(' ','').replace('\n','')
     sysproxy = '关闭系统代理'
     issys = '系统代理：开启'
@@ -164,10 +166,10 @@ def profiles():
                             url = urllib.parse.quote(url)
                             url = '{ip}/sub?target=clashr&url={sub}'.format(ip=api.default.subconverter,sub=url)    #非Clash进行拼接 
                         if '127.0.0.1' in url or 'localhost' in url:
-                            p=subprocess.Popen('subconverter.bat',shell=False) 
+                            p=subprocess.Popen(mypath+'/bat/subconverter.bat',shell=False) 
                             p.wait()
                         content = api.subconverter.Retry_request(url)
-                        p=subprocess.Popen('stopsubconverter.bat',shell=False)
+                        p=subprocess.Popen(mypath+'/bat/stopsubconverter.bat',shell=False)
                         p.wait()
                         if content == 'erro':
                             return '下载失败，检查浏览器能否上网！如果是本地托管，请先双击/App/subconverter/subconverter.exe赋予联网权限'
@@ -182,13 +184,13 @@ def profiles():
                         except:
                             return '未查到托管地址，请在输入框输入托管地址'
                         if '127.0.0.1' in url or 'localhost' in url:
-                            p=subprocess.Popen('subconverter.bat',shell=False) 
+                            p=subprocess.Popen(mypath+'/bat/subconverter.bat',shell=False) 
                             p.wait()
                         content = api.subconverter.Retry_request(url)
-                        p=subprocess.Popen('stopsubconverter.bat',shell=False)
+                        p=subprocess.Popen(mypath+'/bat/stopsubconverter.bat',shell=False)
                         p.wait()
                         if content == 'erro':
-                            return '下载失败，重新尝试'
+                            return '下载失败，重新尝试,默认使用系统代理下载托管，请注意检查浏览器能否上网！！'
                         content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content  #下载  
                         api.admin.writefile(content,fileadd)            #写入
                         flash('下载配置成功！托管地址未变动')
@@ -224,10 +226,8 @@ def profiles():
                     fileadd = str(fileadd).replace('/','\\')
                     script = 'CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f {file}",0'.format(file=fileadd)
                     api.admin.writefile(script,'./App/tmp.vbs')
-                    os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')
-                    print('kill')
-                    os.system('wscript ".\\App\\tmp.vbs"')
-                    print('start')
+                    p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
+                    p.wait()
                     flash('重启成功')
                     return redirect(ip)
                 if  request.form['submit'] == '返回  主页' or request.form['submit'] == '返回主页' :
@@ -247,14 +247,12 @@ def profiles():
                     fileadd = str(fileadd).replace('/','\\')
                     script = 'CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f {file}",0'.format(file=fileadd)
                     api.admin.writefile(script,'./App/tmp.vbs')
-                    p=subprocess.Popen('start.bat',shell=False)            
+                    p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
                     p.wait()
                     flash('重启成功')
                     return redirect(ip)    
                 if  request.form['submit'] == '订阅转换' :   
-                    fileadd = os.getcwd()
-                    fileadd = fileadd.replace('\\','/')
-                    os.system('explorer file:///{path}/Profile/sub-web/index.html'.format(path=fileadd)) 
+                    os.system('explorer file:///{path}/Profile/sub-web/index.html'.format(path=mypath)) 
                     flash('订阅转换')
                     return redirect('profiles') 
                 if  request.form['submit'] == '节点分组' :  
@@ -285,27 +283,27 @@ def admin():
     try:
         if request.method == "POST":
                 if request.form['submit'] == '更新  geoip':               
-                    p=subprocess.Popen('geoip.bat',shell=False)
+                    p=subprocess.Popen(mypath+'/bat/geoip.bat',shell=False)
                     p.wait()
                     flash('更新Geoip成功')
                     return redirect(ip)   
                 if request.form['submit'] == '开机    启动':               
-                    #p=subprocess.Popen('geoip.bat',shell=False)
+                    #p=subprocess.Popen(mypath+'/bat/geoip.bat',shell=False)
                     #p.wait()
                     flash('未支持，敬请期待')
                     return redirect(request.url)   
                 if request.form['submit'] == 'UWP回 环代理':               
-                    p=subprocess.Popen('uwp.bat',shell=False)
+                    p=subprocess.Popen(mypath+'/bat/uwp.bat',shell=False)
                     p.wait()
                     flash('打开成功')
                     return redirect(request.url)   
                 if request.form['submit'] == '开启系统代理': 
-                    p=subprocess.Popen('setsys.bat',shell=False)
+                    p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                     p.wait()
                     flash('开启系统代理成功')
                     return redirect(ip)   
                 if  request.form['submit'] == '关闭系统代理' :
-                    p=subprocess.Popen('dissys.bat',shell=False)
+                    p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
                     p.wait()
                     flash('关闭系统代理成功')
                     return redirect(ip)   
@@ -330,13 +328,13 @@ def airport():
         currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')   #获取当前配置文件
         currentconfig = './Profile/'+currentconfig
         if '127.0.0.1' in clash or 'localhost' in clash:
-            p=subprocess.Popen('subconverter.bat',shell=False) 
+            p=subprocess.Popen(mypath+'/bat/subconverter.bat',shell=False) 
             p.wait()        
         content = '#托管地址:'+clash+'NicoNewBeee的Clash控制台\n'+api.admin.Retry_request(clash)
-        p=subprocess.Popen('stopsubconverter.bat',shell=False)
+        p=subprocess.Popen(mypath+'/bat/stopsubconverter.bat',shell=False)
         p.wait()
         api.admin.writefile(content,currentconfig) 
-        p=subprocess.Popen('start.bat',shell=False)            
+        p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
         p.wait()
         flash('尊敬的STC用户，您可以使用了！！！')
         return redirect(ip)                    
@@ -442,7 +440,8 @@ def togist():
     return render_template('togist.html')
 if __name__ == '__main__':
     port = api.default.clashweb.split(':')[-1]
-    os.system('start /min '+ip)
+    if(api.default.openweb):
+        os.system('start /min '+ip)
     app.run(host='0.0.0.0',debug=False,port=port)            #自定义端口
 
 #  os.system('wscript ".\App\tmp.vbs" ')

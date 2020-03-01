@@ -2,6 +2,7 @@
 clashweb = 'http://127.0.0.1:10086'                        #默认控制台地址
 dashboard = 'http://127.0.0.1:9090/ui/#/proxies'           #默认面板地址
 subconverter = 'http://127.0.0.1:25500'                    #本地订阅转换地址。
+openweb = True                                           #启动时是否打开浏览器控制台
 
 
 #For 节点分组                                              #您修改subconverter/pref.ini的默认rulset后，节点分组将不可用，您需要修改下面的proxygroup。

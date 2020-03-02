@@ -13,7 +13,7 @@
 </head>
 
 <body>  
-    <div class="container" style="width: 50rem;">
+    <div class="container" style="width: 30rem;">
             <header>
                 <h1>🚀 Clash 控制台 🚁</h1>
             </header>
@@ -31,29 +31,28 @@
             {% endif %}
             {% endwith %} 
         <form method="POST" name = "form1">
-            <div class="card"  >   
-                <div style="text-align:center; vertical-align:middel;">          
+            <div class="card"  >          
                 <button type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "clash" "/>{{ clash }}</button>
                 <textarea  name = "clash" cols="70" rows="5" id="custom" style="display:none"" >{{ clash  }}</textarea>
-            </br>
-        </br>            
-                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "打开 面板""/>
-            </br>
-        </br>
+                    </br>     
                 <button type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "系统代理" "/>系统 代理</button>
                 <textarea  name = "sysproxy" cols="70" rows="5" id="custom" style="display:none"" >{{ sysproxy  }}</textarea>                 
-            </br>
-        </br>   
-                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "配置 文件""/>
-            </br>
-        </br>                 
-                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "高级 设置""/> 
-                </div> 
+                    </br>                
+                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "打开 面板""/>                                 
             </div> 
-
-        <footer>
-            <p> &copy;<a href="https://t.me/niconewbeeeapi">API通知频道</a>——<a href="https://t.me/niconewbeeeapi/134"> 打赏支持开发</a>——<a href="https://github.com/lzdnico/subweb"> Web源码</a></p>
-        </footer>      
+            <div class="card"  > 
+                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "保存 节点""/>
+                    </br>
+                
+                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "配置 文件""/>
+                    </br>
+                                
+                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "高级 设置""/> 
+            </div> 
+            <footer style="width: 30rem;">
+                <p> &copy;<a href="https://t.me/niconewbeeeapi">API通知频道</a>——<a href="https://t.me/niconewbeeeapi/134"> 打赏支持开发</a>——<a href="https://github.com/lzdnico/subweb"> Web源码</a></p>
+            </footer>  
+    </div>     
     </div>                     
         </form>  
         <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>

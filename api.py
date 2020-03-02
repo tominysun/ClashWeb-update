@@ -2,7 +2,6 @@
 import sys
 import flask_restful
 from flask import redirect, url_for,flash
-import  base64
 import  re
 import  requests
 import urllib3
@@ -17,24 +16,10 @@ import api.subconverter
 import api.default
 import api.airport
 import api.togist
+import api.clashapi
 import os
 from flask import Flask,render_template,request
 urllib3.disable_warnings()
-
-def safe_base64_decode(s): # 解密
-    try:
-        if len(s) % 4 != 0:
-            s = s + '=' * (4 - len(s) % 4)
-        base64_str = base64.urlsafe_b64decode(s)
-        return bytes.decode(base64_str)
-    except Exception as e:
-        print('解码错误')   
-
-def safe_base64_encode(s): # 加密
-    try:
-        return base64.urlsafe_b64encode(bytes(s, encoding='utf8'))
-    except Exception as e:
-        print('加密错误',e)
 
 
 app = Flask(__name__)
@@ -50,18 +35,32 @@ def login():
         if request.form['submit'] == 'clash': 
             clash = request.form.get('clash')
             sysproxy = request.form.get('sysproxy')
-            issys = '系统代理：开启'
             if '开启' in sysproxy:
                 issys = '系统代理：关闭'
+            else:
+                issys = '系统代理：开启'
             if clash == '启动Clash':
                 try:
                     p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
-                    p.wait()
-                    #os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')
-                    #os.system('wscript ".\\App\\tmp.vbs"')                    
-                    flash('Clash 正在运行 '+issys)
+                    p.wait() 
+                    time.sleep(1)
+                    a = os.popen(mypath+'/bat/check.bat')
+                    a = a.read()       
+                    if 'Console' in str(a):
+                        clash = '关闭Clash'
+                        isclash = 'Clash 正在运行'
+                        try:
+                            currentconfig = api.admin.getfile('./App/tmp.vbs')
+                            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')
+                            api.clashapi.setproxies('./Profile/'+currentconfig)  
+                        except:
+                            flash('当看到这条消息，有两种情况：1.当前配置未保存节点。2.启动时读取保存节点失败。 无妨，Clash已成功启动') 
+                    else:
+                        clash = '启动Clash'
+                        isclash = 'Clash 启动失败，请检查配置文件'          
+                    flash(isclash+' '+issys)
                     print('start clash')
-                    return render_template('login.html',clash='关闭Clash',sysproxy=sysproxy)
+                    return render_template('login.html',clash=clash,sysproxy=sysproxy)
                 except :
                     flash('启动Clash失败')    
                     return redirect(ip)
@@ -129,6 +128,12 @@ def login():
                 return redirect(request.url)
         if request.form['submit'] == '配置 文件':
             return redirect('profiles')
+        if request.form['submit'] == '保存 节点':
+            currentconfig = api.admin.getfile('./App/tmp.vbs')
+            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')
+            api.clashapi.getallproxies('./Profile/'+currentconfig)    
+            flash('保存当前节点选择成功')
+            return redirect(ip)
         if request.form['submit'] == '高级 设置':
             return redirect('admin')
         if request.form['submit'] == '关闭 程序':
@@ -136,20 +141,23 @@ def login():
                 os._exit()
             except:
                 print('Program is dead.')
+    time.sleep(1)
     a = os.popen(mypath+'/bat/check.bat')
     a = a.read()
-    clash = '启动Clash'
-    isclash = 'Clash 未运行'
-    if 'Console' in str(a):
+    if 'Console' in str(a):   #检查是否正常运行，console in 表示在运行。
         clash = '关闭Clash'
         isclash = 'Clash 正在运行'
+    else:
+        clash = '启动Clash' 
+        isclash = 'Clash 未运行'   
     a = os.popen(mypath+'/bat/checksys.bat')
     a = a.read().replace(' ','').replace('\n','')
-    sysproxy = '关闭系统代理'
-    issys = '系统代理：开启'
     if str(a).endswith('0x0'):
-         sysproxy = '开启系统代理'
-         issys = '系统代理：关闭'   
+        sysproxy = '开启系统代理'
+        issys = '系统代理：关闭'   
+    else:
+        sysproxy = '关闭系统代理'
+        issys = '系统代理：开启'
     flash(isclash+'\n'+issys) 
     return render_template('login.html',clash=clash,sysproxy=sysproxy)
 
@@ -228,7 +236,7 @@ def profiles():
                     api.admin.writefile(script,'./App/tmp.vbs')
                     p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
                     p.wait()
-                    flash('重启成功')
+                    flash('重启操作完成，注意检查Clash运行状态')
                     return redirect(ip)
                 if  request.form['submit'] == '返回  主页' or request.form['submit'] == '返回主页' :
                     return redirect(ip)
@@ -249,7 +257,7 @@ def profiles():
                     api.admin.writefile(script,'./App/tmp.vbs')
                     p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
                     p.wait()
-                    flash('重启成功')
+                    flash('重启操作完成，注意检查Clash运行状态')
                     return redirect(ip)    
                 if  request.form['submit'] == '订阅转换' :   
                     os.system('explorer file:///{path}/Profile/sub-web/index.html'.format(path=mypath)) 

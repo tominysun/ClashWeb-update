@@ -35,3 +35,9 @@ def setproxies(address):
         b = b.split('=')
         requests.put(ip+'proxies/'+ b[0], data=json.dumps({'name': b[1]}))
 
+def setconfig(address):
+    requests.put(ip+'configs/'+address)
+
+
+
+#requests.put('http://127.0.0.1:9090/configs',data=json.dumps({'path':'D:\ClashWebgit\Profile\config.yaml'}))

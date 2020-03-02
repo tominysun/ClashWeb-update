@@ -24,6 +24,7 @@ urllib3.disable_warnings()
 
 app = Flask(__name__)
 ip = api.default.clashweb
+clashapi = api.default.dashboard.split('ui')[0]
 dashboard = api.default.dashboard
 app.secret_key = 'some_secret'
 mypath = os.getcwd().replace('\\','/')
@@ -41,23 +42,24 @@ def login():
                 issys = '系统代理：开启'
             if clash == '启动Clash':
                 try:
+                    currentconfig = api.admin.getfile('./App/tmp.vbs')
+                    currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
                     p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
                     p.wait() 
-                    time.sleep(1)
-                    a = os.popen(mypath+'/bat/check.bat')
-                    a = a.read()       
-                    if 'Console' in str(a):
+                    path=mypath+'/Profile/'+currentconfig
+                    path=path.replace('/','\\')
+                    p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))     
+                    if '' == p.text:
                         clash = '关闭Clash'
                         isclash = 'Clash 正在运行'
-                        try:
-                            currentconfig = api.admin.getfile('./App/tmp.vbs')
-                            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')
-                            api.clashapi.setproxies('./Profile/'+currentconfig)  
+                        try:                            
+                            api.clashapi.setproxies('./Profile/'+currentconfig.replace('.yaml','.txt'))  
+                            print('./Profile/'+currentconfig.replace('.yaml','.txt'))
                         except:
                             flash('当看到这条消息，有两种情况：1.当前配置未保存节点。2.启动时读取保存节点失败。 无妨，Clash已成功启动') 
                     else:
                         clash = '启动Clash'
-                        isclash = 'Clash 启动失败，请检查配置文件'          
+                        isclash = 'Clash 启动失败:'+p.text+'   '          
                     flash(isclash+' '+issys)
                     print('start clash')
                     return render_template('login.html',clash=clash,sysproxy=sysproxy)
@@ -236,7 +238,18 @@ def profiles():
                     api.admin.writefile(script,'./App/tmp.vbs')
                     p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
                     p.wait()
-                    flash('重启操作完成，注意检查Clash运行状态')
+                    path = mypath+fileadd
+                    path = path.replace('/','\\').replace('.\\','\\')
+                    p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))
+                    if '' == p.text:
+                        try:
+                            api.clashapi.setproxies(fileadd.replace('\\','/').replace('.yaml','.txt'))
+                            print(fileadd.replace('\\','/').replace('.yaml','.txt'))
+                        except:
+                            pass
+                        flash('重启成功')
+                    else:
+                        flash('重启失败： '+p.text)
                     return redirect(ip)
                 if  request.form['submit'] == '返回  主页' or request.form['submit'] == '返回主页' :
                     return redirect(ip)
@@ -257,8 +270,19 @@ def profiles():
                     api.admin.writefile(script,'./App/tmp.vbs')
                     p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
                     p.wait()
-                    flash('重启操作完成，注意检查Clash运行状态')
-                    return redirect(ip)    
+                    path = mypath+fileadd
+                    path = path.replace('/','\\').replace('.\\','\\')
+                    p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))
+                    if '' == p.text:
+                        try:
+                            api.clashapi.setproxies(fileadd.replace('\\','/').replace('.yaml','.txt'))
+                            print(fileadd.replace('\\','/').replace('.yaml','.txt'))
+                        except:
+                            pass
+                        flash('重启成功')
+                    else:
+                        flash('重启失败： '+p.text)
+                    return redirect(ip)
                 if  request.form['submit'] == '订阅转换' :   
                     os.system('explorer file:///{path}/Profile/sub-web/index.html'.format(path=mypath)) 
                     flash('订阅转换')
@@ -278,6 +302,8 @@ def profiles():
             if flag == 6:
                 break
             if filelist[i].endswith('.yaml'):
+                if filelist[i] == 'notchangeme.yaml':
+                    continue
                 if filelist[i] != currentconfig: 
                     config[flag]=filelist[i]
                     flag +=1        
@@ -344,6 +370,18 @@ def airport():
         api.admin.writefile(content,currentconfig) 
         p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
         p.wait()
+        path = mypath+currentconfig
+        path = path.replace('/','\\').replace('.\\','\\')
+        p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))
+        if '' == p.text:
+            try:
+                api.clashapi.setproxies(currentconfig.replace('\\','/').replace('.yaml','.txt'))
+            except:
+                pass
+            flash('重启成功')
+        else:
+            flash('重启失败： '+p.text)
+        return redirect(ip)
         flash('尊敬的STC用户，您可以使用了！！！')
         return redirect(ip)                    
     return render_template('airport.html')

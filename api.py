@@ -11,6 +11,7 @@ import json
 import time
 import codecs
 import subprocess
+import base64
 import api.admin
 import api.subconverter
 import api.default
@@ -20,6 +21,21 @@ import api.clashapi
 import os
 from flask import Flask,render_template,request
 urllib3.disable_warnings()
+
+def safe_base64_decode(s): # 解密
+    try:
+        if len(s) % 4 != 0:
+            s = s + '=' * (4 - len(s) % 4)
+        base64_str = base64.urlsafe_b64decode(s)
+        return bytes.decode(base64_str)
+    except Exception as e:
+        print('解码错误') 
+
+def safe_base64_encode(s): # 加密
+    try:
+        return base64.urlsafe_b64encode(bytes(s, encoding='utf8'))
+    except Exception as e:
+        print('加密错误',e)
 
 app = Flask(__name__)
 ip = api.default.clashweb

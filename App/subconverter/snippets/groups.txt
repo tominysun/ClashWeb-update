@@ -7,7 +7,7 @@
 Ⓜ️ 微软服务`select`[]DIRECT`[]🔰 节点选择`[]✈ 延迟最低`[]✈ 手动选择
 🍎 苹果服务`select`[]DIRECT`[]🔰 节点选择`[]✈ 故障切换`[]✈ 延迟最低`[]✈ 手动选择
 🛑 全球拦截`select`[]REJECT`[]DIRECT
-🐟 漏网之鱼`select`🔰 节点选择`select`[]✈ 故障切换`[]✈ 延迟最低`[]✈ 手动选择`[]DIRECT
+🐟 漏网之鱼`select`[]🔰 节点选择`select`[]✈ 故障切换`[]✈ 延迟最低`[]✈ 手动选择`[]DIRECT
 ✈ 故障切换`fallback`.*`http://www.gstatic.com/generate_204`500
 ✈ 延迟最低`url-test`.*`http://www.gstatic.com/generate_204`800
 ✈ 手动选择`select`.*

@@ -21,7 +21,6 @@ import os
 from flask import Flask,render_template,request
 urllib3.disable_warnings()
 
-
 app = Flask(__name__)
 ip = api.default.clashweb
 clashapi = api.default.dashboard.split('ui')[0]
@@ -46,6 +45,7 @@ def login():
                     currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
                     p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
                     p.wait() 
+                    print('start clash')
                     path=mypath+'/Profile/'+currentconfig
                     path=path.replace('/','\\')
                     p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))     
@@ -54,14 +54,20 @@ def login():
                         isclash = 'Clash 正在运行'
                         try:                            
                             api.clashapi.setproxies('./Profile/'+currentconfig.replace('.yaml','.txt'))  
+                            print('加载保存的节点选择')
                             print('./Profile/'+currentconfig.replace('.yaml','.txt'))
                         except:
-                            flash('当看到这条消息，有两种情况：1.当前配置未保存节点。2.启动时读取保存节点失败。 无妨，Clash已成功启动') 
+                            flash('1.当前配置未保存过节点。 无妨，Clash已成功启动！') 
                     else:
                         clash = '启动Clash'
-                        isclash = 'Clash 启动失败:'+p.text+'   '          
+                        isclash = 'Clash启动失败:'+p.text+'   '          
+                    if(api.default.opensysafterstartclash):
+                        p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
+                        p.wait()
+                        print("启动系统代理")
+                        issys = '系统代理：开启'
+                        sysproxy = '关闭系统代理'
                     flash(isclash+' '+issys)
-                    print('start clash')
                     return render_template('login.html',clash=clash,sysproxy=sysproxy)
                 except :
                     flash('启动Clash失败')    
@@ -119,12 +125,12 @@ def login():
                 currentconfig = api.admin.getfile('./App/tmp.vbs')
                 currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','')
                 isDashboard = api.admin.getfile(currentconfig)
-                if 'external-ui: dashboard_Razord' in isDashboard :
-                    os.system('start /min '+dashboard)
-                    return redirect(ip)
-                else:
-                    os.system('start /min http://clash.razord.top/#/proxies')
-                    return redirect(ip)
+                #if 'external-ui: dashboard_Razord' in isDashboard :
+                os.system('start /min '+dashboard)
+                return redirect(ip)
+                #else:
+                    #os.system('start /min http://clash.razord.top/#/proxies')
+                    #return redirect(ip)
             except:
                 flash('查看代理失败')
                 return redirect(request.url)
@@ -143,7 +149,7 @@ def login():
                 os._exit()
             except:
                 print('Program is dead.')
-    time.sleep(1)
+    #time.sleep(1)
     a = os.popen(mypath+'/bat/check.bat')
     a = a.read()
     if 'Console' in str(a):   #检查是否正常运行，console in 表示在运行。
@@ -309,7 +315,7 @@ def profiles():
                     flag +=1        
         return render_template('profiles.html',f1=config[0],f2=config[1],f3=config[2],f4=config[3],f5=config[4],f6=config[5])
     except Exception as e:
-        flash('发生错误，重新操作')
+        flash('发生错误，重新操作'+e)
         return redirect(ip)
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -345,9 +351,8 @@ def admin():
                     return redirect(ip)
         return render_template('admin.html')
     except Exception as e:
-        flash('发生错误，重新操作')
+        flash('发生错误，重新操作'+e)
         return redirect(ip)
-
 
 @app.route('/airport',methods=['GET', 'POST'])
 def airport():

@@ -92,8 +92,11 @@ def login():
                 try:
                     currentconfig = api.admin.getfile('./App/tmp.vbs')
                     currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')
-                    api.clashapi.getallproxies('./Profile/'+currentconfig)    
-                    print('保存当前节点选择成功')                   
+                    try:
+                        api.clashapi.getallproxies('./Profile/'+currentconfig)    
+                        print('保存当前节点选择成功') 
+                    except:
+                        pass                  
                     p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
                     p.wait()
                     #os.system('taskkill /IM clash-win64.exe  1>NUL 2>NUL')  
@@ -260,8 +263,11 @@ def profiles():
                 if  request.form['submit'] == '重启 Clash' :
                     currentconfig = api.admin.getfile('./App/tmp.vbs')
                     currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')
-                    api.clashapi.getallproxies('./Profile/'+currentconfig)    
-                    print('保存当前节点选择成功,开始重启')  
+                    try:
+                        api.clashapi.getallproxies('./Profile/'+currentconfig)  
+                        print('保存当前节点选择成功,开始重启') 
+                    except:
+                        pass   
                     fileadd = './Profile/'+request.form.get('configselect') 
                     fileadd = str(fileadd).replace('/','\\')
                     script = 'CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f {file}",0'.format(file=fileadd)
@@ -296,8 +302,11 @@ def profiles():
                 if  request.form['submit'] == '重启Clash' :
                     currentconfig = api.admin.getfile('./App/tmp.vbs')
                     currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')
-                    api.clashapi.getallproxies('./Profile/'+currentconfig)    
-                    print('保存当前节点选择成功，开始重启')  
+                    try:
+                        api.clashapi.getallproxies('./Profile/'+currentconfig)    
+                        print('保存当前节点选择成功，开始重启')  
+                    except:
+                        pass
                     fileadd = request.form.get('file')
                     fileadd = str(fileadd).replace('/','\\')
                     script = 'CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f {file}",0'.format(file=fileadd)

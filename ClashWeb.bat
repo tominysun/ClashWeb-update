@@ -1,76 +1,87 @@
-::[Bat To Exe Converter]
-::
-::YAwzoRdxOk+EWAjk
-::fBw5plQjdCuDJHqI9VE4Hx5WSw2WAEqqFokf5Ono56eLrUoSGus8d+8=
-::YAwzuBVtJxjWCl3EqQJgSA==
-::ZR4luwNxJguZRRnk
-::Yhs/ulQjdF+5
-::cxAkpRVqdFKZSDk=
-::cBs/ulQjdF+5
-::ZR41oxFsdFKZSDk=
-::eBoioBt6dFKZSDk=
-::cRo6pxp7LAbNWATEpCI=
-::egkzugNsPRvcWATEpCI=
-::dAsiuh18IRvcCxnZtBJQ
-::cRYluBh/LU+EWAnk
-::YxY4rhs+aU+JeA==
-::cxY6rQJ7JhzQF1fEqQJQ
-::ZQ05rAF9IBncCkqN+0xwdVs0
-::ZQ05rAF9IAHYFVzEqQJQ
-::eg0/rx1wNQPfEVWB+kM9LVsJDGQ=
-::fBEirQZwNQPfEVWB+kM9LVsJDGQ=
-::cRolqwZ3JBvQF1fEqQJQ
-::dhA7uBVwLU+EWDk=
-::YQ03rBFzNR3SWATElA==
-::dhAmsQZ3MwfNWATElA==
-::ZQ0/vhVqMQ3MEVWAtB9wSA==
-::Zg8zqx1/OA3MEVWAtB9wSA==
-::dhA7pRFwIByZRRnk
-::Zh4grVQjdCuDJHqI9VE4Hx5WSw2WAEi2B6YU3+35oe+fpy0=
-::YB416Ek+ZG8=
-::
-::
-::978f952a14a936cc963da21a135fa983
-@echo off &title Clash Bat
-::CODER BY pcysanji 2020-02-24
-taskkill /IM RBTray.exe >NUL 2>NUL
-ping -n 1 127.0.0.1 > nul
-cd ./App
-start /min RBTray.exe
-cd ../
+mode con cols=44 lines=24
+color f1
+@echo off &title ClashWeb
+taskkill /F /IM python.exe
+wscript "startclashweb.vbs"  &cls
 
 :menu
-echo.&echo.
+cls
+echo.
+echo.
 echo -------------------------------------
 echo.
-echo  ClashWeb控制台   【右键】最小化，窗口自动缩放到任务栏
+echo  ClashWeb控制台
 echo.
 echo.  [1]   打开控制台
 echo.
-echo.  [2]   打开面板  
+echo.  [2]   关闭控制台 
 echo.
-echo.  [3]   关闭控制台  
+echo.  [3]   打开面板 
+echo.
+echo.  [4]   打开subconverter 
 echo.
 echo.  [X]   退出 
 echo.
 echo -------------------------------------
-choice /C:123X /N /M "请输入你的选项 ："
+echo.
+choice /C:1234X /N /M "请输入你的选项 ："
 
-if errorlevel 4 goto :exit
-if errorlevel 3 goto :stopclashweb
-if errorlevel 2 goto :startdasoboard
+if errorlevel 5 goto :exit
+if errorlevel 4 goto :startsubconverter
+if errorlevel 3 goto :startdasoboard
+if errorlevel 2 goto :stopclashweb
 if errorlevel 1 goto :openclahweb
 
+:startsubconverter
+taskkill /IM subconverter.exe >NUL 2>NUL
+cd ./App/subconverter
+wscript start-subconverter.vbs
+cd ../
+cd ../
+echo.
+echo -------------------------------------
+echo.
+echo  开启subconverter成功！
+echo.
+echo -------------------------------------
+echo.
+ping -n 3 127.0.0.1 > nul
+goto menu
+
 :openclahweb
-wscript "start.vbs"  &cls
+wscript "startclashweb.vbs"  &cls
+echo.
+echo -------------------------------------
+echo.
+echo  开启python控制台成功！
+echo.
+echo -------------------------------------
+echo.
+ping -n 3 127.0.0.1 > nul
 goto menu
 
 :stopclashweb
 taskkill /F /IM python.exe &cls
+echo.
+echo -------------------------------------
+echo.
+echo  关闭python控制台成功！
+echo.
+echo -------------------------------------
+echo.
+ping -n 3 127.0.0.1 > nul
 goto menu
 
 :startdasoboard
 start http://127.0.0.1:9090/ui/#/proxies &cls
+echo.
+echo -------------------------------------
+echo.
+echo  打开面板成功
+echo.
+echo -------------------------------------
+echo.
+ping -n 3 127.0.0.1 > nul
 goto menu
 
 :exit

@@ -1,20 +1,11 @@
 1. 便携版不需要安装pytHon。
 
-2. 然后就可以启动了！！ （网页内也有使用说明）
-    双击ClashWeb.exe
-    输入1进入网页控制台
-    输入2进入Dashboard
-    输入3关闭网页控制台
-    输入其他，退出
+2. 然后就可以启动了！！ 
+    双击ClashWeb.bat 自动打开浏览器以及python后台
+    当不需要开/关 Clash 更新配置文件等操作时,可以通过【输入2】关闭python后台。
+    通过【输入3】进入Dashboard
 
-3. ClashWeb.exe 几乎不占用后台，可以右键最小化到任务栏。
-    当不需要开/关 Clash 更新配置文件等操作时
-    可以关闭控制台。
-    然后通过输入2进入Dashboard
-
-5. 双击stop.bat 可以一键关闭Clash，关闭系统代理，关闭subconverter。
-
-6. 如果无法启动，请查看Profile/Country.mmdb文件是否正常
+3. 如果无法启动，请查看Profile/Country.mmdb文件是否正常
 
 
 其他，小白不要修改：

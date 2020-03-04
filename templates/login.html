@@ -30,7 +30,33 @@
                 {% endfor %}
             {% endif %}
             {% endwith %} 
+            <script type="text/javascript">
+                function traffic()
+                {
+                    var httpRequest = new XMLHttpRequest();//第一步：建立所需的对象
+                    httpRequest.open('GET', 'http://127.0.0.1:9090/traffic', true);//第二步：打开连接  将请求参数写在url中  ps:"./Ptest.php?name=test&nameone=testone"
+                    httpRequest.send();//第三步：发送请求  将请求参数写在URL中
+                    httpRequest.onreadystatechange = function () {
+                        if (httpRequest.readyState == 4 && httpRequest.status == 200) {
+                        }
+                        var up = JSON.parse(httpRequest.response)['up'];
+                        var dowm = JSON.parse(httpRequest.response)['down'];
+                        document.getElementById("traffic").innerHTML = '   下载：'+formatBytes(dowm)+' 上传：'+formatBytes(up)
+                        httpRequest.abort();
+                    }
+                    setTimeout("traffic()",1000);
+                }
+                function formatBytes(bytes) {
+                    if(bytes < 1024) return bytes + " B";
+                    else if(bytes < 1048576) return(bytes / 1024).toFixed(2) + " KB";
+                    else if(bytes < 1073741824) return(bytes / 1048576).toFixed(2) + " MB";
+                    else return(bytes / 1073741824).toFixed(2) + " GB";
+                }
+                </script>
         <form method="POST" name = "form1">
+            <div id="traffic" class="card">
+                <script type="text/javascript">traffic();</script>
+            </div>
             <div class="card"  >          
                 <button type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "clash" "/>{{ clash }}</button>
                 <textarea  name = "clash" cols="70" rows="5" id="custom" style="display:none"" >{{ clash  }}</textarea>

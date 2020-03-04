@@ -54,10 +54,10 @@
                   <label class="custom-control-label" for="customRadioInline2">非Clash订阅</label>
                 </div>
                 </div>
-                <small id="emailHelp" class="form-text text-muted">Thanks for using and enjoy yourself !!! @NicoNewBeee</small>
+                <small id="emailHelp" class="form-text text-muted">【订阅地址】有填写，将下载到指定的配置文件</br>【订阅地址】未填写，将按照上次的【订阅地址】更新。</small>
                 </br>
                 <h4>配置文件</h4>
-                <div class="form-group">
+                <div class=input-group mb-3>
                     <select name="configselect" class="form-control" id="exampleFormControlSelect1">
                       <option>{{f1}}</option>
                       <option>{{f2}}</option>
@@ -66,6 +66,9 @@
                       <option>{{f5}}</option>
                       <option>{{f6}}</option>
                     </select>
+                    <button class="btn btn-outline-secondary" type="submit" name = 'submit' value ="更新  配置" id="button-addon2">下载配置</button>
+                    <button class="btn btn-outline-secondary" type="submit" name = 'submit' value ="查看  配置" id="button-addon2">查看配置</button>
+                  
                 </div>
                 </br> 
                 <div class="input-group mb-3">
@@ -76,17 +79,12 @@
                   </div>                
                 </br>
                 <div style="text-align:center; vertical-align:middel;">                 
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "更新  配置""/>
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "查看  配置""/>
                 <input  type="submit" class="btn btn-primary" name= 'submit' value = "重启 Clash""/> 
                 <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回  主页""/>  
-                </div>  
-                </br>
-                <div style="text-align:center; vertical-align:middel;"> 
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "STC  特供""/> 
-                <input  type="submit" class="btn btn-primary" name= 'submit' value = "上传 gist""/>         
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">使用说明</button>     
-                </div>                        
+                <input  type="submit" class="btn btn-primary" name= 'submit' value = "上传 gist""/>     
+                <button type="button" class="btn btn-primary" data-toggle="modal"  data-target="#exampleModal">使用  说明</button>        
+                </div>                       
+                 
           
                 <!-- Modal -->
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

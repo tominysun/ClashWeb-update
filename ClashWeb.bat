@@ -3,12 +3,11 @@ color f1
 @echo off &title ClashWeb
 taskkill /F /IM python.exe
 wscript "startclashweb.vbs"  &cls
+echo.
+echo -----------控制台后台运行中----------
 
 :menu
-cls
 echo.
-echo.
-echo -------------------------------------
 echo.
 echo  ClashWeb控制台
 echo.
@@ -46,9 +45,12 @@ echo.
 echo -------------------------------------
 echo.
 ping -n 3 127.0.0.1 > nul
+cls
+echo -------------------------------------
 goto menu
 
 :openclahweb
+taskkill /F /IM python.exe
 wscript "startclashweb.vbs"  &cls
 echo.
 echo -------------------------------------
@@ -58,6 +60,9 @@ echo.
 echo -------------------------------------
 echo.
 ping -n 3 127.0.0.1 > nul
+cls
+echo.
+echo -----------控制台后台运行中----------
 goto menu
 
 :stopclashweb
@@ -70,6 +75,9 @@ echo.
 echo -------------------------------------
 echo.
 ping -n 3 127.0.0.1 > nul
+cls
+echo.
+echo -----------控制台后台未运行----------
 goto menu
 
 :startdasoboard
@@ -82,6 +90,8 @@ echo.
 echo -------------------------------------
 echo.
 ping -n 3 127.0.0.1 > nul
+cls
+echo -------------------------------------
 goto menu
 
 :exit

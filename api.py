@@ -526,6 +526,7 @@ def togist():
         else:
             return '成功上传，Gist托管地址为：'+flag                
     return render_template('togist.html')
+    
 if __name__ == '__main__':
     port = api.default.clashweb.split(':')[-1]
     if(api.default.openweb):

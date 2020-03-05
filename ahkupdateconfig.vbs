@@ -1,0 +1,1 @@
+CreateObject("WScript.Shell").Run "ahkupdateconfig.bat",0

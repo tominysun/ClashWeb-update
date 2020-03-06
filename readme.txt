@@ -10,7 +10,19 @@
 
 3. 如果无法启动，请查看Profile/Country.mmdb文件是否正常
 
+4. 32位系统怎么用？
+   打开App文件夹，
+   删除clash-win64.exe
+   将clash-win64-32.exe重命名为clash-win64.exe即可
 
+5. 如何快速更新？
+   下载release，解压。
+   删除Profile文件夹下的.yaml格式配置文件
+   将原Profile文件夹下的.yaml配置文件复制到新文件夹
+   注意，不要改变notchangeme.yaml的内容！！！！！！
+
+   然后进入控制台，选中你的配置文件，点击重启！
+   
 其他，小白不要修改：
 1. Profile/key.txt
     填入自己的geoip key 
@@ -22,6 +34,5 @@
     修改启动控制台时是否打开网页控制台  openweb
     修改启动Clash是否打开系统代理      opensysafterstartclash
     修改subconverter/pref.ini的默认rulset后，节点分组将不可用，您需要修改proxygroup
-3. 32位系统怎么用？
     
 

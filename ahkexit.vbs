@@ -1,1 +1,0 @@
-CreateObject("WScript.Shell").Run "ahkexit.bat",0

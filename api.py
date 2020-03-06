@@ -43,6 +43,7 @@ clashapi = api.default.dashboard.split('ui')[0]
 dashboard = api.default.dashboard
 app.secret_key = 'some_secret'
 mypath = os.getcwd().replace('\\','/')
+sysflag = ''
 print(mypath)
 
 @app.route('/',methods=['GET', 'POST'])
@@ -526,11 +527,24 @@ def togist():
         else:
             return '成功上传，Gist托管地址为：'+flag                
     return render_template('togist.html')
-    
+
+@app.route('/start',methods=['GET', 'POST'])
+def start(): 
+    try:
+        if sysflag == '':
+            return redirect(ip)    
+        return redirect(sysflag)             
+    except Exception as e:
+        pass    
+
 if __name__ == '__main__':
     port = api.default.clashweb.split(':')[-1]
-    if(api.default.openweb):
-        os.system('start /min '+ip)
-    app.run(host='0.0.0.0',debug=False,port=port)            #自定义端口
+    try:
+        sysflag = sys.argv[1]
+    except:
+        sysflag = ''
+    print(sysflag)
+    os.system('start /min '+ip+'/start')
+    app.run(host='0.0.0.0',debug=False,port=port)            #自定义端口   
 
 #  os.system('wscript ".\App\tmp.vbs" ')

@@ -1,8 +1,7 @@
 #默认值
 clashweb = 'http://127.0.0.1:10086'                        #默认控制台地址
 dashboard = 'http://127.0.0.1:9090/ui/#/proxies'           #默认面板地址。 当你修改后，记得修改Profile/notchangeme.yaml 的 external-controller
-subconverter = 'http://127.0.0.1:25500'                    #本地订阅转换地址。 当你修改后，记得修改App/subconverter/pref.ini的port
-openweb = True                                             #启动时是否打开浏览器控制台
+subconverter = 'http://127.0.0.1:25500'                    #本地订阅转换地址。 当你修改后，记得修改App/subconverter/pref.ini的port                                            #启动时是否打开浏览器控制台
 opensysafterstartclash = True                             #点击启动Clash时是否打开系统代理。设置为True即打开系统代理，False 即保持不变   
 
 

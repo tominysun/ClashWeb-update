@@ -1,1 +1,0 @@
-CreateObject("WScript.Shell").Run "ahkstartclash.bat",0

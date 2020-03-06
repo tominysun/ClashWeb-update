@@ -1,4 +1,4 @@
-1. 便携版不需要安装pytHon。
+1. 下载Release，解压
 
 2. 然后就可以启动了！！ 
     双击ClashWeb.exe
@@ -22,4 +22,6 @@
     修改启动控制台时是否打开网页控制台  openweb
     修改启动Clash是否打开系统代理      opensysafterstartclash
     修改subconverter/pref.ini的默认rulset后，节点分组将不可用，您需要修改proxygroup
+3. 32位系统怎么用？
+    
 

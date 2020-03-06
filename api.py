@@ -157,7 +157,7 @@ def login():
             except:
                 flash('查看代理失败')
                 return redirect(request.url)
-        if request.form['submit'] == '配置 文件':
+        if request.form['submit'] == '配置 托管':
             return redirect('profiles')
         if request.form['submit'] == '保存 节点':
             currentconfig = api.admin.getfile('./App/tmp.vbs')

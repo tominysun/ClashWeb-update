@@ -30,7 +30,7 @@ if __name__ == '__main__':
             p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
             p.wait()                
         except Exception as e:
-            print(e)
+            pass
     if gpus == 'startandset':
         try:
             currentconfig = api.admin.getfile('./App/tmp.vbs')
@@ -49,13 +49,13 @@ if __name__ == '__main__':
                     p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                     p.wait()
         except Exception as e:
-            print(e)
+            pass
 
     if gpus == 'opendashboard':
         try:
             os.system('start /min '+dashboard)
         except Exception as e:
-            print(e)
+            pass
 
     if gpus == 'updateconfig':
         try:

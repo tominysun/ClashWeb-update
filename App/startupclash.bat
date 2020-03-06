@@ -2,8 +2,11 @@
 CD /D %~DP0\..\
 SET PATH="%~dp0";"%~dp0App";%PATH%
 taskkill /IM clash-win64.exe >NUL 2>NUL
+cls
 cd ./App
-sysproxy global 127.0.0.1:7890 localhost;127.*;10.*
+sysproxy set 1
 cls
 cd ../
-ClashWeb.bat
+start ClashWeb.exe
+echo success!!
+pause

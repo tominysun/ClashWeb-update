@@ -12,28 +12,43 @@ Menu, Tray, Add, 打开控制台, MenuHandlerstartpython  ; 创建新菜单项.
 Menu, Tray, Add, 关闭控制台, MenuHandlerstoppython  ; 创建新菜单项.
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Tray, Add, 检查  状态, MenuHandlercheck  ; 创建新菜单项.
+Menu, Tray, Add, 一键  关闭, MenuHandlerexit  ; 创建新菜单项.
 Menu, Tray, Add, 退出, MenuHandlerexit1  ; 创建新菜单项.
 Menu, Tray, Add  ; 创建分隔线.
 return
 
 MenuHandlercheck:
-Process,Exist, clash-win64.exe ; 
-if ErrorLevel   ; 即既不是空值, 也不是零.
+RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
+if ( proxy > 0 )
+{ 
+    ProxyVar := "开-✅"
+}
+else 
 {
-    Process,Exist, python.exe ; 
-    if ErrorLevel   ; 即既不是空值, 也不是零
-        TrayTip % Format("Clash：正在运行"),控制台：在运行
-    else
-        TrayTip % Format("Clash：正在运行"),控制台：未运行
+    ProxyVar := "关-❌"
+}
+
+Process,Exist, clash-win64.exe ; 
+if ErrorLevel
+{
+    ClashVar := "开-✅"
 }
 else
 {
-    Process,Exist, python.exe ; 
-    if ErrorLevel   ; 即既不是空值, 也不是零
-        TrayTip % Format("Clash：没有运行"),控制台：在运行
-    else
-        TrayTip % Format("Clash：没有运行"),控制台：未运行
+    ClashVar := "关-❌"
 }
+
+Process,Exist, python.exe ; 
+if ErrorLevel   
+{
+    PythonVar := "开-✅"
+}
+else
+{ 
+    PythonVar := "关-❌"
+}
+
+TrayTip % Format("📢运行状态📢"), Clash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
 return
 
 MenuHandlerstartclash:
@@ -70,6 +85,12 @@ MenuHandlerdashboard:
 Run, ahkopendashboard.vbs
 return
 
+MenuHandlerexit:
+MsgBox, 4,, 确定要关闭Clash，Python后台，系统代理吗?
+IfMsgBox, No
+    return  ; 如果选择 No, 脚本将会终止.
+Run, ahkexit.vbs
+return
 
 MenuHandlerexit1:
 MsgBox, 4,, 确定只关闭本程序，不改变Clash、Python控制台、系统代理状态?

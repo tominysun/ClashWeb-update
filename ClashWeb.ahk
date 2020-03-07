@@ -1,27 +1,35 @@
 ﻿SetWorkingDir %A_ScriptDir%
 Menu, Tray, Icon, clash-logo.ico,1,1
-;Menu, Tray, NoStandard
+Menu, Tray, NoStandard
 #Persistent  ; 让脚本持续运行, 直到用户退出.
 Menu, Tray, Add  ; 创建分隔线.'
 Menu, Submenu, Add, 启动Clash, MenuHandlerstartclash
 Menu, Submenu, Add, 关闭Clash, MenuHandlerstopclash
+Menu, Submenu, Add
 Menu, Submenu, Add, 重启Clash, MenuHandlerrestartclash
-Menu, Submenu, Add, 更新配置, MenuHandlerupdateconfig
-Menu, tray, add, Clash🔰, :Submenu 
-Menu, tray, Add, 切换节点, MenuHandlerdashboard  ; 创建新菜单项.
-Menu, Tray, Add  ; 创建分隔线.'
-Menu, Submenu1, Add, 配置托管, profiles  ; 创建新菜单项.
-Menu, Submenu1, Add, 高级设置, admin  ; 创建新菜单项.
-Menu, Submenu1, Add, 关闭控制台, MenuHandlerstoppython  ; 创建新菜单项.
-Menu, tray, add, 控制后台, :Submenu1 
-Menu, Submenu2, Add, 开启系统代理, setsys  ; 创建新菜单项.
+Menu, Submenu, Add, 更新  配置, MenuHandlerupdateconfig
+Menu, Submenu, Add
+Menu, Submenu, Add, 启动失败推荐在配置托管, nothing
+Menu, Submenu, Add, 重启Clash查看报错信息, nothing
+Menu, tray, add, Clash, :Submenu 
+Menu, tray, Add, 切换节点, MenuHandlerdashboard  
+Menu, Submenu2, Add, 开启系统代理, setsys  
 Menu, Submenu2, Add, 关闭系统代理, dissys
 Menu, tray, add, 系统代理, :Submenu2 
+Menu, Submenu1, Add, 配置  托管, profiles  
+Menu, Submenu1, Add, 高级  设置, admin  
+Menu, Submenu1, Add
+Menu, Submenu1, Add, 关闭控制台, MenuHandlerstoppython  
+Menu, Submenu1, Add, 操作后推荐关闭控制台, nothing  
+Menu, tray, add, 控制后台, :Submenu1 
 Menu, Tray, Add  ; 创建分隔线.
-Menu, Tray, Add, 检查状态, MenuHandlercheck  ; 创建新菜单项.
-Menu, Tray, Add, 一键关闭, MenuHandlerexit  ; 创建新菜单项.
-Menu, Tray, Add, 退出, MenuHandlerexit1  ; 创建新菜单项.
+Menu, Tray, Add, 检查状态, MenuHandlercheck  
+Menu, Tray, Add, 一键关闭, MenuHandlerexit  
+Menu, Tray, Add, 退出, MenuHandlerexit1  
 Menu, Tray, Add  ; 创建分隔线.
+return
+
+nothing:
 return
 
 admin:
@@ -65,7 +73,16 @@ else
 {
     ClashVar := "关-❌"
 }
-TrayTip % Format("📢运行状态📢"),Clash：%ClashVar%
+RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
+if ( proxy > 0 )
+{ 
+    ProxyVar := "开-✅"
+}
+else 
+{
+    ProxyVar := "关-❌"
+}
+TrayTip % Format("📢运行状态📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
 return
 
 checkpython:

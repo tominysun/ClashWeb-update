@@ -16,7 +16,7 @@ Menu, tray, Add, 切换节点, MenuHandlerdashboard
 Menu, Submenu2, Add, 开启系统代理, setsys  
 Menu, Submenu2, Add, 关闭系统代理, dissys
 Menu, tray, add, 系统代理, :Submenu2 
-Menu, Submenu1, Add, 配置  托管, profiles  
+Menu, Submenu1, Add, 打开控制台, clashweb  
 Menu, Submenu1, Add, 高级  设置, admin  
 Menu, Submenu1, Add
 Menu, Submenu1, Add, 关闭控制台, MenuHandlerstoppython  
@@ -36,8 +36,8 @@ admin:
 RunWait, ahkopenadmin.bat,,Hide
 return
 
-profiles:
-RunWait, ahkopenprofiles.bat,,Hide
+clashweb:
+Run, ahkopenclashweb.bat,,Hide
 return
 
 setsys:

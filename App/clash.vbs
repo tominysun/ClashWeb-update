@@ -1,1 +1,1 @@
-CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f .\Profile\notchangeme.yaml",0
+CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f .\Profile\defaultconfig\default.yaml",0

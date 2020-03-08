@@ -13,9 +13,9 @@
   - 配置文件管理页面示意图<br/>
   ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/profiles.png) <br/>
   - 上传gist页面示意图<br/>
-  ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/gist.jpg) <br/>
+  ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/gist.png) <br/>
 
-# 更新通知
+# 其他
    - 关注频道：https://t.me/niconewbeeeapi
    - 有用的话，欢迎TG打赏: https://t.me/niconewbeeeapi/134
    - 项目基于subweb：https://github.com/lzdnico/subweb

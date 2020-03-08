@@ -3,24 +3,19 @@ Menu, Tray, Icon, clash-logo.ico,1,1
 Menu, Tray, NoStandard
 #Persistent  ; 让脚本持续运行, 直到用户退出.
 Menu, Tray, Add  ; 创建分隔线.'
+Menu, tray, Add, 切换节点, MenuHandlerdashboard 
 Menu, Submenu, Add, 启动Clash, MenuHandlerstartclash
 Menu, Submenu, Add, 关闭Clash, MenuHandlerstopclash
 Menu, Submenu, Add
 Menu, Submenu, Add, 重启Clash, MenuHandlerrestartclash
 Menu, Submenu, Add, 更新  配置, MenuHandlerupdateconfig
 Menu, Submenu, Add
-Menu, Submenu, Add, 启动失败推荐在配置托管, nothing
-Menu, Submenu, Add, 重启Clash查看报错信息, nothing
-Menu, tray, add, Clash, :Submenu 
-Menu, tray, Add, 切换节点, MenuHandlerdashboard  
+Menu, tray, add, Clash, :Submenu  
 Menu, Submenu2, Add, 开启系统代理, setsys  
 Menu, Submenu2, Add, 关闭系统代理, dissys
 Menu, tray, add, 系统代理, :Submenu2 
-Menu, Submenu1, Add, 打开控制台, clashweb  
-Menu, Submenu1, Add, 高级  设置, admin  
-Menu, Submenu1, Add
-Menu, Submenu1, Add, 关闭控制台, MenuHandlerstoppython  
-Menu, Submenu1, Add, 操作后推荐关闭控制台, nothing  
+Menu, Submenu1, Add, 打开控制台, clashweb 
+Menu, Submenu1, Add, 关闭控制台, MenuHandlerstoppython   
 Menu, tray, add, 控制后台, :Submenu1 
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Tray, Add, 检查状态, MenuHandlercheck  
@@ -130,7 +125,7 @@ else
 { 
     PythonVar := "关-❌"
 }
-TrayTip % Format("📢运行状态📢"), Clash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
+TrayTip % Format("📢运行状态📢"), Clash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%`n推荐  状态：开-开-关
 return
 
 MenuHandlerstartclash:
@@ -148,12 +143,52 @@ return
 
 MenuHandlerrestartclash:
 RunWait, ahkrestartclash.bat,,Hide
-Goto, checkclash
+Process,Exist, clash-win64.exe ; 
+if ErrorLevel
+{
+    ClashVar := "开-✅"
+}
+else
+{
+    TrayTip % Format("📢重启失败📢"),请用控制台重启，查看报错信息。
+    return
+}
+RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
+if ( proxy > 0 )
+{ 
+    ProxyVar := "开-✅"
+}
+else 
+{
+    ProxyVar := "关-❌"
+}
+TrayTip % Format("📢重启成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
 return
+
 
 MenuHandlerupdateconfig:
 RunWait, ahkupdateconfig.bat,,Hide
-TrayTip % Format("📢运行状态📢"), 操作成功，如果启动失败请再次尝试。
+RunWait, ahkrestartclash.bat,,Hide
+Process,Exist, clash-win64.exe ; 
+if ErrorLevel
+{
+    ClashVar := "开-✅"
+}
+else
+{
+    TrayTip % Format("📢重启失败📢"),请用控制台重启，查看报错信息。
+    return
+}
+RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
+if ( proxy > 0 )
+{ 
+    ProxyVar := "开-✅"
+}
+else 
+{
+    ProxyVar := "关-❌"
+}
+TrayTip % Format("📢更新并重启成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
 return
 
 
@@ -175,7 +210,7 @@ if ErrorLevel
 else
 {
     ClashVar := "关-❌"
-    TrayTip % Format("📢运行状态📢"),Clash：%ClashVar%，请先启动Clash。
+    TrayTip % Format("📢打开失败📢"),Clash：%ClashVar%`n请先启动Clash
 }
 return
 

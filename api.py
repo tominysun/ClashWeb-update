@@ -150,7 +150,7 @@ def login():
                 currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','')
                 isDashboard = api.admin.getfile(currentconfig)
                 #if 'external-ui: dashboard_Razord' in isDashboard :
-                os.system('start /min '+dashboard)
+                os.system('start '+dashboard)
                 return redirect(ip)
                 #else:
                     #os.system('start /min http://clash.razord.top/#/proxies')
@@ -544,7 +544,7 @@ if __name__ == '__main__':
     except:
         sysflag = ''
     print(sysflag)
-    os.system('start /min '+ip+'/start')
+    os.system('start '+ip+'/start')
     app.run(host='0.0.0.0',debug=False,port=port)            #自定义端口   
 
 #  os.system('wscript ".\App\tmp.vbs" ')

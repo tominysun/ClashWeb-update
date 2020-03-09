@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     if gpus == 'opendashboard':
         try:
-            os.system('start /min '+dashboard)
+            os.system('start '+dashboard)
         except Exception as e:
             pass
 

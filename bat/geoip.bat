@@ -1,5 +1,4 @@
 cd ./Profile
-for /f %%i in (.\key.txt) do curl -kLo GeoLite2-Country.tar.gz "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=%%i&suffix=tar.gz"
 7za.exe e GeoLite2-Country.tar.gz
 7za e GeoLite2-Country.tar "GeoLite2-Country*\GeoLite2-Country.mmdb" -aoa
 del "Country.mmdb" /f /q

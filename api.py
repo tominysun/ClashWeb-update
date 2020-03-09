@@ -361,6 +361,10 @@ def admin():
     try:
         if request.method == "POST":
                 if request.form['submit'] == '更新  geoip':               
+                    url = "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key={key}&suffix=tar.gz".format(key=api.default.key)
+                    r = requests.get(url) 
+                    with open("./Profile/GeoLite2-Country.tar.gz",'wb') as f:
+                        f.write(r.content)
                     p=subprocess.Popen(mypath+'/bat/geoip.bat',shell=False)
                     p.wait()
                     flash('更新Geoip成功')

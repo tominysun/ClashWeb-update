@@ -215,7 +215,7 @@ def profiles():
                             return '下载失败，检查浏览器能否上网！如果是本地托管，请先双击/App/subconverter/subconverter.exe赋予联网权限'
                         content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content     #下载           
                         api.admin.writefile(content,fileadd)                               #写入
-                        flash('下载配置成功！并更新托管地址')
+                        flash('下载配置成功。注意查看内容是否正常，无误后请点击重启Clash以应用！')
                         return render_template('content.html',content=content,file=fileadd) 
 
                     else:
@@ -233,7 +233,7 @@ def profiles():
                             return '下载失败，重新尝试,默认使用系统代理下载托管，请注意检查浏览器能否上网！！'
                         content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content  #下载  
                         api.admin.writefile(content,fileadd)            #写入
-                        flash('下载配置成功！托管地址未变动')
+                        flash('下载配置成功！托管地址未变动！注意查看内容是否正常，无误后请点击重启Clash以应用！')
                         return render_template('content.html',content=content,file=fileadd)                         
                 if request.form['submit'] == '查看  配置': 
                     fileadd = './Profile/'+request.form.get('configselect')              
@@ -296,7 +296,7 @@ def profiles():
                     print('当前配置文件地址：'+fileadd)
                     api.admin.writefile(content,fileadd)
                     content= api.admin.getfile(fileadd)
-                    flash('修改配置成功！')
+                    flash('修改配置成功！点击重启以应用！')
                     return render_template('content.html',content=content,file=fileadd)  
                 if  request.form['submit'] == '返回上页' :
                     return redirect(request.referrer) 

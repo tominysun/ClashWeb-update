@@ -1,4 +1,5 @@
 1. 下载Release，解压
+   如果不是便携版，需要自行安装Python（Add to Path）并进入bat文件夹，双击pipinstall.bat安装依赖
 
 2. 然后就可以启动了！！ 
     双击ClashWeb.exe

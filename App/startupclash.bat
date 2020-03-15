@@ -1,10 +1,9 @@
 @echo off
-CD /D %~DP0\..\
-SET PATH="%~dp0";"%~dp0App";%PATH%
+:: 切换的软件根目录
+CD /D %~dp0\..\
+:: 设置环境变量
+PATH="%CD%\";"%CD%\App";"%CD%\Python";"%CD%\Python\Scripts";"%CD%\Python\Lib\distutils\command";"%CD%\Python\Lib\site-packages\pip\_vendor\distlib";"%CD%\Python\Lib\site-packages\setuptools";%PATH%
 taskkill /IM clash-win64.exe >NUL 2>NUL
-cd ./App
-sysproxy set 1
-cd ../
 start ClashWeb.exe
-SET PATH="%~dp0";"%~dp0App";"%~dp0Python";"%~dp0Python\Scripts";"%~dp0Python\Lib\distutils\command";"%~dp0Python\Lib\site-packages\pip\_vendor\distlib";"%~dp0Python\Lib\site-packages\setuptools";%PATH%
+sysproxy set 1
 python node.py startandset

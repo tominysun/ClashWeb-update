@@ -164,7 +164,7 @@ def login():
             currentconfig = api.admin.getfile('./App/tmp.vbs')
             currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')
             api.clashapi.getallproxies('./Profile/'+currentconfig)    
-            flash('保存当前节点选择成功')
+            flash('【手动】记忆当前节点选择成功！！！ 当你重启Clash或者关闭Clash时会【自动】记忆节点！！！')
             return redirect(ip)
         if request.form['submit'] == '高级 设置':
             return redirect('admin')
@@ -549,6 +549,6 @@ if __name__ == '__main__':
         sysflag = ''
     print(sysflag)
     os.system('start '+ip+'/start')
-    app.run(host='0.0.0.0',debug=False,port=port)            #自定义端口   
+    app.run(host='127.0.0.1',debug=False,port=port)            #自定义端口   
 
 #  os.system('wscript ".\App\tmp.vbs" ')

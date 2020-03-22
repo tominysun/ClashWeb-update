@@ -17,9 +17,10 @@
    将clash-win64-32.exe重命名为clash-win64.exe即可
 
 5. 如何快速更新ClashWeb软件？
-   下载release，解压。
-   删除Profile文件夹下的.yaml格式配置文件
-   将原Profile文件夹下的.yaml配置文件复制到新文件夹
+   S1.下载release，解压。
+   S2.删除Profile文件夹下的.yaml格式配置文件
+   S3.将原Profile文件夹下的.yaml配置文件复制到新文件夹
+   
    注意，不要删除Profile文件夹defaultconfig里面的内容
    然后进入控制台，选中你的配置文件，点击重启！
    

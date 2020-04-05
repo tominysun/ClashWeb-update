@@ -1,3 +1,6 @@
+0. 默认内核不支持SSR，请打开APP文件夹，自行替换。
+
+
 1. 下载Release，解压
    如果不是便携版，需要自行安装Python（Add to Path）并进入bat文件夹，双击pipinstall.bat安装依赖
 
@@ -15,6 +18,8 @@
    打开App文件夹，
    删除clash-win64.exe
    将clash-win64-32.exe重命名为clash-win64.exe即可
+
+   后缀有ssr的是ClashR内核。
 
 5. 如何快速更新ClashWeb软件？
    S1.下载release，解压。

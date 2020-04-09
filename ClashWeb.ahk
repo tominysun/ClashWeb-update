@@ -1,4 +1,42 @@
 ﻿SetWorkingDir %A_ScriptDir%
+Process,Exist, clash-win64.exe ;                         
+if ErrorLevel
+{
+    ClashVar := "开-✅"
+}
+else
+{
+    RunWait, ahkstart.bat,,Hide
+}
+RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
+if ( proxy > 0 )
+{ 
+    ProxyVar := "开-✅"
+}
+else 
+{
+    ProxyVar := "关-❌"
+}
+Process,Exist, clash-win64.exe ; 
+if ErrorLevel
+{
+    ClashVar := "开-✅"
+}
+else
+{
+    ClashVar := "关-❌"
+}
+
+Process,Exist, python.exe ; 
+if ErrorLevel   
+{
+    PythonVar := "开-✅"
+}
+else
+{ 
+    PythonVar := "关-❌"
+}
+TrayTip % Format("📢运行状态📢"), Clash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%`n推荐  状态：开-开-关
 Menu, Tray, Icon, clash-logo.ico,1,1
 Menu, Tray, NoStandard
 #Persistent  ; 让脚本持续运行, 直到用户退出.
@@ -19,8 +57,7 @@ Menu, Submenu1, Add, 关闭控制台, MenuHandlerstoppython
 Menu, tray, add, 控制后台, :Submenu1 
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Tray, Add, 检查状态, MenuHandlercheck  
-Menu, Tray, Add, 一键关闭, MenuHandlerexit  
-Menu, Tray, Add, 退出, MenuHandlerexit1  
+Menu, Tray, Add, 退出, MenuHandlerexit  
 Menu, Tray, Add  ; 创建分隔线.
 return
 
@@ -215,18 +252,37 @@ else
 return
 
 MenuHandlerexit:
-MsgBox, 4,, 确定要关闭Clash，Python后台，系统代理吗?
-IfMsgBox, No
-    return  ; 如果选择 No, 脚本将会终止.
 RunWait, ahkexit.bat,,Hide
-Goto, MenuHandlercheck
-return
+RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
+if ( proxy > 0 )
+{ 
+    ProxyVar := "开-✅"
+}
+else 
+{
+    ProxyVar := "关-❌"
+}
 
-MenuHandlerexit1:
-MsgBox, 4,, 确定只关闭本程序，不改变Clash、Python控制台、系统代理状态?
-IfMsgBox, No
-    return  ; 如果选择 No, 脚本将会终止.
-Exit:
+Process,Exist, clash-win64.exe ; 
+if ErrorLevel
+{
+    ClashVar := "开-✅"
+}
+else
+{
+    ClashVar := "关-❌"
+}
+
+Process,Exist, python.exe ; 
+if ErrorLevel   
+{
+    PythonVar := "开-✅"
+}
+else
+{ 
+    PythonVar := "关-❌"
+}
+TrayTip % Format("📢运行状态📢"), Clash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%`n推荐  状态：开-开-关
 ExitApp
 
 

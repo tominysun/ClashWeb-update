@@ -4,6 +4,8 @@ dashboard = 'http://127.0.0.1:9090/ui/#/proxies'           #默认面板地址�
 subconverter = 'http://127.0.0.1:25500'                    #本地订阅转换地址。 当你修改后，记得修改App/subconverter/pref.ini的port                                            #启动时是否打开浏览器控制台
 opensysafterstartclash = True                              #点击启动Clash时是否打开系统代理。设置为True即打开系统代理，False 即保持不变   
 key = 'oeEqpP5QI21N'                                       #下载geoip的key
+openclashafterstartclashweb = True                         #启动ClasWeb是否开启Clash
+closeclashbeforeexitclashweb = True                       #退出Clashweb是否关闭Clash
 
 #For 节点分组                                              #您修改subconverter/snippets/rulets的默认rulset后，节点分组将不可用，您需要修改下面的proxygroup。
 proxygroup= '@🔰 节点选择`select{groupname}[]DIRECT'\

@@ -14,6 +14,8 @@ import api.clashapi
 import os
 
 ip = api.default.clashweb
+openclashafterstartclashweb = api.default.openclashafterstartclashweb
+closeclashbeforeexitclashweb = api.default.closeclashbeforeexitclashweb
 clashapi = api.default.dashboard.split('ui')[0]
 dashboard = api.default.dashboard
 mypath = os.getcwd().replace('\\','/')
@@ -75,3 +77,35 @@ if __name__ == '__main__':
             print('下载失败，重新尝试,默认使用系统代理下载托管，请注意检查浏览器能否上网！！')
         content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content  #下载  
         api.admin.writefile(content,'./Profile/'+currentconfig)           #写入
+
+    if gpus == 'startclashweb':
+        try:
+            if(openclashafterstartclashweb):
+                currentconfig = api.admin.getfile('./App/tmp.vbs')
+                currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+                p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
+                p.wait() 
+                path=mypath+'/Profile/'+currentconfig
+                path=path.replace('/','\\')
+                p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))   
+                print(p.text)  
+                if '' == p.text:  
+                    print(gpus)                     
+                    api.clashapi.setproxies('./Profile/'+currentconfig.replace('.yaml','.txt'))              
+                    if(api.default.opensysafterstartclash):
+                        print(gpus)
+                        p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
+                        p.wait()
+        except:
+            pass
+
+    if gpus == 'closeclashweb':
+        try:
+            currentconfig = api.admin.getfile('./App/tmp.vbs')
+            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')     
+            api.clashapi.getallproxies('./Profile/'+currentconfig)                       
+            if(closeclashbeforeexitclashweb):                    
+                p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
+                p.wait()                   
+        except:
+            pass

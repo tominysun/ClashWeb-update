@@ -1,0 +1,10 @@
+实际运行中的内核为：clash-win64.exe
+
+32位系统如何使用？
+1.删除clash-win64.exe
+2.请将带有32字样的clash内核重命名为clash-win64.exe  (必须改成这个名字)
+
+
+支持ssr内核的如何使用？
+1.删除clash-win64.exe
+2.请将带有ssr字样的clash内核重命名为clash-win64.exe  (必须改成这个名字)

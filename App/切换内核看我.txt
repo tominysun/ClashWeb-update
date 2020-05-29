@@ -8,3 +8,7 @@
 支持ssr内核的如何使用？
 1.删除clash-win64.exe
 2.请将带有ssr字样的clash内核重命名为clash-win64.exe  (必须改成这个名字)
+
+内核下载地址：
+https://github.com/Dreamacro/clash/releases     原版
+https://github.com/BROBIRD/clash/releases        鸟哥，支持SSR

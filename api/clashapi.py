@@ -39,5 +39,5 @@ def setconfig(address):
     requests.put(ip+'configs/'+address)
 
 
-
-#requests.put('http://127.0.0.1:9090/configs',data=json.dumps({'path':'D:\ClashWebgit\Profile\config.yaml'}))
+def setmode(mode):
+    requests.patch(ip+'configs/',data=json.dumps({'mode':mode}))

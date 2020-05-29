@@ -2,64 +2,73 @@
 Process,Exist, clash-win64.exe ;                         
 if ErrorLevel
 {
-    ClashVar := "开-✅"
+    
 }
 else
 {
     RunWait, ahkstart.bat,,Hide
 }
-RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
-if ( proxy > 0 )
-{ 
-    ProxyVar := "开-✅"
-}
-else 
-{
-    ProxyVar := "关-❌"
-}
-Process,Exist, clash-win64.exe ; 
-if ErrorLevel
-{
-    ClashVar := "开-✅"
-}
-else
-{
-    ClashVar := "关-❌"
-}
 
-Process,Exist, python.exe ; 
-if ErrorLevel   
-{
-    PythonVar := "开-✅"
-}
-else
-{ 
-    PythonVar := "关-❌"
-}
-TrayTip % Format("📢运行状态📢"), Clash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%`n推荐  状态：开-开-关
 Menu, Tray, Icon, clash-logo.ico,1,1
 Menu, Tray, NoStandard
 #Persistent  ; 让脚本持续运行, 直到用户退出.
 Menu, Tray, Add  ; 创建分隔线.'
 Menu, tray, Add, 切换节点, MenuHandlerdashboard 
+
 Menu, Submenu, Add, 启动Clash, MenuHandlerstartclash
 Menu, Submenu, Add, 关闭Clash, MenuHandlerstopclash
 Menu, Submenu, Add
 Menu, Submenu, Add, 重启Clash, MenuHandlerrestartclash
 Menu, Submenu, Add, 更新  配置, MenuHandlerupdateconfig
-Menu, Submenu, Add
 Menu, tray, add, Clash, :Submenu  
+
+Menu, Submenu3, Add, 规则, rulemode  
+Menu, Submenu3, Add, 全局, globalmode
+Menu, Submenu3, Add, 直连, directmode
+Menu, tray, add, 代理模式, :Submenu3 
+
 Menu, Submenu2, Add, 开启系统代理, setsys  
 Menu, Submenu2, Add, 关闭系统代理, dissys
 Menu, tray, add, 系统代理, :Submenu2 
+
+
 Menu, Submenu1, Add, 打开控制台, clashweb 
 Menu, Submenu1, Add, 关闭控制台, MenuHandlerstoppython   
 Menu, tray, add, 控制后台, :Submenu1 
+
 Menu, Tray, Add  ; 创建分隔线.
-Menu, Tray, Add, 检查状态, MenuHandlercheck  
+Menu, Tray, Click, OnClick 
+Menu, Tray, Add, 检查状态, OnClick
 Menu, Tray, Add, 退出, MenuHandlerexit  
+Menu, Tray, Default, 检查状态
 Menu, Tray, Add  ; 创建分隔线.
+OnClick:
+if !LastClick 
+{
+        LastClick := 1
+        LastTC := A_TickCount
+        SetTimer,SingleClickEvent,-200
+}
+else if (A_TickCount-LastTC<200)
+{
+        SetTimer,SingleClickEvent,off
+        gosub,DoubleClickEvent
+}
 return
+
+
+SingleClickEvent:
+LastClick := 0
+Goto, MenuHandlercheck 
+return
+
+
+DoubleClickEvent:
+LastClick := 0
+Goto, MenuHandlerdashboard
+return
+
+
 
 nothing:
 return
@@ -202,6 +211,20 @@ else
 TrayTip % Format("📢重启成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
 return
 
+rulemode:
+RunWait, ahkrule.bat,,Hide
+TrayTip % Format("📢通知📢"),规则模式
+return
+
+directmode:
+RunWait, ahkdirect.bat,,Hide
+TrayTip % Format("📢通知📢"),直连模式
+return
+
+globalmode:
+RunWait, ahkglobal.bat,,Hide
+TrayTip % Format("📢通知📢"),全局模式
+return
 
 MenuHandlerupdateconfig:
 RunWait, ahkupdateconfig.bat,,Hide

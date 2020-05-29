@@ -109,3 +109,34 @@ if __name__ == '__main__':
                 p.wait()                   
         except:
             pass
+
+
+    if gpus == 'closeclashweb':
+        try:
+            currentconfig = api.admin.getfile('./App/tmp.vbs')
+            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')     
+            api.clashapi.getallproxies('./Profile/'+currentconfig)                       
+            if(closeclashbeforeexitclashweb):                    
+                p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
+                p.wait()                   
+        except:
+            pass
+
+    if gpus == 'rulemode':
+        try:  
+            api.clashapi.setmode('Rule')                 
+                 
+        except:
+            pass
+    if gpus == 'directmode':
+        try:
+            api.clashapi.setmode('Direct')                  
+        except:
+            pass
+
+    if gpus == 'globalmode':
+        try:
+            api.clashapi.setmode('Global')    
+        except:
+            pass
+

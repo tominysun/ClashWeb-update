@@ -4,10 +4,10 @@
 1.删除clash-win64.exe
 2.请将带有32字样的clash内核重命名为clash-win64.exe  (必须改成这个名字)
 
+内核区别：
+带D的表示原版内核
+带SSR的表示支持ssr的BROBIRD内核
 
-支持ssr内核的如何使用？
-1.删除clash-win64.exe
-2.请将带有ssr字样的clash内核重命名为clash-win64.exe  (必须改成这个名字)
 
 内核下载地址：
 https://github.com/Dreamacro/clash/releases     原版

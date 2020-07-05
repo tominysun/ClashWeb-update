@@ -1,16 +1,18 @@
 ﻿SetWorkingDir %A_ScriptDir%
 Process,Exist, clash-win64.exe ;                         
 if ErrorLevel
-{
-    
+{   
 }
 else
 {
     RunWait, ahkstart.bat,,Hide
 }
 
+
 Menu, Tray, Icon, clash-logo.ico,1,1
 Menu, Tray, NoStandard
+
+
 #Persistent  ; 让脚本持续运行, 直到用户退出.
 Menu, Tray, Add  ; 创建分隔线.'
 Menu, tray, Add, 切换节点, MenuHandlerdashboard 
@@ -31,7 +33,6 @@ Menu, Submenu2, Add, 开启系统代理, setsys
 Menu, Submenu2, Add, 关闭系统代理, dissys
 Menu, tray, add, 系统代理, :Submenu2 
 
-
 Menu, Submenu1, Add, 打开控制台, clashweb 
 Menu, Submenu1, Add, 关闭控制台, MenuHandlerstoppython   
 Menu, tray, add, 控制后台, :Submenu1 
@@ -42,7 +43,8 @@ Menu, Tray, Add, 检查状态, OnClick
 Menu, Tray, Add, 退出, MenuHandlerexit  
 Menu, Tray, Default, 检查状态
 Menu, Tray, Add  ; 创建分隔线.
-OnClick:
+
+OnClick:                                      ;任务栏图标双击单击效果
 if !LastClick 
 {
         LastClick := 1
@@ -56,19 +58,15 @@ else if (A_TickCount-LastTC<200)
 }
 return
 
-
 SingleClickEvent:
 LastClick := 0
 Goto, MenuHandlercheck 
 return
 
-
 DoubleClickEvent:
 LastClick := 0
 Goto, MenuHandlerdashboard
 return
-
-
 
 nothing:
 return

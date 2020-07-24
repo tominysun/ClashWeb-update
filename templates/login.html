@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>❤️ Clash 控制台 ️️❤️</title>
+    <title>❤️ ClashWeb 控制台 ️️❤️</title>
     <link href="/static/css/style.min.css" media="all" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
@@ -15,7 +15,7 @@
 <body>  
     <div class="container" style="width: 30rem;">
             <header>
-                <h1>🚀 Clash 控制台 🚁</h1>
+                <h1>🚀 ClashWeb 控制台 🚁</h1>
             </header>
             <!-- Proxy tools -->
             {% with messages = get_flashed_messages() %}
@@ -59,17 +59,12 @@
             </div>
             <div class="card"  >          
                 <button type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "clash" "/>{{ clash }}</button>
-                <textarea  name = "clash" cols="70" rows="5" id="custom" style="display:none"" >{{ clash  }}</textarea>
-                    </br>     
-                <button type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "系统代理" "/>系统 代理</button>
+                <textarea  name = "clash" cols="70" rows="5" id="custom" style="display:none"" >{{ clash  }}</textarea>  
                 <textarea  name = "sysproxy" cols="70" rows="5" id="custom" style="display:none"" >{{ sysproxy  }}</textarea>                 
-                    </br>                
-                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "打开 面板""/>                                 
-            </div> 
-            <div class="card"  >     
-                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "保存 节点""/>
-                    </br>            
-                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "配置 托管""/>
+                    </br>                  
+                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "切换 节点""/>                                 
+                    </br>
+                <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "订阅  管理""/>
                     </br>
                                 
                 <input  type="submit" class="btn btn-primary btn-lg" name= 'submit' value = "高级 设置""/> 

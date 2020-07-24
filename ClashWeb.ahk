@@ -9,6 +9,7 @@ else
 }
 
 
+programName:="ClashWeb By Nico"
 Menu, Tray, Icon, clash-logo.ico,1,1
 Menu, Tray, NoStandard
 
@@ -43,18 +44,23 @@ Menu, Tray, Add, 检查状态, OnClick
 Menu, Tray, Add, 退出, MenuHandlerexit  
 Menu, Tray, Default, 检查状态
 Menu, Tray, Add  ; 创建分隔线.
-
+Menu,Tray,Tip,%programName% 
 OnClick:                                      ;任务栏图标双击单击效果
 if !LastClick 
 {
         LastClick := 1
-        LastTC := A_TickCount
         SetTimer,SingleClickEvent,-200
 }
-else if (A_TickCount-LastTC<200)
+else if (LastClick = 1 )
 {
         SetTimer,SingleClickEvent,off
-        gosub,DoubleClickEvent
+        LastClick := 2
+        SetTimer,DoubleClickEvent,-500
+}
+else if (LastClick = 2 )
+{
+        SetTimer,DoubleClickEvent,off
+        gosub,TripleClickEvent
 }
 return
 
@@ -66,6 +72,11 @@ return
 DoubleClickEvent:
 LastClick := 0
 Goto, MenuHandlerdashboard
+return
+
+TripleClickEvent:
+LastClick := 0
+Goto, MenuHandlerupdateconfig
 return
 
 nothing:

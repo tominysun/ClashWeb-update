@@ -51,11 +51,13 @@ def login():
     if request.method == "POST":
         if request.form['submit'] == 'clash': 
             clash = request.form.get('clash')
+
             sysproxy = request.form.get('sysproxy')
             if '开启' in sysproxy:
                 issys = '系统代理：关闭'
             else:
                 issys = '系统代理：开启'
+
             if clash == '启动Clash':
                 try:
                     currentconfig = api.admin.getfile('./App/tmp.vbs')
@@ -107,6 +109,8 @@ def login():
                 except :
                     flash('关闭Clash失败')
                     return redirect(ip)
+
+        '''
         if request.form['submit'] == '系统代理': 
             clash = request.form.get('clash')
             sysproxy = request.form.get('sysproxy')
@@ -139,7 +143,8 @@ def login():
                 except :
                     flash('关闭系统代理失败')
                     return redirect(ip)
-        if request.form['submit'] == '打开 面板':
+        '''
+        if request.form['submit'] == '切换 节点':
             clash = request.form.get('clash')
             sysproxy = request.form.get('sysproxy')
             if clash == '启动Clash':
@@ -158,21 +163,18 @@ def login():
             except:
                 flash('查看代理失败')
                 return redirect(request.url)
-        if request.form['submit'] == '配置 托管':
+        if request.form['submit'] == '订阅  管理':
             return redirect('profiles')
+        '''
         if request.form['submit'] == '保存 节点':
             currentconfig = api.admin.getfile('./App/tmp.vbs')
             currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')
             api.clashapi.getallproxies('./Profile/'+currentconfig)    
             flash('【手动】记忆当前节点选择成功！！！ 当你重启Clash或者关闭Clash时会【自动】记忆节点！！！')
             return redirect(ip)
+        '''
         if request.form['submit'] == '高级 设置':
             return redirect('admin')
-        if request.form['submit'] == '关闭 程序':
-            try:
-                os._exit()
-            except:
-                print('Program is dead.')
     #time.sleep(1)
     a = os.popen(mypath+'/bat/check.bat')
     a = a.read()
@@ -261,7 +263,7 @@ def profiles():
                         api.admin.writefile(script,'./App/tmp.vbs')                                            
                     flash('重命名成功')
                     return redirect('profiles')
-                if  request.form['submit'] == '重启 Clash' :
+                if  request.form['submit'] == '重启/切换' :
                     currentconfig = api.admin.getfile('./App/tmp.vbs')
                     currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')
                     try:
@@ -473,7 +475,11 @@ def customgroup():
                     if fdn == None:
                         fdn= 'false'
                 except :
-                    return '出现BUG，请反馈'             
+                    return '出现BUG，请反馈'      
+                if tool == 'clash':
+                        CustomGroupvmess = '{ip}/sub?target=clash&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=api.default.subconverter,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
+                        api2 = 'https://gfwsb.114514.best/sub?target=clash&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
+                        return render_template('clashr.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)         
                 if tool == 'clashr':
                         CustomGroupvmess = '{ip}/sub?target=clashr&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=api.default.subconverter,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
                         api2 = 'https://gfwsb.114514.best/sub?target=clashr&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 

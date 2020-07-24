@@ -32,11 +32,11 @@ Menu, tray, add, 代理模式, :Submenu3
 
 Menu, Submenu2, Add, 开启系统代理, setsys  
 Menu, Submenu2, Add, 关闭系统代理, dissys
-Menu, tray, add, 系统代理, :Submenu2 
+Menu, tray, add, 系统代理, :Submenu2
 
-Menu, Submenu1, Add, 打开控制台, clashweb 
-Menu, Submenu1, Add, 关闭控制台, MenuHandlerstoppython   
-Menu, tray, add, 控制后台, :Submenu1 
+Menu, Tray, Add  ; 创建分隔线.
+Menu, Tray, Add, 打开控制台, clashweb 
+Menu, Tray, Add, 关闭控制台, MenuHandlerstoppython   
 
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Tray, Click, OnClick 

@@ -34,11 +34,13 @@
             {% endwith %} 
             <textarea  name = "file" cols="70" rows="5" id="custom" value="{{ url_for('static', filename=file)}}" style="display:none"" >{{ file  }}</textarea>
             <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回上页""/>
-            <input  type="submit" class="btn btn-primary" name= 'submit' value = "修改配置""/>
-            <input  type="submit" class="btn btn-primary" name= 'submit' value = "重启Clash""/>
             <input  type="submit" class="btn btn-primary" name= 'submit' value = "返回主页""/>
-            <small id="emailHelp" class="form-text text-muted">您可能需要的参数： external-ui: dashboard_Razord</small>
+            <input  type="submit" class="btn btn-primary" name= 'submit' value = "重启Clash""/>
+            <input  type="submit" class="btn btn-primary" name= 'submit' value = "修改订阅/修改配置""/>
             <div class="card" >
+                <h4>订阅地址</h4>
+                <textarea  name = "sub" cols="70" rows="5" id="custom" placeholder="配置文件内容"" >{{ sub  }}</textarea>  
+                <h4>配置文件</h4>
                 <textarea  name = "content" cols="70" rows="50" id="custom" placeholder="配置文件内容"" >{{ content  }}</textarea>  
             </div>
                           

@@ -28,7 +28,7 @@ if __name__ == '__main__':
         try:
             currentconfig = api.admin.getfile('./App/tmp.vbs')
             currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')     
-            api.clashapi.getallproxies('./Profile/'+currentconfig)                     
+            api.clashapi.getallproxies('./Profile/save/'+currentconfig)                     
             p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
             p.wait()                
         except Exception as e:
@@ -45,7 +45,7 @@ if __name__ == '__main__':
             print(p.text)  
             if '' == p.text:  
                 print(gpus)                     
-                api.clashapi.setproxies('./Profile/'+currentconfig.replace('.yaml','.txt'))              
+                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))              
                 if(api.default.opensysafterstartclash):
                     print(gpus)
                     p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
@@ -91,7 +91,7 @@ if __name__ == '__main__':
                 print(p.text)  
                 if '' == p.text:  
                     print(gpus)                     
-                    api.clashapi.setproxies('./Profile/'+currentconfig.replace('.yaml','.txt'))              
+                    api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))             
                     if(api.default.opensysafterstartclash):
                         print(gpus)
                         p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         try:
             currentconfig = api.admin.getfile('./App/tmp.vbs')
             currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')     
-            api.clashapi.getallproxies('./Profile/'+currentconfig)                       
+            api.clashapi.getallproxies('./Profile/save/'+currentconfig)                       
             if(closeclashbeforeexitclashweb):                    
                 p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
                 p.wait()                   
@@ -115,7 +115,7 @@ if __name__ == '__main__':
         try:
             currentconfig = api.admin.getfile('./App/tmp.vbs')
             currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')     
-            api.clashapi.getallproxies('./Profile/'+currentconfig)                       
+            api.clashapi.getallproxies('./Profile/save/'+currentconfig)                       
             if(closeclashbeforeexitclashweb):                    
                 p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
                 p.wait()                   

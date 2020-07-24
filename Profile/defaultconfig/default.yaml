@@ -1,23 +1,24 @@
-port: 7890  
+port: 7890   
 socks-port: 7891            
+#修改端口后，注意修改  /bat/setsys.bat的内容  sysproxy global 127.0.0.1:7890 localhost;127.*;10.*
 allow-lan: false
 mode: Rule
 log-level: info
 external-controller: '127.0.0.1:9090'
 external-ui: dashboard_Razord
-Proxy:
+proxies:
   - name: 网易云解锁（本地）
     type: http
     server: 127.0.0.1
     port: "11685"
     skip-cert-verify: true
-Proxy Group:
+proxy-groups:
   - name: 🎵 Netease Music
     type: select
     proxies:
       - 网易云解锁（本地）
       - DIRECT
-Rule:
+rules:
   - DOMAIN,api.iplay.163.com,🎵 Netease Music
   - DOMAIN,apm3.music.163.com,🎵 Netease Music
   - DOMAIN,apm.music.163.com,🎵 Netease Music

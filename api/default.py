@@ -6,7 +6,7 @@ opensysafterstartclash = True                              #普通模式启动Cl
 key = 'oeEqpP5QI21N'                                       #下载geoip的key
 openclashafterstartclashweb = True                         #启动ClasWeb是否开启Clash
 closeclashbeforeexitclashweb = True                        #退出Clashweb是否关闭Clash
-opentapafterstartclashweb = False                          #启动ClasWeb是否开启tap模式
+opentapafterstartclashweb = True                          #启动ClasWeb是否开启tap模式
 
 #For 节点分组                                               #您修改subconverter/snippets/rulets的默认rulset后，节点分组将不可用，您需要修改下面的proxygroup。
 proxygroup= '@🔰 节点选择`select{groupname}[]DIRECT'\

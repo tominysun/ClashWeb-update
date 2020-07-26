@@ -16,13 +16,11 @@ Menu, tray, Add, 切换节点, MenuHandlerdashboard
 Menu, tray, Add, 更新配置, MenuHandlerupdateconfig
 
 Menu, Tray, Add  ; 创建分隔线.
-Menu, Submenu, Add, 启动, MenuHandlerstartclash
-Menu, Submenu, Add, 关闭, MenuHandlerstopclash
-Menu, Submenu, Add, 重启, MenuHandlerrestartclash
+Menu, Submenu, Add, 启动, startclash
+Menu, Submenu, Add, 关闭, stopclash
 Menu, tray, add, 普通模式, :Submenu  
 Menu, Submenu4, Add, 启动, tapstart
 Menu, Submenu4, Add, 关闭, tapstop
-Menu, Submenu4, Add, 重启, taprestart
 Menu, tray, add, Tap模式, :Submenu4  
 
 Menu, Tray, Add  ; 创建分隔线.
@@ -87,16 +85,12 @@ return
 nothing:
 return
 
-taprestart:
-RunWait, ahkstopclashtap.bat,,Hide
-RunWait, ahkstartclashtap.bat,,Hide
-TrayTip % Format("📢通知📢"),Tap模式重启操作完成
-return
-
 tapstart:
+RunWait, ahkstopclashtap.bat,,Hide
 RunWait, ahkstartclashtap.bat,,Hide
 TrayTip % Format("📢通知📢"),Tap模式启动操作完成
 return
+
 
 tapstop:
 RunWait, ahkstopclashtap.bat,,Hide
@@ -221,12 +215,8 @@ else
 TrayTip % Format("📢运行状态📢"), 运行  模式：%ModeVar%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
 return
 
-MenuHandlerstartclash:
-RunWait, ahkstartclash.bat,,Hide
-TrayTip % Format("📢通知📢"),普通模式启动操作完成
-return
 
-MenuHandlerstopclash:
+stopclash:
 MsgBox, 4,, 确定要关闭Clash、关闭系统代理吗？
 IfMsgBox, No
     return  ; 如果选择 No, 脚本将会终止.
@@ -234,7 +224,7 @@ RunWait, ahkstopclash.bat,,Hide
 TrayTip % Format("📢通知📢"),普通模式关闭操作完成
 return
 
-MenuHandlerrestartclash:
+startclash:
 RunWait, ahkrestartclash.bat,,Hide
 Process,Exist, clash-win64.exe ; 
 if ErrorLevel
@@ -264,7 +254,7 @@ else
 {
     ProxyVar := "关-❌"
 }
-TrayTip % Format("📢重启成功📢"),运行  模式：%ModeVar%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%
+TrayTip % Format("📢启动成功📢"),运行  模式：%ModeVar%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%
 return
 
 rulemode:

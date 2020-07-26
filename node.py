@@ -10,11 +10,13 @@ import api.subconverter
 import api.default
 import api.airport
 import api.togist
+import api.currentmode
 import api.clashapi
 import os
 
 ip = api.default.clashweb
 openclashafterstartclashweb = api.default.openclashafterstartclashweb
+opentapafterstartclashweb = api.default.opentapafterstartclashweb
 closeclashbeforeexitclashweb = api.default.closeclashbeforeexitclashweb
 clashapi = api.default.dashboard.split('ui')[0]
 dashboard = api.default.dashboard
@@ -26,6 +28,10 @@ if __name__ == '__main__':
     print(gpus)
     if gpus == 'saveandclose':
         try:
+            mode=api.currentmode.currentmode
+            if mode == 'tap':
+                p=subprocess.Popen(mypath+'/App/tap/ahktapstop.bat',shell=False)
+                p.wait()  
             currentconfig = api.admin.getfile('./App/tmp.vbs')
             currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')     
             api.clashapi.getallproxies('./Profile/save/'+currentconfig)                     
@@ -33,8 +39,13 @@ if __name__ == '__main__':
             p.wait()                
         except Exception as e:
             pass
+
     if gpus == 'startandset':
         try:
+            mode=api.currentmode.currentmode
+            if mode == 'tap':
+                p=subprocess.Popen(mypath+'/App/tap/ahktapstop.bat',shell=False)
+                p.wait()          
             currentconfig = api.admin.getfile('./App/tmp.vbs')
             currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
             p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
@@ -50,6 +61,89 @@ if __name__ == '__main__':
                     print(gpus)
                     p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                     p.wait()
+            api.admin.writefile('currentmode=\'nomal\'','./api/currentmode.py')
+        except Exception as e:
+            pass
+
+
+    if gpus == 'restart':
+        try:
+            mode=api.currentmode.currentmode
+            if mode == 'nomal':
+                currentconfig = api.admin.getfile('./App/tmp.vbs')
+                currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+                p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
+                p.wait() 
+                path=mypath+'/Profile/'+currentconfig
+                path=path.replace('/','\\')
+                p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))   
+                print(p.text)  
+                if '' == p.text:  
+                    print(gpus)                     
+                    api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))              
+                    if(api.default.opensysafterstartclash):
+                        print(gpus)
+                        p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
+                        p.wait()
+            else:
+                currentconfig = api.admin.getfile('./App/tmp.vbs')                      #获取当前文件
+                currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+
+                #把普通配置重写为tap配置
+                tapconfig=api.admin.getfile('./Profile/defaultconfig/tapconfig.txt')
+                config=api.admin.getfile('./Profile/'+currentconfig)
+                config=tapconfig+'\nproxies:'+config.split('proxies:',1)[1]       
+                api.admin.writefile(config,'./Profile/tapconfig/'+currentconfig)         
+                #重写完成
+
+                p=subprocess.Popen(mypath+'/bat/tapstart.bat',shell=False)              #启动默认tap文件    
+                p.wait() 
+                path=mypath+'/Profile/tapconfig/'+currentconfig
+                path=path.replace('/','\\')
+                p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))       #切换成默认文件
+                print(p.text)  
+                if '' == p.text:  
+                    print(gpus)                     
+                    api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点      
+                p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
+                p.wait()  
+        except Exception as e:
+            pass
+
+    if gpus == 'tapstop':
+        try:
+            currentconfig = api.admin.getfile('./App/tmp.vbs')
+            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')     
+            api.clashapi.getallproxies('./Profile/save/'+currentconfig)                     
+            p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
+            p.wait()                
+        except Exception as e:
+            pass
+
+    if gpus == 'tapstart':
+        try:
+            currentconfig = api.admin.getfile('./App/tmp.vbs')                      #获取当前文件
+            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+
+            #把普通配置重写为tap配置
+            tapconfig=api.admin.getfile('./Profile/defaultconfig/tapconfig.txt')
+            config=api.admin.getfile('./Profile/'+currentconfig)
+            config=tapconfig+'\nproxies:'+config.split('proxies:',1)[1]       
+            api.admin.writefile(config,'./Profile/tapconfig/'+currentconfig)         
+            #重写完成
+
+            p=subprocess.Popen(mypath+'/bat/tapstart.bat',shell=False)              #启动默认tap文件    
+            p.wait() 
+            path=mypath+'/Profile/tapconfig/'+currentconfig
+            path=path.replace('/','\\')
+            p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))       #切换成默认文件
+            print(p.text)  
+            if '' == p.text:  
+                print(gpus)                     
+                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点      
+            p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
+            p.wait()  
+            api.admin.writefile('currentmode=\'tap\'','./api/currentmode.py')
         except Exception as e:
             pass
 
@@ -80,22 +174,28 @@ if __name__ == '__main__':
 
     if gpus == 'startclashweb':
         try:
-            if(openclashafterstartclashweb):
-                currentconfig = api.admin.getfile('./App/tmp.vbs')
-                currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
-                p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
-                p.wait() 
-                path=mypath+'/Profile/'+currentconfig
-                path=path.replace('/','\\')
-                p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))   
-                print(p.text)  
-                if '' == p.text:  
-                    print(gpus)                     
-                    api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))             
-                    if(api.default.opensysafterstartclash):
-                        print(gpus)
-                        p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
-                        p.wait()
+            if(opentapafterstartclashweb):                                                  #启动Clashweb时是否开启tap模式
+                try:
+                    p=subprocess.Popen(mypath+'/ahkstartclashtap.bat',shell=False)
+                except Exception as e:
+                    pass   
+            else:            
+                if(openclashafterstartclashweb):
+                    currentconfig = api.admin.getfile('./App/tmp.vbs')
+                    currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+                    p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
+                    p.wait() 
+                    path=mypath+'/Profile/'+currentconfig
+                    path=path.replace('/','\\')
+                    p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))   
+                    print(p.text)  
+                    if '' == p.text:  
+                        print(gpus)                     
+                        api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))            
+                        if(api.default.opensysafterstartclash):
+                            print(gpus)
+                            p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
+                            p.wait()
         except:
             pass
 

@@ -18,6 +18,7 @@ import api.default
 import api.airport
 import api.togist
 import api.clashapi
+import api.currentmode
 import os
 from flask import Flask,render_template,request
 urllib3.disable_warnings()
@@ -256,20 +257,50 @@ def profiles():
                     fileadd2 = './Profile/save/'+request.form.get('configselect') 
                     fileadd = str(fileadd).replace('/','\\')
                     script = 'CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f {file}",0'.format(file=fileadd)
-                    api.admin.writefile(script,'./App/tmp.vbs')
-                    p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
-                    p.wait()
-                    path = mypath+fileadd
-                    path = path.replace('/','\\').replace('.\\','\\')
-                    p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))
-                    if '' == p.text:
-                        try:
-                            api.clashapi.setproxies(fileadd2.replace('.yaml','.txt'))
-                        except:
-                            pass
-                        flash('重启成功')
-                    else:
-                        flash('重启失败： '+p.text)
+                    api.admin.writefile(script,'./App/tmp.vbs')       #更新所选文件到本地
+                    try:
+                        mode=api.admin.getfile('./api/currentmode.py')
+                        if 'nomal' in mode:
+                            currentconfig = api.admin.getfile('./App/tmp.vbs')
+                            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+                            p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
+                            p.wait() 
+                            path=mypath+'/Profile/'+currentconfig
+                            path=path.replace('/','\\')
+                            p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))   
+                            print(p.text)  
+                            if '' == p.text:                                                   
+                                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))              
+                                if(api.default.opensysafterstartclash):
+                                    p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
+                                    p.wait()
+                                flash('重启/切换普通模式配置文件成功')
+                            else:
+                                flash('重启失败： '+p.text)
+                        else:
+                            currentconfig = api.admin.getfile('./App/tmp.vbs')                      #获取当前文件
+                            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+                            #把普通配置重写为tap配置
+                            tapconfig=api.admin.getfile('./Profile/defaultconfig/tapconfig.txt')
+                            config=api.admin.getfile('./Profile/'+currentconfig)
+                            config=tapconfig+'\nproxies:'+config.split('proxies:',1)[1]       
+                            api.admin.writefile(config,'./Profile/tapconfig/'+currentconfig)         
+                            #重写完成
+                            p=subprocess.Popen(mypath+'/bat/tapstart.bat',shell=False)              #启动默认tap文件    
+                            p.wait() 
+                            path=mypath+'/Profile/tapconfig/'+currentconfig
+                            path=path.replace('/','\\')
+                            p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))       #切换成默认文件
+                            print(p.text)  
+                            if '' == p.text:                      
+                                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点   
+                                flash('重启/切换tap模式配置文件成功')
+                            else:
+                                flash('重启失败： '+p.text)   
+                            p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
+                            p.wait()  
+                    except Exception as e:
+                        flash('失败')
                     return redirect(ip)
                 if  request.form['submit'] == '返回  主页' or request.form['submit'] == '返回主页' :
                     return redirect(ip)
@@ -303,20 +334,50 @@ def profiles():
                     fileadd2 = './Profile/save/'+request.form.get('file').split('./Profile/')[1] 
                     fileadd = str(fileadd).replace('/','\\')
                     script = 'CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f {file}",0'.format(file=fileadd)
-                    api.admin.writefile(script,'./App/tmp.vbs')
-                    p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
-                    p.wait()
-                    path = mypath+fileadd
-                    path = path.replace('/','\\').replace('.\\','\\')
-                    p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))
-                    if '' == p.text:
-                        try:
-                            api.clashapi.setproxies(fileadd2.replace('.yaml','.txt'))
-                        except:
-                            pass
-                        flash('重启成功')
-                    else:
-                        flash('重启失败： '+p.text)
+                    api.admin.writefile(script,'./App/tmp.vbs')  #更新所选文件到本地
+                    try:
+                        mode=api.admin.getfile('./api/currentmode.py')
+                        if 'nomal' in mode:
+                            currentconfig = api.admin.getfile('./App/tmp.vbs')
+                            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+                            p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
+                            p.wait() 
+                            path=mypath+'/Profile/'+currentconfig
+                            path=path.replace('/','\\')
+                            p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))   
+                            print(p.text)  
+                            if '' == p.text:                                                  
+                                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))              
+                                if(api.default.opensysafterstartclash):
+                                    p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
+                                    p.wait()
+                                flash('重启/切换普通模式配置文件成功')
+                            else:
+                                flash('重启失败： '+p.text)
+                        else:
+                            currentconfig = api.admin.getfile('./App/tmp.vbs')                      #获取当前文件
+                            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+                            #把普通配置重写为tap配置
+                            tapconfig=api.admin.getfile('./Profile/defaultconfig/tapconfig.txt')
+                            config=api.admin.getfile('./Profile/'+currentconfig)
+                            config=tapconfig+'\nproxies:'+config.split('proxies:',1)[1]       
+                            api.admin.writefile(config,'./Profile/tapconfig/'+currentconfig)         
+                            #重写完成
+                            p=subprocess.Popen(mypath+'/bat/tapstart.bat',shell=False)              #启动默认tap文件    
+                            p.wait() 
+                            path=mypath+'/Profile/tapconfig/'+currentconfig
+                            path=path.replace('/','\\')
+                            p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))       #切换成默认文件
+                            print(p.text)  
+                            if '' == p.text:                      
+                                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点   
+                                flash('重启/切换tap模式配置文件成功')   
+                            else:
+                                flash('重启失败： '+p.text)
+                            p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
+                            p.wait()  
+                    except Exception as e:
+                        flash('失败')
                     return redirect(ip)
                 if  request.form['submit'] == '订阅转换' :   
                     os.system('explorer file:///{path}/Profile/sub-web/index.html'.format(path=mypath)) 
@@ -390,17 +451,7 @@ def admin():
                     p=subprocess.Popen(mypath+'/bat/uwp.bat',shell=False)
                     p.wait()
                     flash('打开成功')
-                    return redirect(request.url)   
-                if request.form['submit'] == '开启系统代理': 
-                    p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
-                    p.wait()
-                    flash('开启系统代理成功')
-                    return redirect(ip)   
-                if  request.form['submit'] == '关闭系统代理' :
-                    p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
-                    p.wait()
-                    flash('关闭系统代理成功')
-                    return redirect(ip)   
+                    return redirect(request.url)    
                 if  request.form['submit'] == '返回    主页' :
                     return redirect(ip)
         return render_template('admin.html')

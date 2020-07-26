@@ -2,10 +2,11 @@
 clashweb = 'http://127.0.0.1:10086'                        #默认控制台地址
 dashboard = 'http://127.0.0.1:9090/ui/#/proxies'           #默认面板地址。 当你修改后，记得修改Profile/notchangeme.yaml 的 external-controller
 subconverter = 'http://127.0.0.1:25500'                    #本地订阅转换地址。 当你修改后，记得修改App/subconverter/pref.ini的port                                            #启动时是否打开浏览器控制台
-opensysafterstartclash = True                              #点击启动Clash时是否打开系统代理。设置为True即打开系统代理，False 即保持不变   
+opensysafterstartclash = True                              #普通模式启动Clash时是否打开系统代理。设置为True即打开系统代理，False 即保持不变   
 key = 'oeEqpP5QI21N'                                       #下载geoip的key
 openclashafterstartclashweb = True                         #启动ClasWeb是否开启Clash
 closeclashbeforeexitclashweb = True                        #退出Clashweb是否关闭Clash
+opentapafterstartclashweb = False                          #启动ClasWeb是否开启tap模式
 
 #For 节点分组                                               #您修改subconverter/snippets/rulets的默认rulset后，节点分组将不可用，您需要修改下面的proxygroup。
 proxygroup= '@🔰 节点选择`select{groupname}[]DIRECT'\
@@ -18,3 +19,5 @@ proxygroup= '@🔰 节点选择`select{groupname}[]DIRECT'\
             '@🍎 苹果服务`select`[]DIRECT`[]🔰 节点选择{groupname}'\
             '@🛑 全球拦截`select`[]REJECT`[]DIRECT'\
             '@🐟 漏网之鱼`select`[]🔰 节点选择`[]DIRECT{groupname}'
+
+

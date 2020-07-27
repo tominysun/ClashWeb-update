@@ -13,7 +13,7 @@ Menu, Tray, NoStandard
 #Persistent  ; 让脚本持续运行, 直到用户退出.
 Menu, Tray, Add  ; 创建分隔线.'
 Menu, tray, Add, 切换节点, MenuHandlerdashboard 
-Menu, tray, Add, 更新配置, MenuHandlerupdateconfig
+Menu, tray, Add, 配置管理, SetConfig
 
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Submenu, Add, 启动, startclash
@@ -88,7 +88,7 @@ Goto, savenode
 return
 
 defaultdashboard:
-MsgBox, 4, , 选择默认面板？是代表Razord,否代表yacd
+MsgBox, 3,, "是"：Razord面板`n"否"：Yacd面板
 IfMsgBox, No
     IniWrite, yacd, %A_ScriptDir%\api\default.ini, SET, defaultdashboard 
 IfMsgBox, Yes
@@ -96,7 +96,7 @@ IfMsgBox, Yes
 return
 
 defautlsys:
-MsgBox, 4, , 普通模式下启动Clash是否自动开启系统代理?
+MsgBox, 3,, "是"：普通模式启动Clash时开启系统代理`n"否"：普通模式启动Clash时不开启系统代理
 IfMsgBox, No
     IniWrite, False, %A_ScriptDir%\api\default.ini, SET, opensysafterstartclash 
 IfMsgBox, Yes
@@ -104,7 +104,7 @@ IfMsgBox, Yes
 return
 
 defautlcore:
-MsgBox, 4, , 选择内核版本？是代表64位，否代表32位
+MsgBox, 3,, "是"：切换为64位内核`n"否"：切换为32位内核
 IfMsgBox, Yes
 {
     RunWait, %A_ScriptDir%\bat\stop.bat,,Hide
@@ -126,19 +126,105 @@ return
 nothing:
 return
 
+SetConfig:
+    Gui, Destroy
+    Gui, Add, ListView,w700 Multi AltSubmit gSelectConfigs, Name|Size (KB)|URL
+    Loop, Profile\*.yaml
+    {
+        FileReadLine, oUrl, %A_ScriptDir%\Profile\%A_LoopFileName%, 1
+        cUrl := StrSplit(oUrl, ":http://")
+        cUrl := cUrl[2]
+        cUrl := StrSplit(cUrl, "NicoNewBeee")
+        cUrl := cUrl[1]
+        LV_Add("", A_LoopFileName, A_LoopFileSizeKB, cUrl) 
+    } 
+    LV_ModifyCol() ; 根据内容自动调整每列的大小.
+    LV_ModifyCol(2,"100 Integer") ; 为了进行排序, 指出列 2 是整数.
+    ; 显示窗口并返回. 每当用户点击一行时脚本会发出通知.
+    Gui, Show
+return
+
+SelectConfigs:
+    if A_GuiEvent = DoubleClick
+    {
+        LV_GetText(NameText, A_EventInfo) ; 从行的第一个字段中获取文本.
+        LV_GetText(Urltext, A_EventInfo, 3)
+        If (%A_EventInfo%<>0){
+            MsgBox, 3,, %NameText%`n"是"：应用当前配置`n"否"：删除当前配置
+            IfMsgBox, Yes
+            {
+                FileDelete, %A_ScriptDir%\App\tmp.vbs  
+                var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
+                FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs 
+                FileAppend, %NameText% , %A_ScriptDir%\App\tmp.vbs 
+                var := """,0"
+                FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs   
+                MsgBox, 4,, 选中配置：%NameText%，是否重启clash？
+                IfMsgBox, No
+                {
+                   Gui, Destroy 
+                   return
+                }
+                Gui, Destroy
+                RunWait, ahkrestartconfig.bat,,Hide
+                TrayTip % Format("📢通知📢"),切换重启成功
+            }
+            IfMsgBox, No
+            {
+                MsgBox, 3,, 当前配置:%NameText%，是否删除
+                IfMsgBox, Yes
+                {
+                    NewStr := StrReplace(NameText, "yaml", "txt")
+                    FileDelete, %A_ScriptDir%\Profile\%NameText%
+                    FileDelete, %A_ScriptDir%\Profile\tapconfig\%NameText%
+                    FileDelete, %A_ScriptDir%\Profile\save\%NewStr%
+                    goto, SetConfig
+                } 
+            }
+        }
+    } 
+    if A_GuiEvent = RightClick
+    {
+        LV_GetText(NameText, A_EventInfo) ; 从行的第一个字段中获取文本.
+        LV_GetText(Urltext, A_EventInfo, 3)
+        If (%A_EventInfo%<>0){
+            MsgBox, 3,, %NameText%`n"是"：更新配置`n"否"：查看配置
+            IfMsgBox, Yes
+            {
+                FileDelete, %A_ScriptDir%\App\tmptmp.vbs  
+                var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
+                FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs 
+                FileAppend, %NameText% , %A_ScriptDir%\App\tmptmp.vbs 
+                var := """,0"
+                FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs  
+                RunWait, ahkupdateconfig.bat,,Hide
+                TrayTip % Format("📢通知📢"),更新成功
+            }
+            IfMsgBox, No
+            {
+                Run, open "%A_ScriptDir%\Profile\%NameText%"
+                Gui, Destroy 
+                return
+            }
+        }
+    }
+return
+
 savenode:
 RunWait, ahksave.bat,,Hide
 TrayTip % Format("📢通知📢"),保存节点成功
 return
 
 installtap:
-RunWait, %A_ScriptDir%\App\tap\installtab.bat
+RunWait, %A_ScriptDir%\App\tap\ahkinstalltap.bat
+TrayTip % Format("📢通知📢"),安装网卡操作成功
 return
 
 unstalltap:
 FileGetSize, UninstallSize, C:\Program Files\TAP-Windows\Uninstall.exe, K
 If UninstallSize
     RunWait, C:\Program Files\TAP-Windows\Uninstall.exe,,Hide
+TrayTip % Format("📢通知📢"),卸载网卡操作成功
 return
 
 tapstart:

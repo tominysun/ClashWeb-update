@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
     if gpus == 'updateconfig':
         try:
-            currentconfig = api.admin.getfile('./App/tmp.vbs')
+            currentconfig = api.admin.getfile('./App/tmptmp.vbs')
             currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
             print(currentconfig)
             url=str(api.admin.getfile('./Profile/'+currentconfig)).split('NicoNewBeee的Clash控制台')[0].split('#托管地址:')[1]

@@ -58,13 +58,6 @@ netsh interface ip show interfaces | find "%DEVICE_NAME%" >nul
 if %errorlevel% neq 0 goto :loop
 
 :configure
->NUL 2>&1 REG.exe query "HKU\S-1-5-19" || (
-    ECHO SET UAC = CreateObject^("Shell.Application"^) > "%TEMP%\Getadmin.vbs"
-    ECHO UAC.ShellExecute "%~f0", "%1", "", "runas", 1 >> "%TEMP%\Getadmin.vbs"
-    "%TEMP%\Getadmin.vbs"
-    DEL /f /q "%TEMP%\Getadmin.vbs" 2>NUL
-    Exit /b
-)
 echo (Re-)enabling TAP network device...
 netsh interface set interface "%DEVICE_NAME%" admin=enabled
 

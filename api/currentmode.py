@@ -1,1 +1,1 @@
-currentmode='nomal'
+currentmode='tap'

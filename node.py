@@ -12,20 +12,24 @@ import api.airport
 import api.togist
 import api.currentmode
 import api.clashapi
+import api.ini
 import os
 
-ip = api.default.clashweb
-openclashafterstartclashweb = api.default.openclashafterstartclashweb
-opentapafterstartclashweb = api.default.opentapafterstartclashweb
-closeclashbeforeexitclashweb = api.default.closeclashbeforeexitclashweb
+
 clashapi = api.default.dashboard.split('ui')[0]
 dashboard = api.default.dashboard
 mypath = os.getcwd().replace('\\','/')
 
 if __name__ == '__main__':
     gpus = sys.argv[1]
-    #gpus = 'updateconfig'
-    print(gpus)
+    if gpus == 'save':
+        try:
+            currentconfig = api.admin.getfile('./App/tmp.vbs')
+            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')     
+            api.clashapi.getallproxies('./Profile/save/'+currentconfig)                                 
+        except Exception as e:
+            pass       
+
     if gpus == 'saveandclose':
         try:
             mode=api.currentmode.currentmode
@@ -54,17 +58,14 @@ if __name__ == '__main__':
             path=path.replace('/','\\')
             p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))   
             print(p.text)  
-            if '' == p.text:  
-                print(gpus)                     
+            if '' == p.text:                      
                 api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))              
-                if(api.default.opensysafterstartclash):
-                    print(gpus)
+                if api.ini.getvalue('SET','opensysafterstartclash') == 'True':
                     p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                     p.wait()
             api.admin.writefile('currentmode=\'nomal\'','./api/currentmode.py')
         except Exception as e:
             pass
-
 
     if gpus == 'restart':
         try:
@@ -81,7 +82,7 @@ if __name__ == '__main__':
                 if '' == p.text:  
                     print(gpus)                     
                     api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))              
-                    if(api.default.opensysafterstartclash):
+                    if api.ini.getvalue('SET','opensysafterstartclash') == 'True' :
                         print(gpus)
                         p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                         p.wait()
@@ -174,28 +175,27 @@ if __name__ == '__main__':
 
     if gpus == 'startclashweb':
         try:
-            if(opentapafterstartclashweb):                                                  #启动Clashweb时是否开启tap模式
+            if api.currentmode.currentmode == 'tap':                                                  #启动Clashweb时是否开启tap模式
                 try:
                     p=subprocess.Popen(mypath+'/ahkstartclashtap.bat',shell=False)
                 except Exception as e:
                     pass   
             else:            
-                if(openclashafterstartclashweb):
-                    currentconfig = api.admin.getfile('./App/tmp.vbs')
-                    currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
-                    p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
-                    p.wait() 
-                    path=mypath+'/Profile/'+currentconfig
-                    path=path.replace('/','\\')
-                    p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))   
-                    print(p.text)  
-                    if '' == p.text:  
-                        print(gpus)                     
-                        api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))            
-                        if(api.default.opensysafterstartclash):
-                            print(gpus)
-                            p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
-                            p.wait()
+                currentconfig = api.admin.getfile('./App/tmp.vbs')
+                currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+                p=subprocess.Popen(mypath+'/bat/start.bat',shell=False)            
+                p.wait() 
+                path=mypath+'/Profile/'+currentconfig
+                path=path.replace('/','\\')
+                p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))   
+                print(p.text)  
+                if '' == p.text:  
+                    print(gpus)                     
+                    api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))            
+                    if api.ini.getvalue('SET','opensysafterstartclash') == 'True':
+                        print(gpus)
+                        p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
+                        p.wait()
         except:
             pass
 
@@ -203,22 +203,9 @@ if __name__ == '__main__':
         try:
             currentconfig = api.admin.getfile('./App/tmp.vbs')
             currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')     
-            api.clashapi.getallproxies('./Profile/save/'+currentconfig)                       
-            if(closeclashbeforeexitclashweb):                    
-                p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
-                p.wait()                   
-        except:
-            pass
-
-
-    if gpus == 'closeclashweb':
-        try:
-            currentconfig = api.admin.getfile('./App/tmp.vbs')
-            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')     
-            api.clashapi.getallproxies('./Profile/save/'+currentconfig)                       
-            if(closeclashbeforeexitclashweb):                    
-                p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
-                p.wait()                   
+            api.clashapi.getallproxies('./Profile/save/'+currentconfig)                                          
+            p=subprocess.Popen(mypath+'/bat/stop.bat',shell=False)
+            p.wait()                   
         except:
             pass
 

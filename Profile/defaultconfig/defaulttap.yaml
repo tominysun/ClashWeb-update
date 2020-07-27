@@ -1,7 +1,10 @@
 mixed-port: 7890  
+allow-lan: false
+mode: Rule
+log-level: info
 ipv6: false
 external-controller: 127.0.0.1:9090
-external-ui: dashboard_Razord
+external-ui: dashboard_Razord  
 proxies:
   - name: 网易云解锁（本地）
     type: http

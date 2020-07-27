@@ -21,6 +21,10 @@ Menu, Submenu, Add, 关闭, stopclash
 Menu, tray, add, 普通模式, :Submenu  
 Menu, Submenu4, Add, 启动, tapstart
 Menu, Submenu4, Add, 关闭, tapstop
+Menu, Submenu4, Add  ; 创建分隔线.
+Menu, Submenu4, Add  ; 创建分隔线.
+Menu, Submenu4, Add, 安装网卡, installtap
+Menu, Submenu4, Add, 卸载网卡, unstalltap
 Menu, tray, add, Tap模式, :Submenu4  
 
 Menu, Tray, Add  ; 创建分隔线.
@@ -33,13 +37,18 @@ Menu, Submenu2, Add, 关闭系统代理, dissys
 Menu, tray, add, 系统代理, :Submenu2
 
 Menu, Tray, Add  ; 创建分隔线.
-Menu, Tray, Add, 打开控制台, clashweb 
-Menu, Tray, Add, 关闭控制台, MenuHandlerstoppython  
+Menu, Submenu5, Add, 打开控制台, clashweb 
+Menu, Submenu5, Add, 关闭控制台, MenuHandlerstoppython  
+Menu, tray, add, 控制后台, :Submenu5
+Menu, Submenu6, Add, 默认系统代理, defautlsys
+Menu, Submenu6, Add, 默认面板, defaultdashboard 
+Menu, Submenu6, Add, 默认内核, defautlcore 
+Menu, tray, add, 默认选项, :Submenu6
  
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Tray, Click, OnClick 
 Menu, Tray, Add, 检查状态, OnClick
-Menu, Tray, Add, 帮助, help
+Menu, Tray, Add, 帮助/捐赠, help
 Menu, Tray, Add, 退出, MenuHandlerexit  
 Menu, Tray, Default, 检查状态
 Menu, Tray, Add  ; 创建分隔线.
@@ -75,7 +84,39 @@ return
 
 TripleClickEvent:
 LastClick := 0
-Goto, MenuHandlerupdateconfig
+Goto, savenode
+return
+
+defaultdashboard:
+MsgBox, 4, , 选择默认面板？是代表Razord,否代表yacd
+IfMsgBox, No
+    IniWrite, yacd, %A_ScriptDir%\api\default.ini, SET, defaultdashboard 
+IfMsgBox, Yes
+    IniWrite, Razord, %A_ScriptDir%\api\default.ini, SET, defaultdashboard 
+return
+
+defautlsys:
+MsgBox, 4, , 普通模式下启动Clash是否自动开启系统代理?
+IfMsgBox, No
+    IniWrite, False, %A_ScriptDir%\api\default.ini, SET, opensysafterstartclash 
+IfMsgBox, Yes
+    IniWrite, True, %A_ScriptDir%\api\default.ini, SET, opensysafterstartclash  
+return
+
+defautlcore:
+MsgBox, 4, , 选择内核版本？是代表64位，否代表32位
+IfMsgBox, Yes
+{
+    RunWait, %A_ScriptDir%\bat\stop.bat,,Hide
+    FileDelete, %A_ScriptDir%\App\clash-win64.exe
+    FileCopy, %A_ScriptDir%\App\clash64.exe, %A_ScriptDir%\App\clash-win64.exe
+}
+IfMsgBox, No
+{
+    RunWait, %A_ScriptDir%\bat\stop.bat,,Hide
+    FileDelete, %A_ScriptDir%\App\clash-win64.exe
+    FileCopy, %A_ScriptDir%\App\clash32.exe, %A_ScriptDir%\App\clash-win64.exe
+}
 return
 
 help:
@@ -83,6 +124,21 @@ Run, %A_ScriptDir%\App\help.png
 return
 
 nothing:
+return
+
+savenode:
+RunWait, ahksave.bat,,Hide
+TrayTip % Format("📢通知📢"),保存节点成功
+return
+
+installtap:
+RunWait, %A_ScriptDir%\App\tap\installtab.bat
+return
+
+unstalltap:
+FileGetSize, UninstallSize, C:\Program Files\TAP-Windows\Uninstall.exe, K
+If UninstallSize
+    RunWait, C:\Program Files\TAP-Windows\Uninstall.exe,,Hide
 return
 
 tapstart:
@@ -233,7 +289,7 @@ if ErrorLevel
 }
 else
 {
-    TrayTip % Format("📢重启失败📢"),请用控制台重启，查看报错信息。
+    TrayTip % Format("📢启动失败📢"),请用控制台重启，查看报错信息。
     return
 }
 Process,Exist, tun2socks.exe ; 
@@ -319,7 +375,15 @@ MenuHandlerdashboard:
 Process,Exist, clash-win64.exe ; 
 if ErrorLevel
 {
-    Run, ahkopendashboard.bat,,Hide
+    IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, defaultdashboard
+    if (Dash = "Razord")
+    {
+        RunWait, ahkopendashboard.bat,,Hide
+    }
+    else
+    {
+        Run, %A_ScriptDir%\Profile\dashboard_%Dash%\index.html
+    }
 }
 else
 {

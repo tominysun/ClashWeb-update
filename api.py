@@ -19,6 +19,7 @@ import api.airport
 import api.togist
 import api.clashapi
 import api.currentmode
+import api.ini
 import os
 from flask import Flask,render_template,request
 urllib3.disable_warnings()
@@ -45,7 +46,6 @@ dashboard = api.default.dashboard
 app.secret_key = 'some_secret'
 mypath = os.getcwd().replace('\\','/')
 sysflag = ''
-print(mypath)
 
 @app.route('/',methods=['GET', 'POST'])
 def login():
@@ -81,7 +81,7 @@ def login():
                     else:
                         clash = '启动Clash'
                         isclash = 'Clash启动失败:'+p.text+'   '          
-                    if(api.default.opensysafterstartclash):
+                    if api.ini.getvalue('SET','opensysafterstartclash') == 'True':
                         p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                         p.wait()
                         print("启动系统代理")
@@ -271,7 +271,7 @@ def profiles():
                             print(p.text)  
                             if '' == p.text:                                                   
                                 api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))              
-                                if(api.default.opensysafterstartclash):
+                                if api.ini.getvalue('SET','opensysafterstartclash') == 'True':
                                     p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                                     p.wait()
                                 flash('重启/切换普通模式配置文件成功')
@@ -348,7 +348,7 @@ def profiles():
                             print(p.text)  
                             if '' == p.text:                                                  
                                 api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))              
-                                if(api.default.opensysafterstartclash):
+                                if api.ini.getvalue('SET','opensysafterstartclash') == 'True':
                                     p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                                     p.wait()
                                 flash('重启/切换普通模式配置文件成功')

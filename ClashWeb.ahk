@@ -12,7 +12,8 @@ Menu, Tray, NoStandard
 Menu, Tray, Icon, clash-logo.ico,1,1
 #Persistent  ; 让脚本持续运行, 直到用户退出.
 Menu, Tray, Add  ; 创建分隔线.'
-Menu, tray, Add, 切换节点, MenuHandlerdashboard 
+Menu, tray, Add, 切换节点, MenuHandlerdashboard
+Menu, tray, Add, 更新配置, updateconfig
 Menu, tray, Add, 配置管理, SetConfig
 
 Menu, Tray, Add  ; 创建分隔线.
@@ -132,6 +133,14 @@ else
     TrayTip % Format("📢通知📢"),修改控制台端口成功，请重新打开控制台
     return
 
+updateconfig:
+FileDelete, %A_ScriptDir%\App\tmptmp.vbs
+FileCopy, %A_ScriptDir%\App\tmp.vbs, %A_ScriptDir%\App\tmptmp.vbs
+RunWait, ahkupdateconfig,,Hide
+RunWait,ahkrestartconfig,,Hide
+TrayTip % Format("📢通知📢"),更新当前配置并重启操作完成！
+Return
+
 defautlcore:
 MsgBox, 3,, "是"：切换为64位内核`n"否"：切换为32位内核
 IfMsgBox, Yes
@@ -163,7 +172,7 @@ Url:
     Gui, Destroy
     Gui, Add, Text,, 订阅链接:
     Gui, Add, Edit,w500 vsubUrl
-    Gui, Add, Text,, 配置名称(nico.yaml):
+    Gui, Add, Text,, 配置名称(例如：nico.yaml):
     Gui, Add, Edit,w500 vsubName
     Gui, Add, Button, Default, 保存
     Gui, Show
@@ -182,16 +191,76 @@ return
 
 Button订阅转换:
 Run, %A_ScriptDir%\Profile\sub-web\index.html
+goto,SetConfig
 return
 
 Button打开目录:
 Run, %A_ScriptDir%\Profile
 return
 
+Button查看:
+Gui, Submit
+Run, open "%A_ScriptDir%\Profile\%NameText%"
+goto,SetConfig
+return
+
+Button更新:
+Gui, Submit
+FileDelete, %A_ScriptDir%\App\tmptmp.vbs  
+var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
+FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs 
+FileAppend, %NameText% , %A_ScriptDir%\App\tmptmp.vbs 
+var := """,0"
+FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs  
+RunWait, ahkupdateconfig.bat,,HideYes
+TrayTip % Format("📢通知📢"),更新成功 
+MsgBox, 4,,:%NameText%更新成功，是否重启？
+IfMsgBox, Yes
+{
+    FileDelete, %A_ScriptDir%\App\tmp.vbs  
+    var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
+    FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs 
+    FileAppend, %NameText% , %A_ScriptDir%\App\tmp.vbs 
+    var := """,0"
+    FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs   
+    Gui, Destroy
+    RunWait, ahkrestartconfig.bat,,Hide
+    TrayTip % Format("📢通知📢"),重启操作成功
+    return
+}         
+goto,SetConfig    
+return
+
+
+Button重启:
+Gui, Submit
+FileDelete, %A_ScriptDir%\App\tmp.vbs  
+var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
+FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs 
+FileAppend, %NameText% , %A_ScriptDir%\App\tmp.vbs 
+var := """,0"
+FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs   
+Gui, Destroy
+RunWait, ahkrestartconfig.bat,,Hide
+TrayTip % Format("📢通知📢"),重启操作成功
+return
+
+Button删除:
+Gui, Submit
+MsgBox, 4,, 当前配置:%NameText%，是否删除
+IfMsgBox, Yes
+{
+    NewStr := StrReplace(NameText, "yaml", "txt")
+    FileDelete, %A_ScriptDir%\Profile\%NameText%
+    FileDelete, %A_ScriptDir%\Profile\tapconfig\%NameText%
+    FileDelete, %A_ScriptDir%\Profile\save\%NewStr%
+} 
+goto, SetConfig
+return
 
 SetConfig:
     Gui, Destroy
-    Gui, Add, Text,, 双击配置文件进行切换/更新操作，右键单击配置文件进行删除/查看操作
+    Gui, Add, Text,, 双击配置文件进行下一步操作
     Gui, Add, ListView,w700 Multi AltSubmit gSelectConfigs, Name|Size (KB)|URL
     Gui, Add, Button, Default w80, 添加
     Gui, Add, Button, xp+100 yp w80, 订阅转换
@@ -199,7 +268,9 @@ SetConfig:
     Loop, Profile\*.yaml
     {
         FileReadLine, oUrl, %A_ScriptDir%\Profile\%A_LoopFileName%, 1
-        cUrl := StrSplit(oUrl, ":http://")
+        cUrl := StrSplit(oUrl, ":http")
+        cUrl := cUrl[2]
+        cUrl := StrSplit(cUrl, "://")
         cUrl := cUrl[2]
         cUrl := StrSplit(cUrl, "NicoNewBeee")
         cUrl := cUrl[1]
@@ -217,65 +288,17 @@ SelectConfigs:
         LV_GetText(NameText, A_EventInfo) ; 从行的第一个字段中获取文本.
         LV_GetText(Urltext, A_EventInfo, 3)
         If (%A_EventInfo%<>0){
-            MsgBox, 3,, %NameText%`n"是"：切换到此配置`n"否"：更新当前配置
-            IfMsgBox, Yes
-            {
-                FileDelete, %A_ScriptDir%\App\tmp.vbs  
-                var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
-                FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs 
-                FileAppend, %NameText% , %A_ScriptDir%\App\tmp.vbs 
-                var := """,0"
-                FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs   
-                MsgBox, 4,, 选中配置：%NameText%，是否重启clash？
-                IfMsgBox, No
-                {
-                   Gui, Destroy 
-                   return
-                }
-                Gui, Destroy
-                RunWait, ahkrestartconfig.bat,,Hide
-                TrayTip % Format("📢通知📢"),切换重启成功
-            }
-            IfMsgBox, No
-            {
-                FileDelete, %A_ScriptDir%\App\tmptmp.vbs  
-                var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
-                FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs 
-                FileAppend, %NameText% , %A_ScriptDir%\App\tmptmp.vbs 
-                var := """,0"
-                FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs  
-                RunWait, ahkupdateconfig.bat,,Hide
-                TrayTip % Format("📢通知📢"),更新成功
-            }
-        }
-    } 
-    if A_GuiEvent = RightClick
-    {
-        LV_GetText(NameText, A_EventInfo) ; 从行的第一个字段中获取文本.
-        LV_GetText(Urltext, A_EventInfo, 3)
-        If (%A_EventInfo%<>0){
-            MsgBox, 3,, %NameText%`n"是"：查看配置`n"否"：删除配置
-            IfMsgBox, No
-            {
-                MsgBox, 3,, 当前配置:%NameText%，是否删除
-                IfMsgBox, Yes
-                {
-                    NewStr := StrReplace(NameText, "yaml", "txt")
-                    FileDelete, %A_ScriptDir%\Profile\%NameText%
-                    FileDelete, %A_ScriptDir%\Profile\tapconfig\%NameText%
-                    FileDelete, %A_ScriptDir%\Profile\save\%NewStr%
-                    goto, SetConfig
-                } 
-            }
-            IfMsgBox, Yes
-            {
-                Run, open "%A_ScriptDir%\Profile\%NameText%"
-                Gui, Destroy 
-                return
-            }
+            Gui, Destroy
+            Gui, Add, Text,, 所选文件：%NameText% 
+            Gui, Add, Button, Default w80, 重启
+            Gui, Add, Button, xp+100 yp w80, 更新
+            Gui, Add, Button, xp+100 yp w80, 查看
+            Gui, Add, Button, xp+100 yp w80, 删除
+            Gui, Show
         }
     }
 return
+
 
 geoip:
 RunWait, ahkgeoip.bat,,Hide

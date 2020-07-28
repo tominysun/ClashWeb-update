@@ -19,3 +19,4 @@ api/__pycache__/ini.cpython-38.pyc
 api/currentmode.py
 Profile/renameme.yaml
 Profile/save/renameme.txt
+Profile/stc.yaml

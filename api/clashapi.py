@@ -1,6 +1,5 @@
 import requests
 import json
-import api.default
 import urllib.parse
 import api.admin
 import api.ini

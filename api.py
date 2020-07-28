@@ -14,7 +14,6 @@ import subprocess
 import base64
 import api.admin
 import api.subconverter
-import api.default
 import api.airport
 import api.togist
 import api.clashapi
@@ -40,7 +39,6 @@ def safe_base64_encode(s): # 加密
         print('加密错误',e)
 
 app = Flask(__name__)
-#ip = api.default.clashweb
 ip = 'http://127.0.0.1:'+api.ini.getvalue('SET','clashweb')
 subconverterurl = api.ini.getvalue('SET','subconverter')
 clashapi = api.ini.getvalue('SET','dashboard').split('ui')[0]
@@ -54,7 +52,6 @@ def login():
     if request.method == "POST":
         if request.form['submit'] == 'clash': 
             clash = request.form.get('clash')
-
             sysproxy = request.form.get('sysproxy')
             if '开启' in sysproxy:
                 issys = '系统代理：关闭'
@@ -112,41 +109,6 @@ def login():
                 except :
                     flash('关闭Clash失败')
                     return redirect(ip)
-
-        '''
-        if request.form['submit'] == '系统代理': 
-            clash = request.form.get('clash')
-            sysproxy = request.form.get('sysproxy')
-            isclash = 'Clash 正在运行'
-            if '启动' in clash:
-                isclash = 'Clash 未运行'
-            if sysproxy == '开启系统代理':
-                try:
-                    p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
-                    p.wait()
-                    #os.system('reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f >NUL')
-                    flash(isclash+' 系统代理：开启')
-                    print('start system proxy')
-                    return render_template('login.html',sysproxy='关闭系统代理',clash=clash)
-                except :
-                    flash('开启系统代理失败')    
-                    return redirect(ip)
-            if sysproxy == '关闭系统代理':
-                try:
-                    p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
-                    p.wait()
-                    #cmd1 = 'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyEnable /t REG_DWORD /d 1 /f >NUL'
-                    #cmd2 = 'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyServer /d "127.0.0.1:7890" /f >NUL'
-                    #cmd3 = 'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings" /v ProxyOverride /t REG_SZ /d "" /f >NUL'
-                    #cmd = cmd1 + '&&' + cmd2 + '&&' + cmd3
-                    #os.system(cmd)
-                    print('stop system proxy')
-                    flash(isclash+' 系统代理：关闭')
-                    return render_template('login.html',sysproxy='开启系统代理',clash=clash)
-                except :
-                    flash('关闭系统代理失败')
-                    return redirect(ip)
-        '''
         if request.form['submit'] == '切换 节点':
             clash = request.form.get('clash')
             sysproxy = request.form.get('sysproxy')
@@ -164,17 +126,6 @@ def login():
                 return redirect(request.url)
         if request.form['submit'] == '订阅  管理':
             return redirect('profiles')
-        '''
-        if request.form['submit'] == '保存 节点':
-            currentconfig = api.admin.getfile('./App/tmp.vbs')
-            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.yaml','.txt').replace('.\\Profile\\','')
-            api.clashapi.getallproxies('./Profile/save/'+currentconfig)    
-            flash('【手动】记忆当前节点选择成功！！！ 当你重启Clash或者关闭Clash时会【自动】记忆节点！！！')
-            return redirect(ip)
-        '''
-        if request.form['submit'] == '高级 设置':
-            return redirect('admin')
-    #time.sleep(1)
     a = os.popen(mypath+'/bat/check.bat')
     a = a.read()
     if 'Console' in str(a):   #检查是否正常运行，console in 表示在运行。
@@ -212,12 +163,14 @@ def profiles():
                         content = api.subconverter.Retry_request(url)
                         p=subprocess.Popen(mypath+'/bat/stopsubconverter.bat',shell=False)
                         p.wait()
-                        if content == 'erro':
-                            return '下载失败，检查浏览器能否上网！如果是本地托管，请先双击/App/subconverter/subconverter.exe赋予联网权限'
-                        content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content     #下载           
-                        api.admin.writefile(content,fileadd)                               #写入
-                        flash('下载配置成功。注意查看内容是否正常，无误后请点击重启Clash以应用！')
-                        return render_template('content.html',content=content,file=fileadd,sub=url) 
+                        if 'proxies:' in content and 'proxy-groups:' in content:
+                            content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content  #下载  
+                            api.admin.writefile(content,fileadd)           #写入
+                            flash('下载配置成功。注意查看内容是否正常，无误后请点击重启Clash以应用！')
+                            return render_template('content.html',content=content,file=fileadd,sub=url) 
+                        else:
+                            flash('下载失败')
+                            return redirect('profiles')
 
                     else:
                         try:
@@ -230,12 +183,14 @@ def profiles():
                         content = api.subconverter.Retry_request(url)
                         p=subprocess.Popen(mypath+'/bat/stopsubconverter.bat',shell=False)
                         p.wait()
-                        if content == 'erro':
-                            return '下载失败，重新尝试,默认使用系统代理下载托管，请注意检查浏览器能否上网！！'
-                        content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content  #下载  
-                        api.admin.writefile(content,fileadd)            #写入
-                        flash('下载配置成功！托管地址未变动！注意查看内容是否正常，无误后请点击重启Clash以应用！')
-                        return render_template('content.html',content=content,file=fileadd,sub=url)                         
+                        if 'proxies:' in content and 'proxy-groups:' in content:
+                            content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content  #下载  
+                            api.admin.writefile(content,fileadd)          #写入
+                            flash('下载配置成功。注意查看内容是否正常，无误后请点击重启Clash以应用！')
+                            return render_template('content.html',content=content,file=fileadd,sub=url) 
+                        else:
+                            flash('下载失败')
+                            return redirect('profiles')                      
                 if request.form['submit'] == '查看  配置': 
                     fileadd = './Profile/'+request.form.get('configselect')              
                     content= api.admin.getfile(fileadd)
@@ -385,11 +340,7 @@ def profiles():
                 if  request.form['submit'] == '订阅转换' :   
                     os.system('explorer file:///{path}/Profile/sub-web/index.html'.format(path=mypath)) 
                     flash('订阅转换')
-                    return redirect('profiles') 
-                if  request.form['submit'] == '节点分组' :  
-                    os.system('start /min '+ip+'/customgroup') 
-                if request.form['submit'] == 'STC  特供':
-                    return redirect('airport')   
+                    return redirect('profiles')   
                 if request.form['submit'] == '上传 gist':
                     return redirect('togist')    
                 if request.form['submit'] == '打开目录':
@@ -432,37 +383,6 @@ def profiles():
         flash('发生错误，重新操作'+e)
         return redirect(ip)
 
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
-    try:
-        if request.method == "POST":
-                if request.form['submit'] == '更新  geoip':               
-                    url = "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key={key}&suffix=tar.gz".format(key=api.ini.getvalue('SET','key'))
-                    print(url)
-                    r = requests.get(url) 
-                    with open("./Profile/GeoLite2-Country.tar.gz",'wb') as f:
-                        f.write(r.content)
-                    p=subprocess.Popen(mypath+'/bat/geoip.bat',shell=False)
-                    p.wait()
-                    flash('更新Geoip成功')
-                    return redirect(ip)   
-                if request.form['submit'] == '开机    启动':               
-                    p=subprocess.Popen(mypath+'/App/startup.bat',shell=False)
-                    p.wait()
-                    flash('设置成功')
-                    return redirect(request.url)   
-                if request.form['submit'] == 'UWP回 环代理':               
-                    p=subprocess.Popen(mypath+'/bat/uwp.bat',shell=False)
-                    p.wait()
-                    flash('打开成功')
-                    return redirect(request.url)    
-                if  request.form['submit'] == '返回    主页' :
-                    return redirect(ip)
-        return render_template('admin.html')
-    except Exception as e:
-        flash('发生错误，重新操作')
-        print(e)
-        return redirect(ip)
 
 @app.route('/airport',methods=['GET', 'POST'])
 def airport():
@@ -502,82 +422,6 @@ def airport():
         return redirect(ip)                    
     return render_template('airport.html')
 
-@app.route('/customgroup', methods=['GET', 'POST'])
-def customgroup():
-    try:
-        if request.method == "POST":
-            if request.form['submit'] == '点击添加节点分组':            
-                ori1 = request.form['custom1']
-                ori2 = request.form['custom2']
-                ori3 = request.form['custom3']
-                add1 = '@'+ request.form['firstname']
-                add2 = '@'+request.form['lastname']
-                add3='@'+  request.values.get('method')
-                if add1 == '@':
-                    return '未填写名称'                
-                if add2 == '@':
-                    return '未填写节点'
-                return render_template('groups.html',custom1=ori1+add1,custom2=ori2+add2,custom3=ori3+add3)    
-            s = request.form['left']
-            s = s.replace('\n','|').replace('\r','')
-            if s.split('|')[-1]== '':
-                s = s[:-1]        
-            if '://' in s:
-                n=request.form['custom1']           
-                c=request.form['custom2']
-                method = request.form['custom3']
-                len1 = len(str(n).split('@'))
-                len2 = len(str(c).split('@'))
-                len3 = len(str(method).split('@'))
-                if len1 != len2 or len1 != len3 or len2 != len3:
-                    return('检查分组是否一一对应')
-                groups = str(safe_base64_encode(api.subconverter.getgroups(n,c,method))).split('\'')[1]
-                sub = urllib.parse.quote(s)
-                try:
-                    tool=str(request.values.get('tool'))
-                    emoji = request.form.get('emoji')
-                    if emoji == None:
-                        emoji = 'false'
-                    fdn = request.form.get('fdn')
-                    if fdn == None:
-                        fdn= 'false'
-                except :
-                    return '出现BUG，请反馈'      
-                if tool == 'clash':
-                        CustomGroupvmess = '{ip}/sub?target=clash&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
-                        api2 = 'https://gfwsb.114514.best/sub?target=clash&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
-                        return render_template('clashr.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)         
-                if tool == 'clashr':
-                        CustomGroupvmess = '{ip}/sub?target=clashr&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
-                        api2 = 'https://gfwsb.114514.best/sub?target=clashr&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
-                        return render_template('clashr.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)                       
-                if tool == 'surge':
-                        CustomGroupvmess = '{ip}/sub?target=surge&url={sub}&groups={groups}&ver=4&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
-                        api2 = 'https://gfwsb.114514.best/sub?target=surge&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
-                        return render_template('surge.html',sub = s,custom=n+c+method+'\n备用暂时不支持\n'+'默认为surge4，参数为为ver=4。',api=CustomGroupvmess,api2=api2)
-                if tool == 'quanx':
-                        CustomGroupvmess = '{ip}/sub?target=quanx&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
-                        api2 = 'https://gfwsb.114514.best/sub?target=quanx&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
-                        return render_template('quanx.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)  
-                if tool == 'loon':
-                        CustomGroupvmess = '{ip}/sub?target=loon&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
-                        api2 = 'https://gfwsb.114514.best/sub?target=loon&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
-                        return render_template('loon.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)  
-                if tool == 'mellow':
-                        CustomGroupvmess = '{ip}/sub?target=mellow&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
-                        api2 = 'https://gfwsb.114514.best/sub?target=mellow&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
-                        return render_template('mellow.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)
-                if tool == 'surfboard':
-                        CustomGroupvmess = '{ip}/sub?target=surfboard&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
-                        api2 = 'https://gfwsb.114514.best/sub?target=surfboard&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
-                        return render_template('surfboard.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)                                          
-                else:
-                    return render_template('groups.html')    
-            else:
-                return '订阅不规范'
-        return render_template('groups.html')
-    except Exception as e:
-        return e
 
 @app.route('/togist',methods=['GET', 'POST'])
 def togist():

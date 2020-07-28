@@ -137,8 +137,16 @@ updateconfig:
 FileDelete, %A_ScriptDir%\App\tmptmp.vbs
 FileCopy, %A_ScriptDir%\App\tmp.vbs, %A_ScriptDir%\App\tmptmp.vbs
 RunWait, ahkupdateconfig,,Hide
-RunWait,ahkrestartconfig,,Hide
-TrayTip % Format("📢通知📢"),更新当前配置并重启操作完成！
+IniRead, ifsuccess, %A_ScriptDir%\api\default.ini, SET, configdownload
+if (ifsuccess = "success")
+{
+    RunWait,ahkrestartconfig,,Hide
+    TrayTip % Format("📢通知📢"),更新当前配置并重启操作完成！ 
+}
+else
+{
+    TrayTip % Format("📢通知📢"),下载失败
+}
 Return
 
 defautlcore:
@@ -212,23 +220,33 @@ FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs
 FileAppend, %NameText% , %A_ScriptDir%\App\tmptmp.vbs 
 var := """,0"
 FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs  
-RunWait, ahkupdateconfig.bat,,HideYes
-TrayTip % Format("📢通知📢"),更新成功 
-MsgBox, 4,,:%NameText%更新成功，是否重启？
-IfMsgBox, Yes
+RunWait, ahkupdateconfig.bat,,Hide
+IniRead, ifsuccess, %A_ScriptDir%\api\default.ini, SET, configdownload
+if (ifsuccess = "success")
 {
-    FileDelete, %A_ScriptDir%\App\tmp.vbs  
-    var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
-    FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs 
-    FileAppend, %NameText% , %A_ScriptDir%\App\tmp.vbs 
-    var := """,0"
-    FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs   
-    Gui, Destroy
-    RunWait, ahkrestartconfig.bat,,Hide
-    TrayTip % Format("📢通知📢"),重启操作成功
-    return
-}         
-goto,SetConfig    
+    TrayTip % Format("📢通知📢"),更新成功 
+    MsgBox, 4,,%NameText%更新成功，是否重启？
+    IfMsgBox, Yes
+    {
+        FileDelete, %A_ScriptDir%\App\tmp.vbs  
+        var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
+        FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs 
+        FileAppend, %NameText% , %A_ScriptDir%\App\tmp.vbs 
+        var := """,0"
+        FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs   
+        Gui, Destroy
+        RunWait, ahkrestartconfig.bat,,Hide
+        TrayTip % Format("📢通知📢"),重启操作成功
+        return
+    }         
+    goto,SetConfig    
+}
+else
+{
+    TrayTip % Format("📢通知📢"),下载失败
+    goto,SetConfig
+}
+
 return
 
 

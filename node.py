@@ -7,7 +7,6 @@ import subprocess
 import requests
 import api.admin
 import api.subconverter
-import api.default
 import api.airport
 import api.togist
 import api.currentmode
@@ -22,6 +21,7 @@ mypath = os.getcwd().replace('\\','/')
 
 if __name__ == '__main__':
     gpus = sys.argv[1]
+    #gpus = 'updateconfig'
     if gpus == 'save':
         try:
             currentconfig = api.admin.getfile('./App/tmp.vbs')
@@ -191,10 +191,13 @@ if __name__ == '__main__':
         content = api.subconverter.Retry_request(url)
         p=subprocess.Popen(mypath+'/bat/stopsubconverter.bat',shell=False)
         p.wait()
-        if content == 'erro':
-            print('下载失败，重新尝试,默认使用系统代理下载托管，请注意检查浏览器能否上网！！')
-        content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content  #下载  
-        api.admin.writefile(content,'./Profile/'+currentconfig)           #写入
+        print(content)
+        if 'proxies:' in content and 'proxy-groups:' in content:
+            api.ini.setvalue('SET','configdownload','success')
+            content = '#托管地址:'+url+'NicoNewBeee的Clash控制台\n'+content  #下载  
+            api.admin.writefile(content,'./Profile/'+currentconfig)           #写入
+        else:
+            api.ini.setvalue('SET','configdownload','erro')
 
     if gpus == 'startclashweb':
         try:

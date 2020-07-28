@@ -8,8 +8,8 @@ else
     RunWait, ahkstart.bat,,Hide
 }
 programName:="ClashWeb By Nico"
-Menu, Tray, Icon, clash-logo.ico,1,1
 Menu, Tray, NoStandard
+Menu, Tray, Icon, clash-logo.ico,1,1
 #Persistent  ; 让脚本持续运行, 直到用户退出.
 Menu, Tray, Add  ; 创建分隔线.'
 Menu, tray, Add, 切换节点, MenuHandlerdashboard 
@@ -40,10 +40,14 @@ Menu, Tray, Add  ; 创建分隔线.
 Menu, Submenu5, Add, 打开控制台, clashweb 
 Menu, Submenu5, Add, 关闭控制台, MenuHandlerstoppython  
 Menu, tray, add, 控制后台, :Submenu5
-Menu, Submenu6, Add, 默认系统代理, defautlsys
-Menu, Submenu6, Add, 默认面板, defaultdashboard 
-Menu, Submenu6, Add, 默认内核, defautlcore 
-Menu, tray, add, 默认选项, :Submenu6
+Menu, Submenu6, Add, 系统代理设置, defautlsys
+Menu, Submenu6, Add, 面板设置, defaultdashboard 
+Menu, Submenu6, Add, 内核设置, defautlcore 
+Menu, Submenu6, Add, Geoip设置, defaultgeoip
+Menu, Submenu6, Add, 控制台端口, defautlclashwebpoart
+Menu, Submenu6, Add, 开机自启设置, bootset
+Menu, Submenu6, Add, UWP回环, uwp
+Menu, tray, add, 其他设置, :Submenu6
  
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Tray, Click, OnClick 
@@ -87,6 +91,22 @@ LastClick := 0
 Goto, savenode
 return
 
+bootset:
+RunWait,  %A_ScriptDir%\App\startup1.bat
+return
+
+uwp:
+RunWait,  %A_ScriptDir%\bat\uwp.bat,,Hide
+return
+
+defaultgeoip:
+MsgBox, 3,, "是"：原版geoip`n"否"：ipip版geoip
+IfMsgBox, No
+    Goto, ipipgeoip
+IfMsgBox, Yes
+    Goto, geoip
+return
+
 defaultdashboard:
 MsgBox, 3,, "是"：Razord面板`n"否"：Yacd面板
 IfMsgBox, No
@@ -102,6 +122,15 @@ IfMsgBox, No
 IfMsgBox, Yes
     IniWrite, True, %A_ScriptDir%\api\default.ini, SET, opensysafterstartclash  
 return
+
+defautlclashwebpoart:
+InputBox, OutputVar2, 请输入控制后台端口号, , 140, 480
+if ErrorLevel
+    return
+else
+    IniWrite, %OutputVar2%, %A_ScriptDir%\api\default.ini, SET, clashweb
+    TrayTip % Format("📢通知📢"),修改控制台端口成功，请重新打开控制台
+    return
 
 defautlcore:
 MsgBox, 3,, "是"：切换为64位内核`n"否"：切换为32位内核
@@ -126,9 +155,47 @@ return
 nothing:
 return
 
+Button添加:
+Goto,Url
+return
+
+Url:
+    Gui, Destroy
+    Gui, Add, Text,, 订阅链接:
+    Gui, Add, Edit,w500 vsubUrl
+    Gui, Add, Text,, 配置名称(nico.yaml):
+    Gui, Add, Edit,w500 vsubName
+    Gui, Add, Button, Default, 保存
+    Gui, Show
+return
+
+Button保存:
+    Gui, Submit
+    If (subUrl <> "" And subName <> ""){
+        FileDelete, %A_ScriptDir%\Profile\%subName%  
+        FileAppend, #托管地址: , %A_ScriptDir%\Profile\%subName% , UTF-8  
+        FileAppend, %subUrl% , %A_ScriptDir%\Profile\%subName%  
+        FileAppend, NicoNewBeee的Clash控制台 , %A_ScriptDir%\Profile\%subName% 
+        goto, SetConfig
+    }
+return
+
+Button订阅转换:
+Run, %A_ScriptDir%\Profile\sub-web\index.html
+return
+
+Button打开目录:
+Run, %A_ScriptDir%\Profile
+return
+
+
 SetConfig:
     Gui, Destroy
+    Gui, Add, Text,, 双击配置文件进行切换/更新操作，右键单击配置文件进行删除/查看操作
     Gui, Add, ListView,w700 Multi AltSubmit gSelectConfigs, Name|Size (KB)|URL
+    Gui, Add, Button, Default w80, 添加
+    Gui, Add, Button, xp+100 yp w80, 订阅转换
+    Gui, Add, Button, xp+100 yp w80, 打开目录
     Loop, Profile\*.yaml
     {
         FileReadLine, oUrl, %A_ScriptDir%\Profile\%A_LoopFileName%, 1
@@ -150,7 +217,7 @@ SelectConfigs:
         LV_GetText(NameText, A_EventInfo) ; 从行的第一个字段中获取文本.
         LV_GetText(Urltext, A_EventInfo, 3)
         If (%A_EventInfo%<>0){
-            MsgBox, 3,, %NameText%`n"是"：应用当前配置`n"否"：删除当前配置
+            MsgBox, 3,, %NameText%`n"是"：切换到此配置`n"否"：更新当前配置
             IfMsgBox, Yes
             {
                 FileDelete, %A_ScriptDir%\App\tmp.vbs  
@@ -171,6 +238,25 @@ SelectConfigs:
             }
             IfMsgBox, No
             {
+                FileDelete, %A_ScriptDir%\App\tmptmp.vbs  
+                var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
+                FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs 
+                FileAppend, %NameText% , %A_ScriptDir%\App\tmptmp.vbs 
+                var := """,0"
+                FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs  
+                RunWait, ahkupdateconfig.bat,,Hide
+                TrayTip % Format("📢通知📢"),更新成功
+            }
+        }
+    } 
+    if A_GuiEvent = RightClick
+    {
+        LV_GetText(NameText, A_EventInfo) ; 从行的第一个字段中获取文本.
+        LV_GetText(Urltext, A_EventInfo, 3)
+        If (%A_EventInfo%<>0){
+            MsgBox, 3,, %NameText%`n"是"：查看配置`n"否"：删除配置
+            IfMsgBox, No
+            {
                 MsgBox, 3,, 当前配置:%NameText%，是否删除
                 IfMsgBox, Yes
                 {
@@ -181,26 +267,7 @@ SelectConfigs:
                     goto, SetConfig
                 } 
             }
-        }
-    } 
-    if A_GuiEvent = RightClick
-    {
-        LV_GetText(NameText, A_EventInfo) ; 从行的第一个字段中获取文本.
-        LV_GetText(Urltext, A_EventInfo, 3)
-        If (%A_EventInfo%<>0){
-            MsgBox, 3,, %NameText%`n"是"：更新配置`n"否"：查看配置
             IfMsgBox, Yes
-            {
-                FileDelete, %A_ScriptDir%\App\tmptmp.vbs  
-                var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
-                FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs 
-                FileAppend, %NameText% , %A_ScriptDir%\App\tmptmp.vbs 
-                var := """,0"
-                FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs  
-                RunWait, ahkupdateconfig.bat,,Hide
-                TrayTip % Format("📢通知📢"),更新成功
-            }
-            IfMsgBox, No
             {
                 Run, open "%A_ScriptDir%\Profile\%NameText%"
                 Gui, Destroy 
@@ -208,6 +275,16 @@ SelectConfigs:
             }
         }
     }
+return
+
+geoip:
+RunWait, ahkgeoip.bat,,Hide
+TrayTip % Format("📢通知📢"),更新切换成Geoip
+return
+
+ipipgeoip:
+RunWait, ahkipip.bat,,Hide
+TrayTip % Format("📢通知📢"),更新切换成IPIPgeoip
 return
 
 savenode:

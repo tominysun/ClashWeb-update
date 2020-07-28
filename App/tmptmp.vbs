@@ -1,1 +1,1 @@
-CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f .\Profile\renameme.yaml",0
+CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f .\Profile\test.yaml",0

@@ -16,8 +16,8 @@ import api.ini
 import os
 
 
-clashapi = api.default.dashboard.split('ui')[0]
-dashboard = api.default.dashboard
+clashapi = api.ini.getvalue('SET','dashboard').split('ui')[0]
+dashboard = api.ini.getvalue('SET','dashboard')
 mypath = os.getcwd().replace('\\','/')
 
 if __name__ == '__main__':
@@ -151,6 +151,29 @@ if __name__ == '__main__':
     if gpus == 'opendashboard':
         try:
             os.system('start '+dashboard)
+        except Exception as e:
+            pass
+
+    if gpus == 'ipipupdate':
+        try:
+            r = requests.get("https://cdn.jsdelivr.net/gh/alecthw/mmdb_china_ip_list@release/Country.mmdb") 
+            with open("./Profile/tmp.mmdb",'wb') as f:
+                f.write(r.content)
+                print('1')
+            p=subprocess.Popen(mypath+'/bat/ipipgeoip.bat',shell=False)
+            p.wait()
+        except Exception as e:
+            pass
+
+    if gpus == 'geoipupdate':
+        try:
+            url = "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key={key}&suffix=tar.gz".format(key=api.ini.getvalue('SET','key'))
+            print(url)
+            r = requests.get(url) 
+            with open("./Profile/GeoLite2-Country.tar.gz",'wb') as f:
+                f.write(r.content)
+            p=subprocess.Popen(mypath+'/bat/geoip.bat',shell=False)
+            p.wait()
         except Exception as e:
             pass
 

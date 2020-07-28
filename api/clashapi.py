@@ -3,6 +3,7 @@ import json
 import api.default
 import urllib.parse
 import api.admin
+import api.ini
 def Retry_request(url): #远程下载
     i = 0
     for i in range(2):
@@ -13,7 +14,7 @@ def Retry_request(url): #远程下载
             i = i+1
     return 'erro'
 
-ip = api.default.dashboard.split('ui')[0]
+ip = api.ini.getvalue('SET','dashboard').split('ui')[0]
 
 def getallproxies(address):
     allproxies=Retry_request(ip+'proxies')

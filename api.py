@@ -40,9 +40,11 @@ def safe_base64_encode(s): # 加密
         print('加密错误',e)
 
 app = Flask(__name__)
-ip = api.default.clashweb
-clashapi = api.default.dashboard.split('ui')[0]
-dashboard = api.default.dashboard
+#ip = api.default.clashweb
+ip = 'http://127.0.0.1:'+api.ini.getvalue('SET','clashweb')
+subconverterurl = api.ini.getvalue('SET','subconverter')
+clashapi = api.ini.getvalue('SET','dashboard').split('ui')[0]
+dashboard = api.ini.getvalue('SET','dashboard')
 app.secret_key = 'some_secret'
 mypath = os.getcwd().replace('\\','/')
 sysflag = ''
@@ -203,7 +205,7 @@ def profiles():
                     if '://' in url:
                         if configtype == 'notclash':
                             url = urllib.parse.quote(url)
-                            url = '{ip}/sub?target=clashr&url={sub}'.format(ip=api.default.subconverter,sub=url)    #非Clash进行拼接 
+                            url = '{ip}/sub?target=clashr&url={sub}'.format(ip=subconverterurl,sub=url)    #非Clash进行拼接 
                         if '127.0.0.1' in url or 'localhost' in url:
                             p=subprocess.Popen(mypath+'/bat/subconverter.bat',shell=False) 
                             p.wait()
@@ -300,6 +302,7 @@ def profiles():
                             p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
                             p.wait()  
                     except Exception as e:
+                        print(e)
                         flash('失败')
                     return redirect(ip)
                 if  request.form['submit'] == '返回  主页' or request.form['submit'] == '返回主页' :
@@ -434,7 +437,8 @@ def admin():
     try:
         if request.method == "POST":
                 if request.form['submit'] == '更新  geoip':               
-                    url = "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key={key}&suffix=tar.gz".format(key=api.default.key)
+                    url = "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key={key}&suffix=tar.gz".format(key=api.ini.getvalue('SET','key'))
+                    print(url)
                     r = requests.get(url) 
                     with open("./Profile/GeoLite2-Country.tar.gz",'wb') as f:
                         f.write(r.content)
@@ -456,7 +460,8 @@ def admin():
                     return redirect(ip)
         return render_template('admin.html')
     except Exception as e:
-        flash('发生错误，重新操作'+e)
+        flash('发生错误，重新操作')
+        print(e)
         return redirect(ip)
 
 @app.route('/airport',methods=['GET', 'POST'])
@@ -467,7 +472,7 @@ def airport():
         suburl = api.airport.stc(email,passwd)   #ssr订阅
         totalurl = suburl+'|'+suburl+'?mu=2'     #ssr+V2订阅
         sub = urllib.parse.quote(totalurl)
-        clash = '{ip}/sub?target=clashr&url={sub}'.format(ip=api.default.subconverter,sub=sub)  #Clash订阅
+        clash = '{ip}/sub?target=clashr&url={sub}'.format(ip=subconverterurl,sub=sub)  #Clash订阅
         currentconfig = api.admin.getfile('./App/tmp.vbs')
         currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')   #获取当前配置文件
         currentconfig = './Profile/'+currentconfig
@@ -539,31 +544,31 @@ def customgroup():
                 except :
                     return '出现BUG，请反馈'      
                 if tool == 'clash':
-                        CustomGroupvmess = '{ip}/sub?target=clash&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=api.default.subconverter,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
+                        CustomGroupvmess = '{ip}/sub?target=clash&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
                         api2 = 'https://gfwsb.114514.best/sub?target=clash&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
                         return render_template('clashr.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)         
                 if tool == 'clashr':
-                        CustomGroupvmess = '{ip}/sub?target=clashr&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=api.default.subconverter,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
+                        CustomGroupvmess = '{ip}/sub?target=clashr&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
                         api2 = 'https://gfwsb.114514.best/sub?target=clashr&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
                         return render_template('clashr.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)                       
                 if tool == 'surge':
-                        CustomGroupvmess = '{ip}/sub?target=surge&url={sub}&groups={groups}&ver=4&emoji={emoji}&fdn={fdn}'.format(ip=api.default.subconverter,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
+                        CustomGroupvmess = '{ip}/sub?target=surge&url={sub}&groups={groups}&ver=4&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
                         api2 = 'https://gfwsb.114514.best/sub?target=surge&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
                         return render_template('surge.html',sub = s,custom=n+c+method+'\n备用暂时不支持\n'+'默认为surge4，参数为为ver=4。',api=CustomGroupvmess,api2=api2)
                 if tool == 'quanx':
-                        CustomGroupvmess = '{ip}/sub?target=quanx&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=api.default.subconverter,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
+                        CustomGroupvmess = '{ip}/sub?target=quanx&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
                         api2 = 'https://gfwsb.114514.best/sub?target=quanx&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
                         return render_template('quanx.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)  
                 if tool == 'loon':
-                        CustomGroupvmess = '{ip}/sub?target=loon&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=api.default.subconverter,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
+                        CustomGroupvmess = '{ip}/sub?target=loon&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
                         api2 = 'https://gfwsb.114514.best/sub?target=loon&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
                         return render_template('loon.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)  
                 if tool == 'mellow':
-                        CustomGroupvmess = '{ip}/sub?target=mellow&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=api.default.subconverter,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
+                        CustomGroupvmess = '{ip}/sub?target=mellow&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
                         api2 = 'https://gfwsb.114514.best/sub?target=mellow&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
                         return render_template('mellow.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)
                 if tool == 'surfboard':
-                        CustomGroupvmess = '{ip}/sub?target=surfboard&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=api.default.subconverter,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
+                        CustomGroupvmess = '{ip}/sub?target=surfboard&url={sub}&groups={groups}&emoji={emoji}&fdn={fdn}'.format(ip=subconverterurl,sub=str(sub),groups=groups,emoji=emoji,fdn=fdn)
                         api2 = 'https://gfwsb.114514.best/sub?target=surfboard&url={sub}&emoji={emoji}&fdn={fdn}'.format(sub=str(sub),emoji=emoji,fdn=fdn) 
                         return render_template('surfboard.html',sub = s,custom=n+c+method+'  备用暂时不支持',api=CustomGroupvmess,api2=api2)                                          
                 else:
@@ -610,7 +615,7 @@ def start():
         pass    
 
 if __name__ == '__main__':
-    port = api.default.clashweb.split(':')[-1]
+    port = api.ini.getvalue('SET','clashweb')
     try:
         sysflag = sys.argv[1]
     except:

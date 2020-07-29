@@ -6,6 +6,7 @@ if ErrorLevel
 else
 {
     RunWait, ahkstart.bat,,Hide
+    Sleep, 2200
 }
 programName:="ClashWeb By Nico"
 Menu, Tray, NoStandard
@@ -58,6 +59,7 @@ Menu, Tray, Add, 退出, MenuHandlerexit
 Menu, Tray, Default, 检查状态
 Menu, Tray, Add  ; 创建分隔线.
 Menu,Tray,Tip,%programName% 
+
 OnClick:                                      ;任务栏图标双击单击效果
 if !LastClick 
 {
@@ -350,11 +352,9 @@ SetConfig:
         FileReadLine, oUrl, %A_ScriptDir%\Profile\%A_LoopFileName%, 1
         cUrl := StrSplit(oUrl, ":http")
         cUrl := cUrl[2]
-        cUrl := StrSplit(cUrl, "://")
-        cUrl := cUrl[2]
         cUrl := StrSplit(cUrl, "NicoNewBeee")
         cUrl := cUrl[1]
-        cUrl =  http://%cUrl%
+        cUrl =  http%cUrl%
         StringMid, monthmodi, A_LoopFileTimeModified, 5, 2
         StringMid, datemodi, A_LoopFileTimeModified, 7, 2
         StringMid, hourmodi, A_LoopFileTimeModified, 9, 2

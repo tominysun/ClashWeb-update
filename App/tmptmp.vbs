@@ -1,1 +1,1 @@
-CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f .\Profile\stcssrv2r.yaml",0
+CreateObject("WScript.Shell").Run "clash-win64 -d .\Profile -f .\Profile\stc-v2.yaml",0

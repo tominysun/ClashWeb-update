@@ -187,6 +187,7 @@ Url:
     Gui, Show
 return
 
+
 Button保存:
     Gui, Submit
     If (subUrl <> "" And subName <> ""){
@@ -194,6 +195,7 @@ Button保存:
         FileAppend, #托管地址: , %A_ScriptDir%\Profile\%subName% , UTF-8  
         FileAppend, %subUrl% , %A_ScriptDir%\Profile\%subName%  
         FileAppend, NicoNewBeee的Clash控制台 , %A_ScriptDir%\Profile\%subName% 
+        Gui, Destroy
         goto, SetConfig
     }
 return
@@ -211,6 +213,57 @@ Button查看:
 Gui, Submit
 Run, open "%A_ScriptDir%\Profile\%NameText%"
 goto,SetConfig
+return
+
+
+Button修改:
+    Gui, Submit
+    Gui, Destroy
+    Gui, Add, Text,, 所选配置
+    Gui, Add,Edit, w500 va,%NameText%
+    Gui, Add, Text,, 订阅地址
+    Gui, Add,Edit, w500 vb,%Urltext%
+    Gui, Add, Text,, 新的订阅，为空将保持不变
+    Gui, Add, Edit,w500 vsubUrl
+    Gui, Add, Text,, 新的名称(例如：nico.yaml)，为空将保持不变
+    Gui, Add, Edit,w500 vsubName
+    Gui, Add, Button, Default w80, 确认修改
+    Gui, Add, Button, xp+90 yp w80, 订阅/转换
+    Gui, Add, Button, xp+90 yp w80, 取消
+    Gui, Show
+return
+
+Button订阅/转换:
+Run, %A_ScriptDir%\Profile\sub-web\index.html
+goto,Button修改
+return
+
+Button确认修改:
+Gui, Submit
+If (subUrl <> "" And subName <> ""){
+    FileDelete, %A_ScriptDir%\Profile\%subName%  
+    FileAppend, #托管地址: , %A_ScriptDir%\Profile\%subName% , UTF-8  
+    FileAppend, %subUrl% , %A_ScriptDir%\Profile\%subName%  
+    FileAppend, NicoNewBeee的Clash控制台 , %A_ScriptDir%\Profile\%subName% 
+    Gui, Destroy
+    goto, SetConfig
+}
+If (subUrl = "" And subName <> ""){
+    FileDelete, %A_ScriptDir%\Profile\%subName%  
+    FileAppend, #托管地址: , %A_ScriptDir%\Profile\%subName% , UTF-8  
+    FileAppend, %b% , %A_ScriptDir%\Profile\%subName%  
+    FileAppend, NicoNewBeee的Clash控制台 , %A_ScriptDir%\Profile\%subName% 
+    Gui, Destroy
+    goto, SetConfig
+}
+If (subUrl <> "" And subName = ""){
+    FileDelete, %A_ScriptDir%\Profile\%a%  
+    FileAppend, #托管地址: , %A_ScriptDir%\Profile\%a% , UTF-8  
+    FileAppend, %subUrl% , %A_ScriptDir%\Profile\%a%  
+    FileAppend, NicoNewBeee的Clash控制台 , %A_ScriptDir%\Profile\%a% 
+    Gui, Destroy
+    goto, SetConfig
+}
 return
 
 Button更新:
@@ -252,7 +305,7 @@ else
 return
 
 
-Button重启:
+Button启动:
 RunWait, ahksave.bat,,Hide
 Gui, Submit
 FileDelete, %A_ScriptDir%\App\tmp.vbs  
@@ -263,12 +316,12 @@ var := """,0"
 FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs   
 Gui, Destroy
 RunWait, ahkrestartconfig.bat,,Hide
-TrayTip % Format("📢通知📢"),重启操作成功
+TrayTip % Format("📢通知📢"),启动操作成功
 return
 
 Button删除:
 Gui, Submit
-MsgBox, 4,, 当前配置:%NameText%，是否删除
+MsgBox, 4,, 所选配置:%NameText%，是否删除
 IfMsgBox, Yes
 {
     NewStr := StrReplace(NameText, "yaml", "txt")
@@ -276,13 +329,19 @@ IfMsgBox, Yes
     FileDelete, %A_ScriptDir%\Profile\tapconfig\%NameText%
     FileDelete, %A_ScriptDir%\Profile\save\%NewStr%
 } 
+Gui, Destroy
 goto, SetConfig
 return
+
+Button取消:
+goto, SetConfig
+return
+
 
 SetConfig:
     Gui, Destroy
     Gui, Add, Text,, 双击配置文件进行下一步操作
-    Gui, Add, ListView,w700 Multi AltSubmit gSelectConfigs, Name|Size (KB)|URL
+    Gui, Add, ListView,r10 w800 Multi AltSubmit gSelectConfigs, 名称|更新日期|大小|订阅地址
     Gui, Add, Button, Default w80, 添加
     Gui, Add, Button, xp+100 yp w80, 订阅转换
     Gui, Add, Button, xp+100 yp w80, 打开目录
@@ -295,7 +354,13 @@ SetConfig:
         cUrl := cUrl[2]
         cUrl := StrSplit(cUrl, "NicoNewBeee")
         cUrl := cUrl[1]
-        LV_Add("", A_LoopFileName, A_LoopFileSizeKB, cUrl) 
+        cUrl =  http://%cUrl%
+        StringMid, monthmodi, A_LoopFileTimeModified, 5, 2
+        StringMid, datemodi, A_LoopFileTimeModified, 7, 2
+        StringMid, hourmodi, A_LoopFileTimeModified, 9, 2
+        StringMid, minmodi, A_LoopFileTimeModified, 11, 2
+        TimeModi = %monthmodi%/%datemodi% %hourmodi%:%minmodi%
+        LV_Add("", A_LoopFileName, TimeModi, A_LoopFileSizeKB, cUrl) 
     } 
     LV_ModifyCol() ; 根据内容自动调整每列的大小.
     LV_ModifyCol(2,"100 Integer") ; 为了进行排序, 指出列 2 是整数.
@@ -307,14 +372,16 @@ SelectConfigs:
     if A_GuiEvent = DoubleClick
     {
         LV_GetText(NameText, A_EventInfo) ; 从行的第一个字段中获取文本.
-        LV_GetText(Urltext, A_EventInfo, 3)
+        LV_GetText(Urltext, A_EventInfo, 4)
         If (%A_EventInfo%<>0){
             Gui, Destroy
             Gui, Add, Text,, 所选文件：%NameText% 
-            Gui, Add, Button, Default w80, 重启
-            Gui, Add, Button, xp+100 yp w80, 更新
-            Gui, Add, Button, xp+100 yp w80, 查看
-            Gui, Add, Button, xp+100 yp w80, 删除
+            Gui, Add, Button, Default w80, 启动
+            Gui, Add, Button, xp+90 yp w80, 更新
+            Gui, Add, Button, xp+90 yp w80, 修改
+            Gui, Add, Button, xp+90 yp w80, 查看
+            Gui, Add, Button, xp+90 yp w80, 删除
+            Gui, Add, Button, xp+90 yp w80, 取消
             Gui, Show
         }
     }

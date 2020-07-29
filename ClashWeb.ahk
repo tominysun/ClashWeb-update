@@ -134,6 +134,7 @@ else
     return
 
 updateconfig:
+RunWait, ahksave.bat,,Hide
 FileDelete, %A_ScriptDir%\App\tmptmp.vbs
 FileCopy, %A_ScriptDir%\App\tmp.vbs, %A_ScriptDir%\App\tmptmp.vbs
 RunWait, ahkupdateconfig,,Hide
@@ -214,6 +215,7 @@ return
 
 Button更新:
 Gui, Submit
+RunWait, ahksave.bat,,Hide
 FileDelete, %A_ScriptDir%\App\tmptmp.vbs  
 var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
 FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs 
@@ -251,6 +253,7 @@ return
 
 
 Button重启:
+RunWait, ahksave.bat,,Hide
 Gui, Submit
 FileDelete, %A_ScriptDir%\App\tmp.vbs  
 var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"

@@ -185,7 +185,7 @@ Url:
     Gui, Destroy
     Gui, Add, Text,, 订阅链接:
     Gui, Add, Edit,w500 vsubUrl
-    Gui, Add, Text,, 配置名称(例如：nico.yaml):
+    Gui, Add, Text,, 配置名称，不支持中文(例如：nico):
     Gui, Add, Edit,w500 vsubName
     Gui, Add, Button, Default, 保存
     Gui, Show
@@ -195,6 +195,15 @@ return
 Button保存:
     Gui, Submit
     If (subUrl <> "" And subName <> ""){
+        Needle := ".yaml"
+        IfInString, subName, %Needle%
+        {
+
+        }
+        else
+        {
+            subName := subName ".yaml"
+        }
         FileDelete, %A_ScriptDir%\Profile\%subName%  
         FileAppend, #托管地址: , %A_ScriptDir%\Profile\%subName% , UTF-8  
         FileAppend, %subUrl% , %A_ScriptDir%\Profile\%subName%  
@@ -227,47 +236,35 @@ Button修改:
     Gui, Add,Edit, w500 va,%NameText%
     Gui, Add, Text,, 订阅地址
     Gui, Add,Edit, w500 vb,%Urltext%
-    Gui, Add, Text,, 新的订阅，为空将保持不变
-    Gui, Add, Edit,w500 vsubUrl
-    Gui, Add, Text,, 新的名称(例如：nico.yaml)，为空将保持不变
-    Gui, Add, Edit,w500 vsubName
     Gui, Add, Button, Default w80, 确认修改
     Gui, Add, Button, xp+90 yp w80, 订阅/转换
     Gui, Add, Button, xp+90 yp w80, 取消
     Gui, Show
 return
 
-Button订阅/转换:
-Run, %A_ScriptDir%\Profile\sub-web\index.html
-goto,Button修改
-return
 
 Button确认修改:
 Gui, Submit
-If (subUrl <> "" And subName <> ""){
-    FileDelete, %A_ScriptDir%\Profile\%subName%  
-    FileAppend, #托管地址: , %A_ScriptDir%\Profile\%subName% , UTF-8  
-    FileAppend, %subUrl% , %A_ScriptDir%\Profile\%subName%  
-    FileAppend, NicoNewBeee的Clash控制台 , %A_ScriptDir%\Profile\%subName% 
-    Gui, Destroy
-    goto, SetConfig
-}
-If (subUrl = "" And subName <> ""){
-    FileDelete, %A_ScriptDir%\Profile\%subName%  
-    FileAppend, #托管地址: , %A_ScriptDir%\Profile\%subName% , UTF-8  
-    FileAppend, %b% , %A_ScriptDir%\Profile\%subName%  
-    FileAppend, NicoNewBeee的Clash控制台 , %A_ScriptDir%\Profile\%subName% 
-    Gui, Destroy
-    goto, SetConfig
-}
-If (subUrl <> "" And subName = ""){
+    Needle := ".yaml"
+    IfInString, a, %Needle%
+    {
+
+    }
+    else
+    {
+        a := a ".yaml"
+    }
     FileDelete, %A_ScriptDir%\Profile\%a%  
     FileAppend, #托管地址: , %A_ScriptDir%\Profile\%a% , UTF-8  
-    FileAppend, %subUrl% , %A_ScriptDir%\Profile\%a%  
+    FileAppend, %b% , %A_ScriptDir%\Profile\%a%  
     FileAppend, NicoNewBeee的Clash控制台 , %A_ScriptDir%\Profile\%a% 
     Gui, Destroy
     goto, SetConfig
-}
+return
+
+Button订阅/转换:
+Run, %A_ScriptDir%\Profile\sub-web\index.html
+goto,Button修改
 return
 
 Button更新:
@@ -377,7 +374,11 @@ SelectConfigs:
         LV_GetText(Urltext, A_EventInfo, 4)
         If (%A_EventInfo%<>0){
             Gui, Destroy
+            Gui, Add, Text,, 
+            Gui, Add, Text,, 
             Gui, Add, Text,, 所选文件：%NameText% 
+            Gui, Add, Text,, 
+            Gui, Add, Text,, 
             Gui, Add, Button, Default w80, 启动
             Gui, Add, Button, xp+90 yp w80, 更新
             Gui, Add, Button, xp+90 yp w80, 修改

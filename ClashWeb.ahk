@@ -27,7 +27,13 @@ Menu, Submenu4, Add  ; 创建分隔线.
 Menu, Submenu4, Add  ; 创建分隔线.
 Menu, Submenu4, Add, 安装网卡, installtap
 Menu, Submenu4, Add, 卸载网卡, unstalltap
+Menu, Submenu4, Add  ; 创建分隔线.
+Menu, Submenu4, Add  ; 创建分隔线.
+Menu, Submenu4, Add, 小白不要轻易尝试, nothing
+Menu, Submenu4, Add, 需要修改网卡名称, nothing
+Menu, Submenu4, Add, 具体使用请看帮助, help
 Menu, tray, add, Tap模式, :Submenu4  
+
 
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Submenu3, Add, 规则, rulemode  

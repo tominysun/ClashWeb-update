@@ -5,7 +5,7 @@ if ErrorLevel
 }
 else
 {
-    RunWait, ahkstart.bat,,Hide
+    RunWait, ahkclashweb.bat start,,Hide
     Sleep, 2200
 }
 programName:="ClashWeb By Nico"
@@ -144,14 +144,14 @@ else
     return
 
 updateconfig:
-RunWait, ahksave.bat,,Hide
+RunWait, ahkclashweb.bat save,,Hide
 FileDelete, %A_ScriptDir%\App\tmptmp.vbs
 FileCopy, %A_ScriptDir%\App\tmp.vbs, %A_ScriptDir%\App\tmptmp.vbs
-RunWait, ahkupdateconfig,,Hide
+RunWait, ahkclashweb.bat updateconfig,,Hide
 IniRead, ifsuccess, %A_ScriptDir%\api\default.ini, SET, configdownload
 if (ifsuccess = "success")
 {
-    RunWait,ahkrestartconfig,,Hide
+    RunWait, ahkclashweb.bat restartconfig,,Hide
     TrayTip % Format("📢通知📢"),更新当前配置并重启操作完成！ 
 }
 else
@@ -275,14 +275,14 @@ return
 
 Button更新:
 Gui, Submit
-RunWait, ahksave.bat,,Hide
+RunWait, ahkclashweb.bat save,,Hide
 FileDelete, %A_ScriptDir%\App\tmptmp.vbs  
 var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
 FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs 
 FileAppend, %NameText% , %A_ScriptDir%\App\tmptmp.vbs 
 var := """,0"
 FileAppend, %var% , %A_ScriptDir%\App\tmptmp.vbs  
-RunWait, ahkupdateconfig.bat,,Hide
+RunWait, ahkclashweb.bat updateconfig,,Hide
 IniRead, ifsuccess, %A_ScriptDir%\api\default.ini, SET, configdownload
 if (ifsuccess = "success")
 {
@@ -297,7 +297,7 @@ if (ifsuccess = "success")
         var := """,0"
         FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs   
         Gui, Destroy
-        RunWait, ahkrestartconfig.bat,,Hide
+        RunWait, ahkclashweb.bat restartconfig,,Hide
         TrayTip % Format("📢通知📢"),重启操作成功
         return
     }         
@@ -313,7 +313,7 @@ return
 
 
 Button启动:
-RunWait, ahksave.bat,,Hide
+RunWait, ahkclashweb.bat save,,Hide
 Gui, Submit
 FileDelete, %A_ScriptDir%\App\tmp.vbs  
 var := "CreateObject(""WScript.Shell"").Run ""clash-win64 -d .\Profile -f .\Profile\"
@@ -322,7 +322,7 @@ FileAppend, %NameText% , %A_ScriptDir%\App\tmp.vbs
 var := """,0"
 FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs   
 Gui, Destroy
-RunWait, ahkrestartconfig.bat,,Hide
+RunWait, ahkclashweb.bat restartconfig,,Hide
 TrayTip % Format("📢通知📢"),启动操作成功
 return
 
@@ -398,17 +398,17 @@ return
 
 
 geoip:
-RunWait, ahkgeoip.bat,,Hide
+RunWait, ahkclashweb.bat geoip,,Hide
 TrayTip % Format("📢通知📢"),更新切换成Geoip
 return
 
 ipipgeoip:
-RunWait, ahkipip.bat,,Hide
+RunWait, ahkclashweb.bat ipip,,Hide
 TrayTip % Format("📢通知📢"),更新切换成IPIPgeoip
 return
 
 savenode:
-RunWait, ahksave.bat,,Hide
+RunWait, ahkclashweb.bat save,,Hide
 TrayTip % Format("📢通知📢"),保存节点成功
 return
 
@@ -425,14 +425,14 @@ TrayTip % Format("📢通知📢"),卸载网卡操作成功
 return
 
 tapstart:
-RunWait, ahkstopclashtap.bat,,Hide
-RunWait, ahkstartclashtap.bat,,Hide
+RunWait, ahkclashweb.bat stopclashtap,,Hide
+RunWait, ahkclashweb.bat startclashtap,,Hide
 TrayTip % Format("📢通知📢"),Tap模式启动操作完成
 return
 
 
 tapstop:
-RunWait, ahkstopclashtap.bat,,Hide
+RunWait, ahkclashweb.bat stopclashtap,,Hide
 TrayTip % Format("📢通知📢"),Tap模式关闭操作完成
 return
 
@@ -441,7 +441,7 @@ RunWait, ahkopenadmin.bat,,Hide
 return
 
 clashweb:
-Run, ahkopenclashweb.bat,,Hide
+RunWait, ahkclashweb.bat openclashweb,,Hide
 return
 
 setsys:
@@ -559,12 +559,12 @@ stopclash:
 MsgBox, 4,, 确定要关闭Clash、关闭系统代理吗？
 IfMsgBox, No
     return  ; 如果选择 No, 脚本将会终止.
-RunWait, ahkstopclash.bat,,Hide
+RunWait, ahkclashweb.bat stopclash,,Hide
 TrayTip % Format("📢通知📢"),普通模式关闭操作完成
 return
 
 startclash:
-RunWait, ahkrestartclash.bat,,Hide
+RunWait, ahkclashweb.bat restartclash,,Hide
 Process,Exist, clash-win64.exe ; 
 if ErrorLevel
 {
@@ -597,22 +597,22 @@ TrayTip % Format("📢启动成功📢"),运行  模式：%ModeVar%`nClash状态
 return
 
 rulemode:
-RunWait, ahkrule.bat,,Hide
+RunWait, ahkclashweb.bat rule,,Hide
 TrayTip % Format("📢通知📢"),规则模式
 return
 
 directmode:
-RunWait, ahkdirect.bat,,Hide
+RunWait, ahkclashweb.bat direct,,Hide
 TrayTip % Format("📢通知📢"),直连模式
 return
 
 globalmode:
-RunWait, ahkglobal.bat,,Hide
+RunWait, ahkclashweb.bat global,,Hide
 TrayTip % Format("📢通知📢"),全局模式
 return
 
 MenuHandlerupdateconfig:
-RunWait, ahkupdateconfig.bat,,Hide
+RunWait, ahkclashweb.bat updateconfig,,Hide
 Process,Exist, clash-win64.exe ; 
 if ErrorLevel
 {
@@ -649,7 +649,7 @@ MenuHandlerstoppython:
 MsgBox, 4,, 确定要关闭Python控制台吗 ? 关闭后网页控制台不可用 ！
 IfMsgBox, No
     return  ; 如果选择 No, 脚本将会终止.
-RunWait, ahkstopclashweb.bat,,Hide
+RunWait, ahkclashweb.bat stopclashweb,,Hide
 Goto, checkpython
 return
 
@@ -661,7 +661,7 @@ if ErrorLevel
     IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, defaultdashboard
     if (Dash = "Razord")
     {
-        RunWait, ahkopendashboard.bat,,Hide
+        RunWait, ahkclashweb.bat opendashboard,,Hide
     }
     else
     {
@@ -676,5 +676,5 @@ else
 return
 
 MenuHandlerexit:
-RunWait, ahkexit.bat,,Hide
+RunWait, ahkclashweb.bat myexit,,Hide
 ExitApp

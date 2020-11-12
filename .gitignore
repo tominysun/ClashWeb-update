@@ -33,3 +33,5 @@ api/default.ini
 api/currentmode.py
 debug.log
 Profile/save/config.txt
+Profile/tapconfig/stc.yaml
+Profile/save/stc.txt

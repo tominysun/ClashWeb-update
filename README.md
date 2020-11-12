@@ -9,11 +9,11 @@
 
 # 软件截图
   - 任务栏托盘程序示意图<br/>
-  ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/index.jpg) <br/>
+  ![image](https://github.com/lzdnico/ClashWeb/blob/nico/images/index.jpg) <br/>
   - 配置文件管理页面示意图<br/>
-  ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/profiles.png) <br/>
+  ![image](https://github.com/lzdnico/ClashWeb/blob/nico/images/profiles.png) <br/>
   - 上传gist页面示意图<br/>
-  ![image](https://github.com/lzdnico/ClashWeb/blob/master/images/gist.png) <br/>
+  ![image](https://github.com/lzdnico/ClashWeb/blob/nico/images/gist.png) <br/>
 
 # 其他
    - 项目基于subweb：https://github.com/lzdnico/subweb

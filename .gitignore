@@ -1,19 +1,10 @@
-api/__pycache__/__init__.cpython-38.pyc
-api/__pycache__/togist.cpython-38.pyc
-api/__pycache__/subconverter.cpython-38.pyc
-api/__pycache__/admin.cpython-38.pyc
-api/__pycache__/default.cpython-38.pyc
-api/__pycache__/airport.cpython-38.pyc
+api/__pycache__/
 Profile/config.yaml
-Profile/renameme1.yaml
-api/__pycache__/clashapi.cpython-38.pyc
 tun2socks.log
-api/__pycache__/currentmode.cpython-38.pyc
 Profile/save/config.txt
 Profile/save/config1.txt
 Profile/tapconfig/config.yaml
 Profile/tapconfig/renameme1.yaml
-api/__pycache__/ini.cpython-38.pyc
 api/currentmode.py
 Profile/renameme.yaml
 Profile/save/renameme.txt
@@ -35,3 +26,5 @@ debug.log
 Profile/save/config.txt
 Profile/tapconfig/stc.yaml
 Profile/save/stc.txt
+Python/Lib/site-packages/
+Python/site-packages/__pycache__/

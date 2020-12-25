@@ -68,7 +68,65 @@ Menu, Tray, Default, 检查状态
 Menu, Tray, Add  ; 创建分隔线.
 Menu,Tray,Tip,%programName% 
 
-OnClick:                                      ;任务栏图标双击单击效果
+;检测状态
+RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
+if ( proxy > 0 )
+{ 
+    IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, opensysafterstartclash
+    if (Dash = "True")
+    {
+        Menu, tray, Check,系统代理
+        Menu, Submenu2, Check,开启系统代理
+    }
+    else
+    {
+        Menu, Submenu2, Check,关闭系统代理
+    }
+}
+else 
+{
+    Menu, Submenu2, Check,关闭系统代理
+}
+
+Process,Exist, tun2socks.exe ; 
+if ErrorLevel
+{
+    Menu, tray, Check,Tap模式
+    Menu, Submenu4, Check,启动
+}
+else
+{
+    Process,Exist, clash-win64.exe ; 
+    if ErrorLevel
+    {
+        Menu, tray, Check,普通模式
+        Menu, Submenu, Check,启动
+    }
+    else
+    {
+    }
+}
+Menu, tray, Check,代理模式
+IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
+if (Dash = "Rule")
+{
+    goto, rulemode
+    Menu, Submenu3, Check,规则
+}
+if (Dash = "Direct")
+{
+    goto, directmode
+    Menu, Submenu3, Check,直连
+}
+if (Dash = "Global")
+{
+    goto, globalmode
+    Menu, Submenu3, Check,全局
+}
+
+;任务栏图标双击单击效果
+Sleep, 100
+OnClick:                                      
 if !LastClick 
 {
         LastClick := 1
@@ -85,6 +143,7 @@ else if (LastClick = 2 )
         SetTimer,DoubleClickEvent,off
         gosub,TripleClickEvent
 }
+
 return
 
 SingleClickEvent:
@@ -425,13 +484,31 @@ TrayTip % Format("📢通知📢"),卸载网卡操作成功
 return
 
 tapstart:
+Menu, tray, Check, Tap模式
+Menu, tray, UnCheck, 普通模式
+Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
+Menu, %A_ThisMenu%, UnCheck,关闭
+Menu, Submenu, UnCheck,启动
+Menu, Submenu, UnCheck,关闭
 RunWait, ahkclashweb.bat stopclashtap,,Hide
 RunWait, ahkclashweb.bat startclashtap,,Hide
+Menu,tray,UnCheck,系统代理
+Menu, Submenu2, Check,关闭系统代理
+Menu, Submenu2, UnCheck,开启系统代理
 TrayTip % Format("📢通知📢"),Tap模式启动操作完成
 return
 
 
 tapstop:
+Menu, tray, Check, Tap模式
+Menu, tray, UnCheck, 普通模式
+Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
+Menu, %A_ThisMenu%, UnCheck,启动
+Menu, Submenu, UnCheck,启动
+Menu, Submenu, UnCheck,关闭
+Menu,tray,UnCheck,系统代理
+Menu, Submenu2, Check,关闭系统代理
+Menu, Submenu2, UnCheck,开启系统代理
 RunWait, ahkclashweb.bat stopclashtap,,Hide
 TrayTip % Format("📢通知📢"),Tap模式关闭操作完成
 return
@@ -445,11 +522,17 @@ RunWait, ahkclashweb.bat openclashweb,,Hide
 return
 
 setsys:
+Menu, tray, Check,系统代理
+Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
+Menu, %A_ThisMenu%, UnCheck, 关闭系统代理
 RunWait, %A_ScriptDir%\bat\setsys.bat,,Hide
 Goto, checksys
 return
 
 dissys:
+Menu, tray, UnCheck,系统代理
+Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
+Menu, %A_ThisMenu%, UnCheck,开启系统代理
 RunWait, %A_ScriptDir%\bat\dissys.bat,,Hide
 Goto, checksys
 return
@@ -560,10 +643,22 @@ MsgBox, 4,, 确定要关闭Clash、关闭系统代理吗？
 IfMsgBox, No
     return  ; 如果选择 No, 脚本将会终止.
 RunWait, ahkclashweb.bat stopclash,,Hide
+Menu, tray, Check, 普通模式
+Menu, tray, UnCheck, Tap模式
+Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
+Menu, %A_ThisMenu%, UnCheck,启动
+Menu, Submenu4, UnCheck,启动
+Menu, Submenu4, UnCheck,关闭
 TrayTip % Format("📢通知📢"),普通模式关闭操作完成
 return
 
 startclash:
+Menu, tray, Check, 普通模式
+Menu, tray, UnCheck, Tap模式
+Menu, %A_ThisMenu%, UnCheck,关闭
+Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
+Menu, Submenu4, UnCheck,启动
+Menu, Submenu4, UnCheck,关闭
 RunWait, ahkclashweb.bat restartclash,,Hide
 Process,Exist, clash-win64.exe ; 
 if ErrorLevel
@@ -588,27 +683,42 @@ RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Inter
 if ( proxy > 0 )
 { 
     ProxyVar := "开-✅"
+    Menu,tray,Check,系统代理
+    Menu, Submenu2, UnCheck,关闭系统代理
+    Menu, Submenu2, Check,开启系统代理
 }
 else 
 {
     ProxyVar := "关-❌"
+    Menu,tray,UnCheck,系统代理
+    Menu, Submenu2, Check,关闭系统代理
+    Menu, Submenu2, UnCheck,开启系统代理
 }
 TrayTip % Format("📢启动成功📢"),运行  模式：%ModeVar%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%
 return
 
 rulemode:
+Menu, Submenu3, Check,规则
+Menu, Submenu3, UnCheck,直连
+Menu, Submenu3, UnCheck,全局
 RunWait, ahkclashweb.bat rule,,Hide
-TrayTip % Format("📢通知📢"),规则模式
+IniWrite, Rule, %A_ScriptDir%\api\default.ini, SET, rulemode
 return
 
 directmode:
+Menu, Submenu3, UnCheck,规则
+Menu, Submenu3, Check,直连
+Menu, Submenu3, UnCheck,全局
 RunWait, ahkclashweb.bat direct,,Hide
-TrayTip % Format("📢通知📢"),直连模式
+IniWrite, Direct, %A_ScriptDir%\api\default.ini, SET, rulemode
 return
 
 globalmode:
+Menu, Submenu3, UnCheck,规则
+Menu, Submenu3, UnCheck,直连
+Menu, Submenu3, Check,全局
 RunWait, ahkclashweb.bat global,,Hide
-TrayTip % Format("📢通知📢"),全局模式
+IniWrite, Global, %A_ScriptDir%\api\default.ini, SET, rulemode
 return
 
 MenuHandlerupdateconfig:

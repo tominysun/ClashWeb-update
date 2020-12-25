@@ -20,7 +20,6 @@ App/tmptmp.vbs
 Profile/tapconfig/stc-v2.yaml
 Profile/save/stc-v2.txt
 App/tmp.vbs
-api/default.ini
 api/currentmode.py
 debug.log
 Profile/save/config.txt

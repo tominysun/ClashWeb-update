@@ -148,6 +148,33 @@ if __name__ == '__main__':
         except Exception as e:
             pass
 
+    if gpus == 'tunstart':
+        try:
+            currentconfig = api.admin.getfile('./App/tmp.vbs')                      #获取当前文件
+            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+
+            #把普通配置重写为tap配置
+            tapconfig=api.admin.getfile('./Profile/defaultconfig/tunconfig.txt')
+            config=api.admin.getfile('./Profile/'+currentconfig)
+            config=tapconfig+'\nproxies:'+config.split('proxies:',1)[1]       
+            api.admin.writefile(config,'./Profile/tunconfig/'+currentconfig)         
+            #重写完成
+
+            p=subprocess.Popen(mypath+'/bat/tunstart.bat',shell=False)              #启动默认tap文件    
+            p.wait() 
+            path=mypath+'/Profile/tunconfig/'+currentconfig
+            path=path.replace('/','\\')
+            p=requests.put(clashapi+'configs',data=json.dumps({'path':path}))       #切换成tun模式配置文件
+            print(p.text)  
+            if '' == p.text:  
+                print(gpus)                     
+                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点      
+            p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
+            p.wait()  
+            api.admin.writefile('currentmode=\'tun\'','./api/currentmode.py')
+        except Exception as e:
+            pass
+
     if gpus == 'opendashboard':
         try:
             os.system('start '+dashboard)

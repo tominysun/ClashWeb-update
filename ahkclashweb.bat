@@ -1,4 +1,5 @@
 SET PATH="%~dp0";"%~dp0App\tap";"%~dp0App";"%~dp0Python";"%~dp0Python\Scripts";"%~dp0Python\Lib\distutils\command";"%~dp0Python\Lib\site-packages\pip\_vendor\distlib";"%~dp0Python\Lib\site-packages\setuptools";%PATH%
+
 goto %1
 
 :addconfig
@@ -82,10 +83,14 @@ exit
 python node.py updateconfig
 exit
 
+:restarttun
+python node.py saveandclose
+python node.py tunstart
+exit
 
-
-
-
+:stoptun
+python node.py saveandclose
+exit
 
 
 

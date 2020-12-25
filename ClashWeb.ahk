@@ -1,13 +1,18 @@
-﻿SetWorkingDir %A_ScriptDir%
-Process,Exist, clash-win64.exe ;                         
-if ErrorLevel
-{   
-}
-else
+﻿;获取管理员权限
+full_command_line := DllCall("GetCommandLine", "str")
+if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)"))
 {
-    RunWait, ahkclashweb.bat start,,Hide
-    Sleep, 2200
+    try
+    {
+        if A_IsCompiled
+            Run *RunAs "%A_ScriptFullPath%" /restart
+        else
+            Run *RunAs "%A_AhkPath%" /restart "%A_ScriptFullPath%"
+    }
+    ExitApp
 }
+;获取结束
+SetWorkingDir %A_ScriptDir%
 programName:="ClashWeb By Nico"
 Menu, Tray, NoStandard
 Menu, Tray, Icon, clash-logo.ico,1,1
@@ -21,19 +26,9 @@ Menu, Tray, Add  ; 创建分隔线.
 Menu, Submenu, Add, 启动, startclash
 Menu, Submenu, Add, 关闭, stopclash
 Menu, tray, add, 普通模式, :Submenu  
-Menu, Submenu4, Add, 启动, tapstart
-Menu, Submenu4, Add, 关闭, tapstop
-Menu, Submenu4, Add  ; 创建分隔线.
-Menu, Submenu4, Add  ; 创建分隔线.
-Menu, Submenu4, Add, 安装网卡, installtap
-Menu, Submenu4, Add, 卸载网卡, unstalltap
-Menu, Submenu4, Add  ; 创建分隔线.
-Menu, Submenu4, Add  ; 创建分隔线.
-Menu, Submenu4, Add, 小白不要轻易尝试, nothing
-Menu, Submenu4, Add, 需要修改网卡名称, nothing
-Menu, Submenu4, Add, 具体使用请看帮助, help
-Menu, tray, add, Tap模式, :Submenu4  
-
+Menu, tunmenu, Add, 启动, tunstart
+Menu, tunmenu, Add, 关闭, tunstop
+Menu, tray, add, Tun模式, :tunmenu  
 
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Submenu3, Add, 规则, rulemode  
@@ -68,6 +63,29 @@ Menu, Tray, Default, 检查状态
 Menu, Tray, Add  ; 创建分隔线.
 Menu,Tray,Tip,%programName% 
 
+Process,Exist, clash-win64.exe ;                         
+if ErrorLevel
+{   
+}
+else
+{
+    FileReadLine, oUrl, %A_ScriptDir%\api\currentmode.py, 1
+    Needle := "tun"
+    If InStr(oUrl, Needle)
+    {
+        Menu, tray, Check,Tun模式
+        Menu, tunmenu, Check,启动
+        RunWait, ahkclashweb.bat restarttun,,Hide
+
+    }
+    Else
+    {
+        Menu, tray, Check,普通模式
+        Menu, Submenu, Check,启动
+        RunWait, ahkclashweb.bat restartclash,,Hide
+    }
+}
+
 ;检测状态
 RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
 if ( proxy > 0 )
@@ -88,24 +106,6 @@ else
     Menu, Submenu2, Check,关闭系统代理
 }
 
-Process,Exist, tun2socks.exe ; 
-if ErrorLevel
-{
-    Menu, tray, Check,Tap模式
-    Menu, Submenu4, Check,启动
-}
-else
-{
-    Process,Exist, clash-win64.exe ; 
-    if ErrorLevel
-    {
-        Menu, tray, Check,普通模式
-        Menu, Submenu, Check,启动
-    }
-    else
-    {
-    }
-}
 Menu, tray, Check,代理模式
 IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
 if (Dash = "Rule")
@@ -483,36 +483,6 @@ If UninstallSize
 TrayTip % Format("📢通知📢"),卸载网卡操作成功
 return
 
-tapstart:
-Menu, tray, Check, Tap模式
-Menu, tray, UnCheck, 普通模式
-Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
-Menu, %A_ThisMenu%, UnCheck,关闭
-Menu, Submenu, UnCheck,启动
-Menu, Submenu, UnCheck,关闭
-RunWait, ahkclashweb.bat stopclashtap,,Hide
-RunWait, ahkclashweb.bat startclashtap,,Hide
-Menu,tray,UnCheck,系统代理
-Menu, Submenu2, Check,关闭系统代理
-Menu, Submenu2, UnCheck,开启系统代理
-TrayTip % Format("📢通知📢"),Tap模式启动操作完成
-return
-
-
-tapstop:
-Menu, tray, Check, Tap模式
-Menu, tray, UnCheck, 普通模式
-Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
-Menu, %A_ThisMenu%, UnCheck,启动
-Menu, Submenu, UnCheck,启动
-Menu, Submenu, UnCheck,关闭
-Menu,tray,UnCheck,系统代理
-Menu, Submenu2, Check,关闭系统代理
-Menu, Submenu2, UnCheck,开启系统代理
-RunWait, ahkclashweb.bat stopclashtap,,Hide
-TrayTip % Format("📢通知📢"),Tap模式关闭操作完成
-return
-
 admin:
 RunWait, ahkopenadmin.bat,,Hide
 return
@@ -551,15 +521,6 @@ TrayTip % Format("📢运行状态📢"),系统代理：%ProxyVar%
 return
 
 checkclash:
-Process,Exist, tun2socks.exe ; 
-if ErrorLevel
-{
-    ModeVar := "TAP"
-}
-else
-{
-    ModeVar := "普  通"
-}
 Process,Exist, clash-win64.exe ; 
 if ErrorLevel
 {
@@ -578,7 +539,7 @@ else
 {
     ProxyVar := "关-❌"
 }
-TrayTip % Format("📢运行状态📢"),运行  模式：%ModeVar%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%
+TrayTip % Format("📢运行状态📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
 return
 
 checkpython:
@@ -597,6 +558,17 @@ return
 
 
 MenuHandlercheck:
+FileReadLine, oUrl, %A_ScriptDir%\api\currentmode.py, 1
+    Needle := "tun"
+    If InStr(oUrl, Needle)
+    {
+        Mode := "Tun模式"
+    }
+    Else
+    {
+        Mode := "普通模式"
+    }
+
 RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
 if ( proxy > 0 )
 { 
@@ -607,15 +579,6 @@ else
     ProxyVar := "关-❌"
 }
 
-Process,Exist, tun2socks.exe ; 
-if ErrorLevel
-{
-    ModeVar := "TAP"
-}
-else
-{
-    ModeVar := "普  通"
-}
 Process,Exist, clash-win64.exe ; 
 if ErrorLevel
 {
@@ -634,32 +597,17 @@ else
 { 
     PythonVar := "关-❌"
 }
-TrayTip % Format("📢运行状态📢"), 运行  模式：%ModeVar%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
+TrayTip % Format("📢运行状态📢"), 运行  模式：%Mode%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
 return
 
-
-stopclash:
-MsgBox, 4,, 确定要关闭Clash、关闭系统代理吗？
-IfMsgBox, No
-    return  ; 如果选择 No, 脚本将会终止.
-RunWait, ahkclashweb.bat stopclash,,Hide
-Menu, tray, Check, 普通模式
-Menu, tray, UnCheck, Tap模式
-Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
-Menu, %A_ThisMenu%, UnCheck,启动
-Menu, Submenu4, UnCheck,启动
-Menu, Submenu4, UnCheck,关闭
-TrayTip % Format("📢通知📢"),普通模式关闭操作完成
-return
-
-startclash:
-Menu, tray, Check, 普通模式
-Menu, tray, UnCheck, Tap模式
+tunstart:
+Menu, tray, Check, Tun模式
+Menu, tray, UnCheck,普通模式
+Menu, %A_ThisMenu%, Check, 启动
 Menu, %A_ThisMenu%, UnCheck,关闭
-Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
-Menu, Submenu4, UnCheck,启动
-Menu, Submenu4, UnCheck,关闭
-RunWait, ahkclashweb.bat restartclash,,Hide
+Menu, Submenu, UnCheck,启动
+Menu, Submenu, UnCheck,关闭
+RunWait *RunAs ahkclashweb.bat restarttun,,Hide
 Process,Exist, clash-win64.exe ; 
 if ErrorLevel
 {
@@ -669,15 +617,6 @@ else
 {
     TrayTip % Format("📢启动失败📢"),请用控制台重启，查看报错信息。
     return
-}
-Process,Exist, tun2socks.exe ; 
-if ErrorLevel
-{
-    ModeVar := "TAP"
-}
-else
-{
-    ModeVar := "普  通"
 }
 RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
 if ( proxy > 0 )
@@ -694,7 +633,67 @@ else
     Menu, Submenu2, Check,关闭系统代理
     Menu, Submenu2, UnCheck,开启系统代理
 }
-TrayTip % Format("📢启动成功📢"),运行  模式：%ModeVar%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%
+TrayTip % Format("📢启动成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
+return
+
+tunstop:
+Menu, tray, Check, Tun模式
+Menu, tray, UnCheck,普通模式
+Menu, %A_ThisMenu%, Check, 关闭
+Menu, %A_ThisMenu%, UnCheck,启动
+Menu, Submenu, UnCheck,启动
+Menu, Submenu, UnCheck,关闭
+RunWait, ahkclashweb.bat stoptun,,Hide
+return
+
+stopclash:
+MsgBox, 4,, 确定要关闭Clash、关闭系统代理吗？
+IfMsgBox, No
+    return  ; 如果选择 No, 脚本将会终止.
+RunWait, ahkclashweb.bat stopclash,,Hide
+Menu, tray, Check, 普通模式
+Menu, tray, UnCheck,Tun模式
+Menu, %A_ThisMenu%, Check, 关闭
+Menu, %A_ThisMenu%, UnCheck,启动
+Menu, tunmenu, UnCheck,启动
+Menu, tunmenu, UnCheck,关闭
+TrayTip % Format("📢通知📢"),普通模式关闭操作完成
+return
+
+startclash:
+Menu, tray, Check, 普通模式
+Menu, tray, UnCheck,Tun模式
+Menu, %A_ThisMenu%, Check, 启动
+Menu, %A_ThisMenu%, UnCheck,关闭
+Menu, tunmenu, UnCheck,启动
+Menu, tunmenu, UnCheck,关闭
+RunWait, ahkclashweb.bat restartclash,,Hide
+Process,Exist, clash-win64.exe ; 
+if ErrorLevel
+{
+    ClashVar := "开-✅"
+}
+else
+{
+    TrayTip % Format("📢启动失败📢"),请用控制台重启，查看报错信息。
+    return
+}
+RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
+if ( proxy > 0 )
+{ 
+    ProxyVar := "开-✅"
+    Menu,tray,Check,系统代理
+    Menu, Submenu2, UnCheck,关闭系统代理
+    Menu, Submenu2, Check,开启系统代理
+}
+else 
+{
+    ProxyVar := "关-❌"
+    Menu,tray,UnCheck,系统代理
+    Menu, Submenu2, Check,关闭系统代理
+    Menu, Submenu2, UnCheck,开启系统代理
+}
+TrayTip % Format("📢启动成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
 return
 
 rulemode:
@@ -733,15 +732,6 @@ else
     TrayTip % Format("📢重启失败📢"),请用控制台重启，查看报错信息。
     return
 }
-Process,Exist, tun2socks.exe ; 
-if ErrorLevel
-{
-    ModeVar := "TAP"
-}
-else
-{
-    ModeVar := "普  通"
-}
 RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
 if ( proxy > 0 )
 { 
@@ -751,7 +741,7 @@ else
 {
     ProxyVar := "关-❌"
 }
-TrayTip % Format("📢更新并重启成功📢"),运行  模式：%ModeVar%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%
+TrayTip % Format("📢更新并重启成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
 return
 
 

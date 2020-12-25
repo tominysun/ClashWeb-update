@@ -1,0 +1,19 @@
+mixed-port: 7890
+allow-lan: false
+mode: Rule
+log-level: info
+ipv6: true
+external-controller: 127.0.0.1:9090
+dns:
+  enable: true
+  enhanced-mode: redir-host
+  nameserver:
+    - 1.1.1.1 # 真实请求DNS，可多设置几个
+# interface-name: en0 # 出口网卡名称，或者使用下方的自动检测
+tun:
+  enable: true
+  stack: gvisor
+  dns-hijack:
+    - 198.18.0.2:53
+  macOS-auto-route: true
+  macOS-auto-detect-interface: true # 自动检测出口网卡

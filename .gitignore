@@ -27,3 +27,5 @@ Profile/tapconfig/stc.yaml
 Profile/save/stc.txt
 Python/Lib/site-packages/
 Python/site-packages/__pycache__/
+Python/
+Profile/tunconfig/

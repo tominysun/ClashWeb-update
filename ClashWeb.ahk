@@ -37,6 +37,7 @@ Menu, Submenu3, Add, 直连, directmode
 Menu, tray, add, 代理模式, :Submenu3 
 Menu, Submenu2, Add, 开启系统代理, setsys  
 Menu, Submenu2, Add, 关闭系统代理, dissys
+Menu, Submenu2, Add, 检查系统代理, checksys
 Menu, tray, add, 系统代理, :Submenu2
 
 Menu, Tray, Add  ; 创建分隔线.
@@ -575,6 +576,7 @@ TrayTip % Format("📢运行状态📢"), 控制台：%PythonVar%
 return
 
 MenuHandlercheck:
+IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
 FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
 config := StrSplit(oUrl, "Profile\")
 config := config[2]
@@ -620,7 +622,8 @@ else
 { 
     PythonVar := "关-❌"
 }
-TrayTip % Format("📢运行状态📢"), 当前  配置：%config%`n运行  模式：%Mode%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
+;MsgBox 当前  配置：%config%`n运行  模式：%Mode%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%`n代理  模式：%Dash%`n控制  后台：%PythonVar%
+TrayTip % Format("📢运行状态📢"), `n运行  模式：%Mode%  %config%`nClash状态：%ClashVar%      %Dash%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
 return
 
 tunstart:

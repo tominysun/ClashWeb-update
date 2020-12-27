@@ -575,6 +575,12 @@ TrayTip % Format("📢运行状态📢"), 控制台：%PythonVar%
 return
 
 MenuHandlercheck:
+FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
+config := StrSplit(oUrl, "Profile\")
+config := config[2]
+config := StrSplit(config, "yaml")
+config := config[1]  
+config = %config%yaml 
 FileReadLine, oUrl, %A_ScriptDir%\api\currentmode.py, 1
     Needle := "tun"
     If InStr(oUrl, Needle)
@@ -614,7 +620,7 @@ else
 { 
     PythonVar := "关-❌"
 }
-TrayTip % Format("📢运行状态📢"), 运行  模式：%Mode%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
+TrayTip % Format("📢运行状态📢"), 当前  配置：%config%`n运行  模式：%Mode%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
 return
 
 tunstart:

@@ -9,6 +9,10 @@ dns:
   enhanced-mode: redir-host
   nameserver:
     - 1.1.1.1 # 真实请求DNS，可多设置几个
+    - 8.8.8.8
+    - 114.114.114.114
+    - 223.5.5.5
+    - 119.29.29.29
 # interface-name: en0 # 出口网卡名称，或者使用下方的自动检测
 tun:
   enable: true

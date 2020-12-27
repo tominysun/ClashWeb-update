@@ -63,6 +63,7 @@ Menu, Tray, Default, 检查状态
 Menu, Tray, Add  ; 创建分隔线.
 Menu,Tray,Tip,%programName% 
 
+;启动时选择普通或者tun模式
 Process,Exist, clash-win64.exe ;                         
 if ErrorLevel
 {   
@@ -86,7 +87,7 @@ else
     }
 }
 
-;检测状态
+;启动时检测系统代理
 RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
 if ( proxy > 0 )
 { 
@@ -106,6 +107,7 @@ else
     Menu, Submenu2, Check,关闭系统代理
 }
 
+;启动时设置代理模式
 Menu, tray, Check,代理模式
 IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
 if (Dash = "Rule")
@@ -143,32 +145,38 @@ else if (LastClick = 2 )
         SetTimer,DoubleClickEvent,off
         gosub,TripleClickEvent
 }
-
 return
+;启动结束
 
+;单击检测状态
 SingleClickEvent:
 LastClick := 0
 Goto, MenuHandlercheck 
 return
 
+;双击打开面板
 DoubleClickEvent:
 LastClick := 0
 Goto, MenuHandlerdashboard
 return
 
+;三击保存节点
 TripleClickEvent:
 LastClick := 0
 Goto, savenode
 return
 
+;开机自启设置
 bootset:
 RunWait,  %A_ScriptDir%\App\startup1.bat
 return
 
+;普通模式uwp循环代理
 uwp:
 RunWait,  %A_ScriptDir%\bat\uwp.bat,,Hide
 return
 
+;选择geoip并更新
 defaultgeoip:
 MsgBox, 3,, "是"：原版geoip`n"否"：ipip版geoip
 IfMsgBox, No
@@ -177,6 +185,7 @@ IfMsgBox, Yes
     Goto, geoip
 return
 
+;选择面板
 defaultdashboard:
 MsgBox, 3,, "是"：Razord面板`n"否"：Yacd面板
 IfMsgBox, No
@@ -185,6 +194,7 @@ IfMsgBox, Yes
     IniWrite, Razord, %A_ScriptDir%\api\default.ini, SET, defaultdashboard 
 return
 
+;启动时是否开启系统代理
 defautlsys:
 MsgBox, 3,, "是"：普通模式启动Clash时开启系统代理`n"否"：普通模式启动Clash时不开启系统代理
 IfMsgBox, No
@@ -193,6 +203,7 @@ IfMsgBox, Yes
     IniWrite, True, %A_ScriptDir%\api\default.ini, SET, opensysafterstartclash  
 return
 
+;设置ClashWeb控制后台端口号
 defautlclashwebpoart:
 InputBox, OutputVar2, 请输入控制后台端口号, , 140, 480
 if ErrorLevel
@@ -202,6 +213,7 @@ else
     TrayTip % Format("📢通知📢"),修改控制台端口成功，请重新打开控制台
     return
 
+;更新当前配置
 updateconfig:
 RunWait, ahkclashweb.bat save,,Hide
 FileDelete, %A_ScriptDir%\App\tmptmp.vbs
@@ -219,6 +231,7 @@ else
 }
 Return
 
+;选择32/64内核
 defautlcore:
 MsgBox, 3,, "是"：切换为64位内核`n"否"：切换为32位内核
 IfMsgBox, Yes
@@ -242,10 +255,12 @@ return
 nothing:
 return
 
+;配置管理添加订阅   
 Button添加:
 Goto,Url
 return
 
+;配置管理添加订阅 
 Url:
     Gui, Destroy
     Gui, Add, Text,, 订阅链接:
@@ -256,7 +271,7 @@ Url:
     Gui, Show
 return
 
-
+;配置管理保存订阅
 Button保存:
     Gui, Submit
     If (subUrl <> "" And subName <> ""){
@@ -293,7 +308,6 @@ Run, open "%A_ScriptDir%\Profile\%NameText%"
 goto,SetConfig
 return
 
-
 Button修改:
     Gui, Submit
     Gui, Destroy
@@ -306,7 +320,6 @@ Button修改:
     Gui, Add, Button, xp+90 yp w80, 取消
     Gui, Show
 return
-
 
 Button确认修改:
 Gui, Submit
@@ -370,7 +383,6 @@ else
 
 return
 
-
 Button启动:
 RunWait, ahkclashweb.bat save,,Hide
 Gui, Submit
@@ -403,9 +415,16 @@ Button取消:
 goto, SetConfig
 return
 
-
+;配置文件管理
 SetConfig:
+    FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
+    config := StrSplit(oUrl, "Profile\")
+    config := config[2]
+    config := StrSplit(config, "yaml")
+    config := config[1]  
+    config = %config%yaml 
     Gui, Destroy
+    Gui, Add, Text,, 当前配置：%config%
     Gui, Add, Text,, 双击配置文件进行下一步操作
     Gui, Add, ListView,r10 w800 Multi AltSubmit gSelectConfigs, 名称|更新日期|大小|订阅地址
     Gui, Add, Button, Default w80, 添加
@@ -454,7 +473,6 @@ SelectConfigs:
         }
     }
 return
-
 
 geoip:
 RunWait, ahkclashweb.bat geoip,,Hide
@@ -555,7 +573,6 @@ else
 
 TrayTip % Format("📢运行状态📢"), 控制台：%PythonVar%
 return
-
 
 MenuHandlercheck:
 FileReadLine, oUrl, %A_ScriptDir%\api\currentmode.py, 1
@@ -744,7 +761,6 @@ else
 TrayTip % Format("📢更新并重启成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
 return
 
-
 MenuHandlerstoppython:
 MsgBox, 4,, 确定要关闭Python控制台吗 ? 关闭后网页控制台不可用 ！
 IfMsgBox, No
@@ -752,7 +768,6 @@ IfMsgBox, No
 RunWait, ahkclashweb.bat stopclashweb,,Hide
 Goto, checkpython
 return
-
 
 MenuHandlerdashboard:
 Process,Exist, clash-win64.exe ; 

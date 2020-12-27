@@ -183,7 +183,8 @@ if __name__ == '__main__':
 
     if gpus == 'ipipupdate':
         try:
-            r = requests.get("https://cdn.jsdelivr.net/gh/alecthw/mmdb_china_ip_list@release/Country.mmdb") 
+            #r = requests.get("https://cdn.jsdelivr.net/gh/alecthw/mmdb_china_ip_list@release/Country.mmdb") 
+            r = requests.get("https://cdn.jsdelivr.net/gh/Hackl0us/GeoIP2-CN@release/Country.mmdb")
             with open("./Profile/tmp.mmdb",'wb') as f:
                 f.write(r.content)
                 print('1')

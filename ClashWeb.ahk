@@ -674,7 +674,7 @@ RunWait, ahkclashweb.bat stoptun,,Hide
 return
 
 tunconfig:
-Run, %A_ScriptDir%\Profile\defaultconfig\tunconfig.txt
+Run, %A_ScriptDir%\Profile\defaultconfig\tunconfig.yaml
 return
 
 stopclash:

@@ -174,7 +174,7 @@ if __name__ == '__main__':
             currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
 
             #把普通配置重写为tap配置
-            tapconfig=api.admin.getfile('./Profile/defaultconfig/tunconfig.txt')
+            tapconfig=api.admin.getfile('./Profile/defaultconfig/tunconfig.yaml')
             config=api.admin.getfile('./Profile/'+currentconfig)
             config=tapconfig+'\nproxies:'+config.split('proxies:',1)[1]       
             api.admin.writefile(config,'./Profile/tunconfig/'+currentconfig)         

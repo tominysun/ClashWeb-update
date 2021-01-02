@@ -28,6 +28,7 @@ Menu, Submenu, Add, 关闭, stopclash
 Menu, tray, add, 普通模式, :Submenu  
 Menu, tunmenu, Add, 启动, tunstart
 Menu, tunmenu, Add, 关闭, tunstop
+Menu, tunmenu, Add, 配置, tunconfig
 Menu, tray, add, Tun模式, :tunmenu  
 
 Menu, Tray, Add  ; 创建分隔线.
@@ -587,11 +588,11 @@ FileReadLine, oUrl, %A_ScriptDir%\api\currentmode.py, 1
     Needle := "tun"
     If InStr(oUrl, Needle)
     {
-        Mode := "Tun模式"
+        Mode := "TUN"
     }
     Else
     {
-        Mode := "普通模式"
+        Mode := "普通"
     }
 
 RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
@@ -623,7 +624,7 @@ else
     PythonVar := "关-❌"
 }
 ;MsgBox 当前  配置：%config%`n运行  模式：%Mode%`nClash状态：%ClashVar%`n系统  代理：%ProxyVar%`n代理  模式：%Dash%`n控制  后台：%PythonVar%
-TrayTip % Format("📢运行状态📢"), `n运行  模式：%Mode%  %config%`nClash状态：%ClashVar%      %Dash%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
+TrayTip % Format("📢运行状态📢"), `n运行  模式：%Mode%        %config%`nClash状态：%ClashVar%      %Dash%`n系统  代理：%ProxyVar%`n控制  后台：%PythonVar%
 return
 
 tunstart:
@@ -670,6 +671,10 @@ Menu, %A_ThisMenu%, UnCheck,启动
 Menu, Submenu, UnCheck,启动
 Menu, Submenu, UnCheck,关闭
 RunWait, ahkclashweb.bat stoptun,,Hide
+return
+
+tunconfig:
+Run, %A_ScriptDir%\Profile\defaultconfig\tunconfig.txt
 return
 
 stopclash:

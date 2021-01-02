@@ -14,7 +14,6 @@ import api.clashapi
 import api.ini
 import os
 
-
 clashapi = api.ini.getvalue('SET','dashboard').split('ui')[0]
 dashboard = api.ini.getvalue('SET','dashboard')
 mypath = os.getcwd().replace('\\','/')
@@ -63,6 +62,12 @@ if __name__ == '__main__':
                 if api.ini.getvalue('SET','opensysafterstartclash') == 'True':
                     p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                     p.wait()
+            else:
+                    s=p.text.split('\":\"')[1][0:-3]
+                    s='\"'+"启动失败："+s+'\"'
+                    print(s)
+                    p=subprocess.Popen(mypath+'/bat/startclasherro.bat '+s,shell=False)
+                
             api.admin.writefile('currentmode=\'nomal\'','./api/currentmode.py')
         except Exception as e:
             pass
@@ -86,6 +91,11 @@ if __name__ == '__main__':
                         print(gpus)
                         p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                         p.wait()
+                else:
+                    s=p.text.split('\":\"')[1][0:-3]
+                    s='\"'+"启动失败："+s+'\"'
+                    print(s)
+                    p=subprocess.Popen(mypath+'/bat/startclasherro.bat '+s,shell=False)
             else:
                 currentconfig = api.admin.getfile('./App/tmp.vbs')                      #获取当前文件
                 currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
@@ -105,7 +115,12 @@ if __name__ == '__main__':
                 print(p.text)  
                 if '' == p.text:  
                     print(gpus)                     
-                    api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点      
+                    api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点     
+                else:
+                    s=p.text.split('\":\"')[1][0:-3]
+                    s='\"'+"启动失败："+s+'\"'
+                    print(s)
+                    p=subprocess.Popen(mypath+'/bat/startclasherro.bat '+s,shell=False) 
                 p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
                 p.wait()  
         except Exception as e:
@@ -141,7 +156,12 @@ if __name__ == '__main__':
             print(p.text)  
             if '' == p.text:  
                 print(gpus)                     
-                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点      
+                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点 
+            else:
+                s=p.text.split('\":\"')[1][0:-3]
+                s='\"'+"启动失败："+s+'\"'
+                print(s)
+                p=subprocess.Popen(mypath+'/bat/startclasherro.bat '+s,shell=False)     
             p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
             p.wait()  
             api.admin.writefile('currentmode=\'tap\'','./api/currentmode.py')
@@ -168,7 +188,12 @@ if __name__ == '__main__':
             print(p.text)  
             if '' == p.text:  
                 print(gpus)                     
-                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点      
+                api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点  
+            else:
+                s=p.text.split('\":\"')[1][0:-3]
+                s='\"'+"启动失败："+s+'\"'
+                print(s)
+                p=subprocess.Popen(mypath+'/bat/startclasherro.bat '+s,shell=False)    
             p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
             p.wait()  
             api.admin.writefile('currentmode=\'tun\'','./api/currentmode.py')
@@ -249,7 +274,12 @@ if __name__ == '__main__':
                     print(p.text)  
                     if '' == p.text:  
                         print(gpus)                     
-                        api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点      
+                        api.clashapi.setproxies('./Profile/save/'+currentconfig.replace('.yaml','.txt'))       #设置节点  
+                    else:
+                        s=p.text.split('\":\"')[1][0:-3]
+                        s='\"'+"启动失败："+s+'\"'
+                        print(s)
+                        p=subprocess.Popen(mypath+'/bat/startclasherro.bat '+s,shell=False)    
                     p=subprocess.Popen(mypath+'/bat/dissys.bat',shell=False)
                     p.wait()  
                     api.admin.writefile('currentmode=\'tap\'','./api/currentmode.py')
@@ -272,6 +302,11 @@ if __name__ == '__main__':
                         print(gpus)
                         p=subprocess.Popen(mypath+'/bat/setsys.bat',shell=False)
                         p.wait()
+                else:
+                    s=p.text.split('\":\"')[1][0:-3]
+                    s='\"'+"启动失败："+s+'\"'
+                    print(s)
+                    p=subprocess.Popen(mypath+'/bat/startclasherro.bat '+s,shell=False)
         except:
             pass
 

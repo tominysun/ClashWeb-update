@@ -13,6 +13,7 @@ import api.currentmode
 import api.clashapi
 import api.ini
 import os
+import yaml
 
 clashapi = api.ini.getvalue('SET','dashboard').split('ui')[0]
 dashboard = api.ini.getvalue('SET','dashboard')
@@ -20,7 +21,7 @@ mypath = os.getcwd().replace('\\','/')
 
 if __name__ == '__main__':
     gpus = sys.argv[1]
-    #gpus = 'updateconfig'
+    #gpus = 'updateruleprovider'
     if gpus == 'save':
         try:
             currentconfig = api.admin.getfile('./App/tmp.vbs')
@@ -339,3 +340,54 @@ if __name__ == '__main__':
         except:
             pass
 
+    if gpus == 'updateruleprovider':
+        try:
+            currentconfig = api.admin.getfile('./App/tmp.vbs')
+            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+            print(currentconfig)
+            #currentconfig='config2.yaml'
+            current_path = os.path.abspath(os.path.dirname(__file__))
+            print(current_path + '/Profile/' + currentconfig)
+            
+            with open(current_path + '/Profile/' + currentconfig, 'rb') as f:
+                temp = yaml.load(f.read())['rule-providers']
+                for key in temp:
+                    print(key)                
+                    print(temp[key]['url'])
+                    url = temp[key]['url']
+                    content = api.subconverter.Retry_request(url)
+                    if 'payload' in content :
+                        api.admin.writefile(content,'./Profile/ruleset/'+key+'.yaml')  
+                    else:
+                        print('规则集下载失败')
+                
+
+        except Exception as e:
+            print(e)
+
+    if gpus == 'updateproxyprovider':
+        try:
+            currentconfig = api.admin.getfile('./App/tmp.vbs')
+            currentconfig = str(currentconfig).split('-f')[1].split('\"')[0].replace(' ','').replace('.\\Profile\\','')
+            print(currentconfig)
+            #currentconfig='config2.yaml'
+            current_path = os.path.abspath(os.path.dirname(__file__))
+            print(current_path + '/Profile/' + currentconfig)
+            
+            with open(current_path + '/Profile/' + currentconfig, 'rb') as f:
+                temp = yaml.load(f.read())['proxy-providers']
+                for key in temp:
+                    #利用api更新
+                    p=requests.put(clashapi+'providers/proxies/'+key)
+                    #保存最新节点集
+                    print(temp[key]['url'])
+                    url = temp[key]['url']
+                    path = temp[key]['path'].split('./')[1]
+                    print(path)
+                    content = api.subconverter.Retry_request(url)
+                    if 'name' in content :
+                        api.admin.writefile(content,'./Profile/'+path)  
+                    else:
+                        print('规则集下载失败')         
+        except Exception as e:
+            print(e)

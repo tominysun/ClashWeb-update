@@ -92,8 +92,12 @@ exit
 python node.py saveandclose
 exit
 
+:updateruleprovider
+python node.py updateruleprovider
+exit
 
-
-
+:updateproxyprovider
+python node.py updateproxyprovider
+exit
 
 

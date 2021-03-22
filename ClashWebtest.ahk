@@ -12,7 +12,11 @@ if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)"))
     ExitApp
 }
 ;获取结束
+
+;设置文件目录
 SetWorkingDir %A_ScriptDir%
+
+;托盘目录
 programName:="ClashWeb By Nico"
 Menu, Tray, NoStandard
 Menu, Tray, Icon, clash-logo.ico,1,1
@@ -30,6 +34,7 @@ Menu, tunmenu, Add, 启动, tunstart
 Menu, tunmenu, Add, 关闭, tunstop
 Menu, tunmenu, Add, 配置, tunconfig
 Menu, tray, add, Tun模式, :tunmenu  
+Menu, tray, Add, 定时更新, autoupdate
 
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Submenu3, Add, 规则, rulemode  
@@ -111,6 +116,9 @@ else
 
 ;启动时设置代理模式
 Menu, tray, Check,代理模式
+;启动是启动自动更新
+Process,Close,autoupdate.exe
+Run, autoupdate.exe
 IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
 if (Dash = "Rule")
 {
@@ -167,6 +175,80 @@ TripleClickEvent:
 LastClick := 0
 Goto, savenode
 return
+
+;定时更新设置
+autoupdate:
+    FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
+    config := StrSplit(oUrl, "Profile\")
+    config := config[2]
+    config := StrSplit(config, "yaml")
+    config := config[1]  
+    Needle := "provider"
+    If InStr(config, Needle)
+    {
+        IniRead, temp, %A_ScriptDir%\api\default.ini, SET, autoupdate
+        IniRead, temp1, %A_ScriptDir%\api\default.ini, SET, providerupdatetime
+        Gui, Destroy
+        Gui, Add, Text,, `n`n定时更新模式状态：%temp%
+        Gui, Add, Text,, 修改Provider自动更新时间，单位：s`n
+        Gui, Add,Edit, w490 va,%temp1%
+        Gui, Add, Text,, 
+        Gui, Add, Button, Default w150, Provider定时更新
+        Gui, Add, Button, xp+170 yp w150, 关闭定时更新
+        Gui, Show
+    }
+    Else
+    {
+        IniRead, temp, %A_ScriptDir%\api\default.ini, SET, autoupdate
+        IniRead, temp3, %A_ScriptDir%\api\default.ini, SET, configupdatetime
+        Gui, Destroy
+        Gui, Add, Text,, `n`n定时更新状态：%temp%
+        Gui, Add, Text,, 修改普通文件（非Provider）自动更新时间，单位：s`n
+        Gui, Add,Edit, w490 va,%temp3%
+        Gui, Add, Text,, 
+        Gui, Add, Button, Default w150, 普通配置定时更新
+        Gui, Add, Button, xp+170 yp w150, 关闭定时更新
+        Gui, Show
+    }
+return
+
+Button普通配置定时更新:
+Gui,Submit
+    IniWrite, nomal, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    IniWrite, %a%, %A_ScriptDir%\api\default.ini, SET, configupdatetime
+    Process,Close,autoupdate.exe
+    Run, autoupdate.exe
+Return
+
+ButtonProvider定时更新:
+Gui,Submit
+    IniWrite, provider, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    IniWrite, %a%, %A_ScriptDir%\api\default.ini, SET, providerupdatetime
+    Process,Close,autoupdate.exe
+    Run, autoupdate.exe
+Return
+
+Button关闭定时更新:
+Gui,Submit
+    IniRead, mode, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    if ( mode = "nomal")
+    {
+        MsgBox, 0, , 关闭普通模式自动更新 ,5
+        IniWrite, none, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    }
+    if （ mode = "provider"）
+    {
+        MsgBox, 0, , 关闭Provider自动更新,3
+        IniWrite, none, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    }
+    if （ mode = "none"）
+    {
+        MsgBox, 0, , 已经是关闭状态 ,3
+        IniWrite, none, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    }
+    Process,Close,autoupdate.exe
+Return
+
 
 ;开机自启设置
 bootset:
@@ -397,6 +479,27 @@ FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs
 Gui, Destroy
 RunWait, ahkclashweb.bat restartconfig,,Hide
 TrayTip % Format("📢通知📢"),启动操作成功
+
+;切换配置文件时配置自动更新
+IniRead, temp, %A_ScriptDir%\api\default.ini, SET, autoupdate
+if ( temp = "none" ) ;检测到没有设置自动
+{                 
+}
+else  ;根据所选配置文件名称，选择自动更新模式
+{
+    FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
+    config := StrSplit(oUrl, "Profile\")
+    config := config[2]
+    config := StrSplit(config, "yaml")
+    config := config[1] 
+    Needle := "provider"
+    If InStr(config, Needle) ;Provider定时更新
+        IniWrite, provider, %A_ScriptDir%\api\default.ini, SET, autoupdate 
+    else
+        IniWrite, nomal, %A_ScriptDir%\api\default.ini, SET, autoupdate 
+    Process,Close,autoupdate.exe
+    Run, autoupdate.exe
+}
 return
 
 Button删除:
@@ -805,5 +908,6 @@ else
 return
 
 MenuHandlerexit:
+Process,Close,autoupdate.exe
 RunWait, ahkclashweb.bat myexit,,Hide
 ExitApp

@@ -1,8 +1,6 @@
 api/__pycache__/
 Profile/config.yaml
 tun2socks.log
-Profile/save/config.txt
-Profile/save/config1.txt
 Profile/tapconfig/config.yaml
 Profile/tapconfig/renameme1.yaml
 api/currentmode.py
@@ -31,3 +29,7 @@ Python/
 Profile/tunconfig/
 Profile/stcv2.yaml
 Profile/.cache
+Profile/save/
+Profile/config_provider.yaml
+Profile/ruleset/
+Profile/ARK-HK.yaml

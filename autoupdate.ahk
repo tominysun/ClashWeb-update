@@ -41,6 +41,7 @@ If InStr(config, Needle) ;Provider定时更新
                 MsgBox, 0, , Provider定时更新，更新间隔为：%ifautoupdate%s ,3
                 Gosub, updateruleprovider
                 Gosub, updateproxyprovider
+                RunWait, ahkclashweb.bat restartconfig,,Hide
                 IniWrite, %A_Now%, %A_ScriptDir%\api\default.ini, SET, providerlastupdatetime 
             }
             else
@@ -94,7 +95,6 @@ Return
 updateruleprovider:
 ;MsgBox,自动更新
 RunWait, ahkclashweb.bat updateruleprovider,,Hide
-RunWait, ahkclashweb.bat restartconfig,,Hide
 return
 
 ;自动更新proxyprovider

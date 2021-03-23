@@ -1,1 +1,0 @@
-CreateObject("WScript.Shell").Run "ahktapstop.bat",0

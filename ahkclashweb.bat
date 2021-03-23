@@ -1,4 +1,4 @@
-SET PATH="%~dp0";"%~dp0App\tap";"%~dp0App";"%~dp0Python";"%~dp0Python\Scripts";"%~dp0Python\Lib\distutils\command";"%~dp0Python\Lib\site-packages\pip\_vendor\distlib";"%~dp0Python\Lib\site-packages\setuptools";%PATH%
+SET PATH="%~dp0";"%~dp0App";"%~dp0Python";"%~dp0Python\Scripts";"%~dp0Python\Lib\distutils\command";"%~dp0Python\Lib\site-packages\pip\_vendor\distlib";"%~dp0Python\Lib\site-packages\setuptools";%PATH%
 
 goto %1
 
@@ -13,7 +13,6 @@ exit
 :myexit
 taskkill /F /IM python.exe
 python node.py closeclashweb
-ahktapstop.bat
 taskkill /F /IM python.exe
 exit
 
@@ -57,23 +56,10 @@ exit
 python node.py save
 exit
 
-:start
-python node.py startclashweb
-exit
-
-:startclashtap
-python node.py tapstart
-ahktapstart.vbs
-exit
-
 :stopclash
 python node.py saveandclose
 exit
 
-:stopclashtap
-python node.py tapstop
-ahktapstop.vbs
-exit
 
 :stopclashweb
 taskkill /F /IM python.exe

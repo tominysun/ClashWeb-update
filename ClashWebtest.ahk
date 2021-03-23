@@ -78,20 +78,17 @@ if ErrorLevel
 else
 {
     FileReadLine, oUrl, %A_ScriptDir%\api\currentmode.py, 1
-    Needle := "tun"
-    If InStr(oUrl, Needle)
+    If (oUrl = "tun")
     {
         Menu, tray, Check,Tun模式
         Menu, tunmenu, Check,启动
-        RunWait, ahkclashweb.bat restarttun,,Hide
-
     }
     Else
     {
         Menu, tray, Check,普通模式
         Menu, Submenu, Check,启动
-        RunWait, ahkclashweb.bat restartclash,,Hide
     }
+    RunWait, ahkclashweb.bat restartconfig,,Hide
 }
 
 ;启动时检测系统代理
@@ -114,11 +111,22 @@ else
     Menu, Submenu2, Check,关闭系统代理
 }
 
+;启动时启动自动更新
+Menu, tray, Check,定时更新
+IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, autoupdate
+;启动时启动自动更新
+if (Dash = "none")
+{
+    Menu, tray, UnCheck,定时更新
+}
+else
+{
+    Process,Close,autoupdate.exe
+    Run, autoupdate.exe
+}
+
 ;启动时设置代理模式
 Menu, tray, Check,代理模式
-;启动是启动自动更新
-Process,Close,autoupdate.exe
-Run, autoupdate.exe
 IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
 if (Dash = "Rule")
 {
@@ -218,6 +226,7 @@ Gui,Submit
     IniWrite, %a%, %A_ScriptDir%\api\default.ini, SET, configupdatetime
     Process,Close,autoupdate.exe
     Run, autoupdate.exe
+    Menu, tray, Check,定时更新
 Return
 
 ButtonProvider定时更新:
@@ -226,6 +235,7 @@ Gui,Submit
     IniWrite, %a%, %A_ScriptDir%\api\default.ini, SET, providerupdatetime
     Process,Close,autoupdate.exe
     Run, autoupdate.exe
+    Menu, tray, Check,定时更新
 Return
 
 Button关闭定时更新:
@@ -247,6 +257,7 @@ Gui,Submit
         IniWrite, none, %A_ScriptDir%\api\default.ini, SET, autoupdate
     }
     Process,Close,autoupdate.exe
+    Menu, tray, UnCheck,定时更新
 Return
 
 
@@ -509,7 +520,7 @@ IfMsgBox, Yes
 {
     NewStr := StrReplace(NameText, "yaml", "txt")
     FileDelete, %A_ScriptDir%\Profile\%NameText%
-    FileDelete, %A_ScriptDir%\Profile\tapconfig\%NameText%
+    FileDelete, %A_ScriptDir%\Profile\tunconfig\%NameText%
     FileDelete, %A_ScriptDir%\Profile\save\%NewStr%
 } 
 Gui, Destroy
@@ -594,17 +605,6 @@ RunWait, ahkclashweb.bat save,,Hide
 TrayTip % Format("📢通知📢"),保存节点成功
 return
 
-installtap:
-RunWait, %A_ScriptDir%\App\tap\ahkinstalltap.bat
-TrayTip % Format("📢通知📢"),安装网卡操作成功
-return
-
-unstalltap:
-FileGetSize, UninstallSize, C:\Program Files\TAP-Windows\Uninstall.exe, K
-If UninstallSize
-    RunWait, C:\Program Files\TAP-Windows\Uninstall.exe,,Hide
-TrayTip % Format("📢通知📢"),卸载网卡操作成功
-return
 
 admin:
 RunWait, ahkopenadmin.bat,,Hide

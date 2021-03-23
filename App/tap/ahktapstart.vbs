@@ -1,1 +1,0 @@
-CreateObject("WScript.Shell").Run "ahktapstart.bat",0

@@ -23,9 +23,8 @@ debug.log
 Profile/save/config.txt
 Profile/tapconfig/stc.yaml
 Profile/save/stc.txt
-Python/Lib/site-packages/
+Python/Lib/
 Python/site-packages/__pycache__/
-Python/
 Profile/tunconfig/
 Profile/stcv2.yaml
 Profile/.cache
@@ -34,3 +33,5 @@ Profile/config_provider.yaml
 Profile/ruleset/
 Profile/ARK-HK.yaml
 log.log
+Python/
+Python/requirements.txt

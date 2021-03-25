@@ -194,15 +194,23 @@ updateconfigmanually:
     config := StrSplit(config, "yaml")
     config := config[1]  
     Needle := "provider"
+    ;MsgBox %config%
     If InStr(config, Needle)
     {
         IniRead, temp, %A_ScriptDir%\api\default.ini, SET, autoupdate
         IniRead, temp1, %A_ScriptDir%\api\default.ini, SET, providerupdatetime
         IniRead, temp2, %A_ScriptDir%\api\default.ini, SET, providerlastupdatetime
+        StringMid, yearmodi, temp2, 1, 4
+        StringMid, monthmodi, temp2, 5, 2
+        StringMid, datemodi, temp2, 7, 2
+        StringMid, hourmodi, temp2, 9, 2
+        StringMid, minmodi, temp2, 11, 2
+        TimeModi = %yearmodi%/%monthmodi%/%datemodi% %hourmodi%:%minmodi%
         Gui, Destroy
-        Gui, Add, Text,, `n`n定时更新模式状态：%temp%`n
+        Gui, Add, Text,, `n`n当前配置：%config%yaml`n
+        Gui, Add, Text,, 定时更新模式状态：%temp%`n
         Gui, Add, Text,, Provider定时更新间隔：%temp1%s`n
-        Gui, Add, Text,, Provider上次更新时间：%temp2%`n
+        Gui, Add, Text,, Provider上次更新时间：%TimeModi%`n
         Gui, Add, Button, Default w300, 手动更新Provider
         Gui, Show
     }
@@ -211,6 +219,51 @@ updateconfigmanually:
         goto, updateconfig
     }
 return
+
+updateconfigmanuallybac:
+    FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
+    config := StrSplit(oUrl, "Profile\")
+    config := config[2]
+    config := StrSplit(config, "yaml")
+    config := config[1]  
+    Needle := "provider"
+    ;MsgBox %config%
+    If InStr(config, Needle)
+    {
+        FileReadLine, oUrl, %A_ScriptDir%\Profile\%config%yaml, 1
+        cUrl := StrSplit(oUrl, ":http")
+        cUrl := cUrl[2]
+        cUrl := StrSplit(cUrl, "NicoNewBeee")
+        cUrl := cUrl[1]
+        cUrl =  http%cUrl%
+        if ( cUrl = "http")
+            cUrl = "未检测到订阅地址，手动更新配置文件无效，"
+        ;MsgBox %cUrl%
+        IniRead, temp, %A_ScriptDir%\api\default.ini, SET, autoupdate
+        IniRead, temp1, %A_ScriptDir%\api\default.ini, SET, providerupdatetime
+        IniRead, temp2, %A_ScriptDir%\api\default.ini, SET, providerlastupdatetime
+        Gui, Destroy
+        Gui, Add, Text,, `n`n当前配置：%config%yaml`n`n`n当前订阅：`n
+        Gui, Add,Edit, w620va,%cUrl%
+        Gui, Add, Text,, `n定时更新模式状态：%temp%`n
+        Gui, Add, Text,, Provider定时更新间隔：%temp1%s`n
+        Gui, Add, Text,, Provider上次更新时间：%temp2%`n
+        Gui, Add, Button, Default w300, 手动更新Provider
+        Gui, Add, Button, xp+310 yp w300, 手动更新配置文件
+        Gui, Show
+    }
+    Else
+    {
+        goto, updateconfig
+    }
+return
+
+;手动更新配置文件
+Button手动更新配置文件:
+Gui,Destroy
+goto, updateconfig
+return
+
 
 ;手动更新provider
 Button手动更新Provider:

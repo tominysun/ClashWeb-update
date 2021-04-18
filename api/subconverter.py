@@ -11,14 +11,22 @@ import codecs
 urllib3.disable_warnings()
 def Retry_request(url): #远程下载
     i = 0
+    headers = {
+        "User-Agent": "ClashforWindows/<0.11.3>"
+    }
+    proxies = { "http": None, "https": None}
     for i in range(2):
         try:
-            headers = {
-                "User-Agent": "ClashforWindows/<0.11.3>"
-            }
-            res = requests.get(url, headers = headers) # verify =false 防止请求时因为代理导致证书不安全
+            print("download with proxy")
+            res = requests.get(url, headers = headers) 
             return res.text
         except Exception as e:
-            i = i+1
+            try: 
+                print("download without proxy")
+                res = requests.get(url, headers = headers, proxies=proxies) 
+                return res.text
+            except Exception as e:
+                print(e)
+                i = i+1
     return 'erro'
 

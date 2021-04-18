@@ -36,3 +36,5 @@ log.log
 Python/
 Python/requirements.txt
 api/default.ini
+Profile/test.yaml
+Profile/test1.yaml

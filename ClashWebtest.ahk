@@ -212,6 +212,7 @@ updateconfigmanually:
         Gui, Add, Text,, Provider定时更新间隔：%temp1%s`n
         Gui, Add, Text,, Provider上次更新时间：%TimeModi%`n
         Gui, Add, Button, Default w300, 手动更新Provider
+        Gui, Add, Button, xp+310 yp w300, 手动更新配置文件
         Gui, Show
     }
     Else

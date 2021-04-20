@@ -93,25 +93,24 @@ else
     FileAppend, `n%A_Now%-startup clash , %A_ScriptDir%\log.log
 }
 
-;启动时检测系统代理
-RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
-if ( proxy > 0 )
-{ 
-    IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, opensysafterstartclash
-    if (Dash = "True")
-    {
-        Menu, tray, Check,系统代理
-        Menu, Submenu2, Check,开启系统代理
-    }
-    else
-    {
-        Menu, Submenu2, Check,关闭系统代理
-    }
-}
-else 
+;启动时设置代理模式
+Menu, tray, Check,代理模式
+IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
+if (Dash = "Rule")
 {
-    Menu, Submenu2, Check,关闭系统代理
+    goto, rulemode
 }
+if (Dash = "Direct")
+{
+    goto, directmode
+}
+if (Dash = "Global")
+{
+    goto, globalmode
+}
+
+;设置图标与Check
+goto, seticon
 
 ;启动时启动自动更新
 Menu, tray, Check,定时更新
@@ -125,25 +124,6 @@ else
 {
     Process,Close,autoupdate.exe
     Run, autoupdate.exe
-}
-
-;启动时设置代理模式
-Menu, tray, Check,代理模式
-IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
-if (Dash = "Rule")
-{
-    goto, rulemode
-    Menu, Submenu3, Check,规则
-}
-if (Dash = "Direct")
-{
-    goto, directmode
-    Menu, Submenu3, Check,直连
-}
-if (Dash = "Global")
-{
-    goto, globalmode
-    Menu, Submenu3, Check,全局
 }
 
 ;任务栏图标双击单击效果
@@ -167,6 +147,56 @@ else if (LastClick = 2 )
 }
 return
 ;启动结束
+
+;设置图标与Check
+seticon:
+FileReadLine, oUrl, %A_ScriptDir%\api\currentmode.py, 1
+Needle := "tun"
+If InStr(oUrl, Needle)
+{
+    Menu, Tray, Icon, %A_ScriptDir%\static\icon\tun.ico,1,1
+}
+else
+{
+    RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
+    if ( proxy > 0 )
+    { 
+        Menu, tray, Check,系统代理
+        Menu, Submenu2, Check,开启系统代理
+        Menu, Submenu2, UnCheck,关闭系统代理
+        Menu, Tray, Icon, %A_ScriptDir%\static\icon\enable.ico,1,1
+    }
+    else
+    {
+        Menu, tray, unCheck,系统代理
+        Menu, Submenu2, Check,关闭系统代理
+        Menu, Submenu2, UnCheck,开启系统代理
+        Menu, Tray, Icon, %A_ScriptDir%\static\icon\disable.ico,1,1
+    }
+}
+;检测代理模式
+Menu, tray, Check,代理模式
+IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
+if (Dash = "Rule")
+{
+    Menu, Submenu3, Check,规则
+    Menu, Submenu3, UnCheck,直连
+    Menu, Submenu3, UnCheck,全局
+}
+if (Dash = "Direct")
+{
+    Menu, Submenu3, UnCheck,规则
+    Menu, Submenu3, Check,直连
+    Menu, Submenu3, UnCheck,全局
+}
+if (Dash = "Global")
+{
+    Menu, Submenu3, UnCheck,规则
+    Menu, Submenu3, UnCheck,直连
+    Menu, Submenu3, Check,全局
+    Menu, Tray, Icon, %A_ScriptDir%\static\icon\global.ico,1,1
+}
+return
 
 ;单击检测状态
 SingleClickEvent:
@@ -738,21 +768,15 @@ RunWait, ahkclashweb.bat openclashweb,,Hide
 return
 
 setsys:
-Menu, tray, Check,系统代理
-Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
-Menu, %A_ThisMenu%, UnCheck, 关闭系统代理
 RunWait, %A_ScriptDir%\bat\setsys.bat,,Hide
 FileAppend, `n%A_Now%-set sys, %A_ScriptDir%\log.log
-Goto, checksys
+gosub, seticon
 return
 
 dissys:
-Menu, tray, UnCheck,系统代理
-Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
-Menu, %A_ThisMenu%, UnCheck,开启系统代理
 RunWait, %A_ScriptDir%\bat\dissys.bat,,Hide
 FileAppend, `n%A_Now%-dis sys, %A_ScriptDir%\log.log
-Goto, checksys
+gosub, seticon
 return
 
 checksys:
@@ -877,19 +901,14 @@ RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Inter
 if ( proxy > 0 )
 { 
     ProxyVar := "开-✅"
-    Menu,tray,Check,系统代理
-    Menu, Submenu2, UnCheck,关闭系统代理
-    Menu, Submenu2, Check,开启系统代理
 }
 else 
 {
     ProxyVar := "关-❌"
-    Menu,tray,UnCheck,系统代理
-    Menu, Submenu2, Check,关闭系统代理
-    Menu, Submenu2, UnCheck,开启系统代理
 }
 TrayTip % Format("📢启动成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
 FileAppend, `n%A_Now%-start tun config manually, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 tunstop:
@@ -944,46 +963,35 @@ RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Inter
 if ( proxy > 0 )
 { 
     ProxyVar := "开-✅"
-    Menu,tray,Check,系统代理
-    Menu, Submenu2, UnCheck,关闭系统代理
-    Menu, Submenu2, Check,开启系统代理
 }
 else 
 {
     ProxyVar := "关-❌"
-    Menu,tray,UnCheck,系统代理
-    Menu, Submenu2, Check,关闭系统代理
-    Menu, Submenu2, UnCheck,开启系统代理
 }
 TrayTip % Format("📢启动成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
 FileAppend, `n%A_Now%-start current config manually, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 rulemode:
-Menu, Submenu3, Check,规则
-Menu, Submenu3, UnCheck,直连
-Menu, Submenu3, UnCheck,全局
 RunWait, ahkclashweb.bat rule,,Hide
 IniWrite, Rule, %A_ScriptDir%\api\default.ini, SET, rulemode
 FileAppend, `n%A_Now%-set rule mode, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 directmode:
-Menu, Submenu3, UnCheck,规则
-Menu, Submenu3, Check,直连
-Menu, Submenu3, UnCheck,全局
 RunWait, ahkclashweb.bat direct,,Hide
 IniWrite, Direct, %A_ScriptDir%\api\default.ini, SET, rulemode
 FileAppend, `n%A_Now%-set direct mode, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 globalmode:
-Menu, Submenu3, UnCheck,规则
-Menu, Submenu3, UnCheck,直连
-Menu, Submenu3, Check,全局
 RunWait, ahkclashweb.bat global,,Hide
 IniWrite, Global, %A_ScriptDir%\api\default.ini, SET, rulemode
 FileAppend, `n%A_Now%-set global mode, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 MenuHandlerstoppython:

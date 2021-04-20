@@ -473,7 +473,8 @@ IfMsgBox, No
 return
 
 help:
-Run, %A_ScriptDir%\App\help.png
+Run, %A_ScriptDir%\App\donate.jpg
+Run, https://lzdnico.github.io/niconewbeee.github.io/document/2021/03/13/ClashWeb.html
 return
 
 nothing:

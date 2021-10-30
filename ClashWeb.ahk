@@ -12,15 +12,20 @@ if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)"))
     ExitApp
 }
 ;获取结束
+
+;设置文件目录
 SetWorkingDir %A_ScriptDir%
+
+;托盘目录
 programName:="ClashWeb By Nico"
 Menu, Tray, NoStandard
 Menu, Tray, Icon, clash-logo.ico,1,1
 #Persistent  ; 让脚本持续运行, 直到用户退出.
 Menu, Tray, Add  ; 创建分隔线.'
 Menu, tray, Add, 切换节点, MenuHandlerdashboard
-Menu, tray, Add, 更新配置, updateconfig
+Menu, tray, Add, 更新配置, updateconfigmanually
 Menu, tray, Add, 配置管理, SetConfig
+Menu, tray, Add, 定时更新, autoupdate
 
 Menu, Tray, Add  ; 创建分隔线.
 Menu, Submenu, Add, 启动, startclash
@@ -78,35 +83,14 @@ else
     {
         Menu, tray, Check,Tun模式
         Menu, tunmenu, Check,启动
-        RunWait, ahkclashweb.bat restarttun,,Hide
-
-    }
-    Else
-    {
-        Menu, tray, Check,普通模式
-        Menu, Submenu, Check,启动
-        RunWait, ahkclashweb.bat restartclash,,Hide
-    }
-}
-
-;启动时检测系统代理
-RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
-if ( proxy > 0 )
-{ 
-    IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, opensysafterstartclash
-    if (Dash = "True")
-    {
-        Menu, tray, Check,系统代理
-        Menu, Submenu2, Check,开启系统代理
     }
     else
     {
-        Menu, Submenu2, Check,关闭系统代理
+        Menu, tray, Check,普通模式
+        Menu, Submenu, Check,启动
     }
-}
-else 
-{
-    Menu, Submenu2, Check,关闭系统代理
+    RunWait, ahkclashweb.bat restartconfig,,Hide
+    FileAppend, `n%A_Now%-startup clash , %A_ScriptDir%\log.log
 }
 
 ;启动时设置代理模式
@@ -115,17 +99,31 @@ IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
 if (Dash = "Rule")
 {
     goto, rulemode
-    Menu, Submenu3, Check,规则
 }
 if (Dash = "Direct")
 {
     goto, directmode
-    Menu, Submenu3, Check,直连
 }
 if (Dash = "Global")
 {
     goto, globalmode
-    Menu, Submenu3, Check,全局
+}
+
+;设置图标与Check
+goto, seticon
+
+;启动时启动自动更新
+Menu, tray, Check,定时更新
+IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, autoupdate
+;启动时启动自动更新
+if (Dash = "none")
+{
+    Menu, tray, UnCheck,定时更新
+}
+else
+{
+    Process,Close,autoupdate.exe
+    Run, autoupdate.exe
 }
 
 ;任务栏图标双击单击效果
@@ -150,6 +148,56 @@ else if (LastClick = 2 )
 return
 ;启动结束
 
+;设置图标与Check
+seticon:
+FileReadLine, oUrl, %A_ScriptDir%\api\currentmode.py, 1
+Needle := "tun"
+If InStr(oUrl, Needle)
+{
+    Menu, Tray, Icon, %A_ScriptDir%\static\icon\tun.ico,1,1
+}
+else
+{
+    RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
+    if ( proxy > 0 )
+    { 
+        Menu, tray, Check,系统代理
+        Menu, Submenu2, Check,开启系统代理
+        Menu, Submenu2, UnCheck,关闭系统代理
+        Menu, Tray, Icon, %A_ScriptDir%\static\icon\enable.ico,1,1
+    }
+    else
+    {
+        Menu, tray, unCheck,系统代理
+        Menu, Submenu2, Check,关闭系统代理
+        Menu, Submenu2, UnCheck,开启系统代理
+        Menu, Tray, Icon, %A_ScriptDir%\static\icon\disable.ico,1,1
+    }
+}
+;检测代理模式
+Menu, tray, Check,代理模式
+IniRead, Dash, %A_ScriptDir%\api\default.ini, SET, rulemode
+if (Dash = "Rule")
+{
+    Menu, Submenu3, Check,规则
+    Menu, Submenu3, UnCheck,直连
+    Menu, Submenu3, UnCheck,全局
+}
+if (Dash = "Direct")
+{
+    Menu, Submenu3, UnCheck,规则
+    Menu, Submenu3, Check,直连
+    Menu, Submenu3, UnCheck,全局
+}
+if (Dash = "Global")
+{
+    Menu, Submenu3, UnCheck,规则
+    Menu, Submenu3, UnCheck,直连
+    Menu, Submenu3, Check,全局
+    Menu, Tray, Icon, %A_ScriptDir%\static\icon\global.ico,1,1
+}
+return
+
 ;单击检测状态
 SingleClickEvent:
 LastClick := 0
@@ -167,6 +215,162 @@ TripleClickEvent:
 LastClick := 0
 Goto, savenode
 return
+
+;手动更新设置
+updateconfigmanually:
+    FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
+    config := StrSplit(oUrl, "Profile\")
+    config := config[2]
+    config := StrSplit(config, "yaml")
+    config := config[1]  
+    Needle := "provider"
+    ;MsgBox %config%
+    If InStr(config, Needle)
+    {
+        IniRead, temp, %A_ScriptDir%\api\default.ini, SET, autoupdate
+        IniRead, temp1, %A_ScriptDir%\api\default.ini, SET, providerupdatetime
+        IniRead, temp2, %A_ScriptDir%\api\default.ini, SET, providerlastupdatetime
+        StringMid, yearmodi, temp2, 1, 4
+        StringMid, monthmodi, temp2, 5, 2
+        StringMid, datemodi, temp2, 7, 2
+        StringMid, hourmodi, temp2, 9, 2
+        StringMid, minmodi, temp2, 11, 2
+        TimeModi = %yearmodi%/%monthmodi%/%datemodi% %hourmodi%:%minmodi%
+        Gui, Destroy
+        Gui, Add, Text,, `n`n当前配置：%config%yaml`n
+        Gui, Add, Text,, 定时更新模式状态：%temp%`n
+        Gui, Add, Text,, Provider定时更新间隔：%temp1%s`n
+        Gui, Add, Text,, Provider上次更新时间：%TimeModi%`n
+        Gui, Add, Button, Default w300, 手动更新Provider
+        Gui, Add, Button, xp+310 yp w300, 手动更新配置文件
+        Gui, Show
+    }
+    Else
+    {
+        goto, updateconfig
+    }
+return
+
+updateconfigmanuallybac:
+    FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
+    config := StrSplit(oUrl, "Profile\")
+    config := config[2]
+    config := StrSplit(config, "yaml")
+    config := config[1]  
+    Needle := "provider"
+    ;MsgBox %config%
+    If InStr(config, Needle)
+    {
+        FileReadLine, oUrl, %A_ScriptDir%\Profile\%config%yaml, 1
+        cUrl := StrSplit(oUrl, ":http")
+        cUrl := cUrl[2]
+        cUrl := StrSplit(cUrl, "NicoNewBeee")
+        cUrl := cUrl[1]
+        cUrl =  http%cUrl%
+        if ( cUrl = "http")
+            cUrl = "未检测到订阅地址，手动更新配置文件无效，"
+        ;MsgBox %cUrl%
+        IniRead, temp, %A_ScriptDir%\api\default.ini, SET, autoupdate
+        IniRead, temp1, %A_ScriptDir%\api\default.ini, SET, providerupdatetime
+        IniRead, temp2, %A_ScriptDir%\api\default.ini, SET, providerlastupdatetime
+        Gui, Destroy
+        Gui, Add, Text,, `n`n当前配置：%config%yaml`n`n`n当前订阅：`n
+        Gui, Add,Edit, w620va,%cUrl%
+        Gui, Add, Text,, `n定时更新模式状态：%temp%`n
+        Gui, Add, Text,, Provider定时更新间隔：%temp1%s`n
+        Gui, Add, Text,, Provider上次更新时间：%temp2%`n
+        Gui, Add, Button, Default w300, 手动更新Provider
+        Gui, Add, Button, xp+310 yp w300, 手动更新配置文件
+        Gui, Show
+    }
+    Else
+    {
+        goto, updateconfig
+    }
+return
+
+;手动更新配置文件
+Button手动更新配置文件:
+Gui,Destroy
+goto, updateconfig
+return
+
+
+;手动更新provider
+Button手动更新Provider:
+Gui,Destroy
+RunWait, ahkclashweb.bat updateruleprovider,,Hide
+RunWait, ahkclashweb.bat updateproxyprovider,,Hide
+RunWait, ahkclashweb.bat restartconfig,,Hide
+IniWrite, %A_Now%, %A_ScriptDir%\api\default.ini, SET, providerlastupdatetime 
+FileAppend, `n%A_Now%-update provider manually, %A_ScriptDir%\log.log
+Process,Close,autoupdate.exe
+Run, autoupdate.exe
+TrayTip % Format("📢通知📢"),手动更新Provider
+Return
+
+;定时更新设置
+autoupdate:
+    FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
+    config := StrSplit(oUrl, "Profile\")
+    config := config[2]
+    config := StrSplit(config, "yaml")
+    config := config[1]  
+    IniRead, temp, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    IniRead, temp3, %A_ScriptDir%\api\default.ini, SET, configupdatetime
+    Gui, Destroy
+    Gui, Add, Text,, `n`n定时更新状态：%temp%
+    Gui, Add, Text,, 修改自动更新时间，单位：s`n
+    Gui, Add,Edit, w490 va,%temp3%
+    Gui, Add, Text,, 
+    Gui, Add, Button, Default w150, 普通配置定时更新
+    Gui, Add, Button, xp+170 yp w150, 关闭定时更新
+    Gui, Show
+return
+
+Button普通配置定时更新:
+Gui,Submit
+    IniWrite, nomal, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    IniWrite, %a%, %A_ScriptDir%\api\default.ini, SET, configupdatetime
+    Process,Close,autoupdate.exe
+    Run, autoupdate.exe
+    Menu, tray, Check,定时更新
+    FileAppend, `n%A_Now%-change nomal update period, %A_ScriptDir%\log.log
+Return
+
+ButtonProvider定时更新:
+Gui,Submit
+    IniWrite, provider, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    IniWrite, %a%, %A_ScriptDir%\api\default.ini, SET, providerupdatetime
+    Process,Close,autoupdate.exe
+    Run, autoupdate.exe
+    Menu, tray, Check,定时更新
+    FileAppend, `n%A_Now%-change provider update period, %A_ScriptDir%\log.log
+Return
+
+Button关闭定时更新:
+Gui,Submit
+    IniRead, mode, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    if ( mode = "nomal")
+    {
+        MsgBox, 0, , 关闭普通模式自动更新 ,5
+        IniWrite, none, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    }
+    if （ mode = "provider"）
+    {
+        MsgBox, 0, , 关闭Provider自动更新,3
+        IniWrite, none, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    }
+    if （ mode = "none"）
+    {
+        MsgBox, 0, , 已经是关闭状态 ,3
+        IniWrite, none, %A_ScriptDir%\api\default.ini, SET, autoupdate
+    }
+    Process,Close,autoupdate.exe
+    Menu, tray, UnCheck,定时更新
+    FileAppend, `n%A_Now%-disable autoupdate, %A_ScriptDir%\log.log
+Return
+
 
 ;开机自启设置
 bootset:
@@ -231,6 +435,7 @@ else
 {
     TrayTip % Format("📢通知📢"),下载失败
 }
+FileAppend, `n%A_Now%-update config manually, %A_ScriptDir%\log.log
 Return
 
 ;选择32/64内核
@@ -251,7 +456,8 @@ IfMsgBox, No
 return
 
 help:
-Run, %A_ScriptDir%\App\help.png
+Run, %A_ScriptDir%\App\donate.jpg
+Run, https://lzdnico.github.io/niconewbeee.github.io/document/2021/03/13/ClashWeb.html
 return
 
 nothing:
@@ -373,6 +579,29 @@ if (ifsuccess = "success")
         Gui, Destroy
         RunWait, ahkclashweb.bat restartconfig,,Hide
         TrayTip % Format("📢通知📢"),重启操作成功
+
+        ;切换配置文件时配置自动更新
+        IniRead, temp, %A_ScriptDir%\api\default.ini, SET, autoupdate
+        if ( temp = "none" ) ;检测到没有设置自动
+        {           
+            Process,Close,autoupdate.exe      
+        }
+        else  ;根据所选配置文件名称，选择自动更新模式
+        {
+            FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
+            config := StrSplit(oUrl, "Profile\")
+            config := config[2]
+            config := StrSplit(config, "yaml")
+            config := config[1] 
+            Needle := "provider"
+            If InStr(config, Needle) ;Provider定时更新
+                IniWrite, provider, %A_ScriptDir%\api\default.ini, SET, autoupdate 
+            else
+                IniWrite, nomal, %A_ScriptDir%\api\default.ini, SET, autoupdate 
+            Process,Close,autoupdate.exe
+            Run, autoupdate.exe
+        }
+
         return
     }         
     goto,SetConfig    
@@ -396,7 +625,30 @@ var := """,0"
 FileAppend, %var% , %A_ScriptDir%\App\tmp.vbs   
 Gui, Destroy
 RunWait, ahkclashweb.bat restartconfig,,Hide
+FileAppend, `n%A_Now%-restart config from selected , %A_ScriptDir%\log.log
 TrayTip % Format("📢通知📢"),启动操作成功
+
+;切换配置文件时配置自动更新
+IniRead, temp, %A_ScriptDir%\api\default.ini, SET, autoupdate
+if ( temp = "none" ) ;检测到没有设置自动
+{    
+    Process,Close,autoupdate.exe             
+}
+else  ;根据所选配置文件名称，选择自动更新模式
+{
+    FileReadLine, oUrl, %A_ScriptDir%\App\tmp.vbs, 1
+    config := StrSplit(oUrl, "Profile\")
+    config := config[2]
+    config := StrSplit(config, "yaml")
+    config := config[1] 
+    Needle := "provider"
+    If InStr(config, Needle) ;Provider定时更新
+        IniWrite, provider, %A_ScriptDir%\api\default.ini, SET, autoupdate 
+    else
+        IniWrite, nomal, %A_ScriptDir%\api\default.ini, SET, autoupdate 
+    Process,Close,autoupdate.exe
+    Run, autoupdate.exe
+}
 return
 
 Button删除:
@@ -406,7 +658,7 @@ IfMsgBox, Yes
 {
     NewStr := StrReplace(NameText, "yaml", "txt")
     FileDelete, %A_ScriptDir%\Profile\%NameText%
-    FileDelete, %A_ScriptDir%\Profile\tapconfig\%NameText%
+    FileDelete, %A_ScriptDir%\Profile\tunconfig\%NameText%
     FileDelete, %A_ScriptDir%\Profile\save\%NewStr%
 } 
 Gui, Destroy
@@ -491,18 +743,6 @@ RunWait, ahkclashweb.bat save,,Hide
 TrayTip % Format("📢通知📢"),保存节点成功
 return
 
-installtap:
-RunWait, %A_ScriptDir%\App\tap\ahkinstalltap.bat
-TrayTip % Format("📢通知📢"),安装网卡操作成功
-return
-
-unstalltap:
-FileGetSize, UninstallSize, C:\Program Files\TAP-Windows\Uninstall.exe, K
-If UninstallSize
-    RunWait, C:\Program Files\TAP-Windows\Uninstall.exe,,Hide
-TrayTip % Format("📢通知📢"),卸载网卡操作成功
-return
-
 admin:
 RunWait, ahkopenadmin.bat,,Hide
 return
@@ -512,19 +752,15 @@ RunWait, ahkclashweb.bat openclashweb,,Hide
 return
 
 setsys:
-Menu, tray, Check,系统代理
-Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
-Menu, %A_ThisMenu%, UnCheck, 关闭系统代理
 RunWait, %A_ScriptDir%\bat\setsys.bat,,Hide
-Goto, checksys
+FileAppend, `n%A_Now%-set sys, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 dissys:
-Menu, tray, UnCheck,系统代理
-Menu, %A_ThisMenu%, Check, %A_ThisMenuItem%
-Menu, %A_ThisMenu%, UnCheck,开启系统代理
 RunWait, %A_ScriptDir%\bat\dissys.bat,,Hide
-Goto, checksys
+FileAppend, `n%A_Now%-dis sys, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 checksys:
@@ -649,18 +885,14 @@ RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Inter
 if ( proxy > 0 )
 { 
     ProxyVar := "开-✅"
-    Menu,tray,Check,系统代理
-    Menu, Submenu2, UnCheck,关闭系统代理
-    Menu, Submenu2, Check,开启系统代理
 }
 else 
 {
     ProxyVar := "关-❌"
-    Menu,tray,UnCheck,系统代理
-    Menu, Submenu2, Check,关闭系统代理
-    Menu, Submenu2, UnCheck,开启系统代理
 }
 TrayTip % Format("📢启动成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
+FileAppend, `n%A_Now%-start tun config manually, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 tunstop:
@@ -671,6 +903,7 @@ Menu, %A_ThisMenu%, UnCheck,启动
 Menu, Submenu, UnCheck,启动
 Menu, Submenu, UnCheck,关闭
 RunWait, ahkclashweb.bat stoptun,,Hide
+FileAppend, `n%A_Now%-stop tun config manually, %A_ScriptDir%\log.log
 return
 
 tunconfig:
@@ -689,6 +922,7 @@ Menu, %A_ThisMenu%, UnCheck,启动
 Menu, tunmenu, UnCheck,启动
 Menu, tunmenu, UnCheck,关闭
 TrayTip % Format("📢通知📢"),普通模式关闭操作完成
+FileAppend, `n%A_Now%-stop current config manually, %A_ScriptDir%\log.log
 return
 
 startclash:
@@ -713,66 +947,35 @@ RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Inter
 if ( proxy > 0 )
 { 
     ProxyVar := "开-✅"
-    Menu,tray,Check,系统代理
-    Menu, Submenu2, UnCheck,关闭系统代理
-    Menu, Submenu2, Check,开启系统代理
 }
 else 
 {
     ProxyVar := "关-❌"
-    Menu,tray,UnCheck,系统代理
-    Menu, Submenu2, Check,关闭系统代理
-    Menu, Submenu2, UnCheck,开启系统代理
 }
 TrayTip % Format("📢启动成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
+FileAppend, `n%A_Now%-start current config manually, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 rulemode:
-Menu, Submenu3, Check,规则
-Menu, Submenu3, UnCheck,直连
-Menu, Submenu3, UnCheck,全局
 RunWait, ahkclashweb.bat rule,,Hide
 IniWrite, Rule, %A_ScriptDir%\api\default.ini, SET, rulemode
+FileAppend, `n%A_Now%-set rule mode, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 directmode:
-Menu, Submenu3, UnCheck,规则
-Menu, Submenu3, Check,直连
-Menu, Submenu3, UnCheck,全局
 RunWait, ahkclashweb.bat direct,,Hide
 IniWrite, Direct, %A_ScriptDir%\api\default.ini, SET, rulemode
+FileAppend, `n%A_Now%-set direct mode, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 globalmode:
-Menu, Submenu3, UnCheck,规则
-Menu, Submenu3, UnCheck,直连
-Menu, Submenu3, Check,全局
 RunWait, ahkclashweb.bat global,,Hide
 IniWrite, Global, %A_ScriptDir%\api\default.ini, SET, rulemode
-return
-
-MenuHandlerupdateconfig:
-RunWait, ahkclashweb.bat updateconfig,,Hide
-Process,Exist, clash-win64.exe ; 
-if ErrorLevel
-{
-    ClashVar := "开-✅"
-}
-else
-{
-    TrayTip % Format("📢重启失败📢"),请用控制台重启，查看报错信息。
-    return
-}
-RegRead, proxy,HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings,ProxyEnable
-if ( proxy > 0 )
-{ 
-    ProxyVar := "开-✅"
-}
-else 
-{
-    ProxyVar := "关-❌"
-}
-TrayTip % Format("📢更新并重启成功📢"),Clash状态：%ClashVar%`n系统  代理：%ProxyVar%
+FileAppend, `n%A_Now%-set global mode, %A_ScriptDir%\log.log
+gosub, seticon
 return
 
 MenuHandlerstoppython:
@@ -805,5 +1008,7 @@ else
 return
 
 MenuHandlerexit:
+Process,Close,autoupdate.exe
 RunWait, ahkclashweb.bat myexit,,Hide
+FileAppend, `n%A_Now%-quit clashweb, %A_ScriptDir%\log.log
 ExitApp

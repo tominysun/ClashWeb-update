@@ -18,16 +18,16 @@ def Retry_request(url): #远程下载
     proxies = { "http": None, "https": None}
     for i in range(2):
         try:
-            api.loglog.loglog('download without proxy')
+            api.loglog.loglog('download without proxy:'+url)
             res = requests.get(url, headers = headers, proxies=proxies) 
             return res.text
         except Exception as e:
             try: 
-                api.loglog.loglog('download with proxy')
+                api.loglog.loglog('download with proxy:'+url)
                 res = requests.get(url, headers = headers) 
                 return res.text
             except Exception as e:
-                api.loglog.loglog('download erro'+e)
+                api.loglog.loglog('download erro:'+url+e)
                 i = i+1
     return 'erro'
 
